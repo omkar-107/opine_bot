@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +23,6 @@ import {
 
 /* -------------------- Interfaces for Schema ------------------- */
 interface Student {
-  id: string;
   username: string;
   password: string;
   branch: string;
@@ -41,7 +39,7 @@ interface Faculty {
 }
 
 interface Course {
-  id: string;
+  id_: string;
   title: string;
   syllabus: string;
   faculty: string[];
@@ -49,58 +47,58 @@ interface Course {
 }
 
 /* ------------------------ Dummy Data ------------------------ */
-var courses_array: Course[] = [
-  {
-    id: "CS101",
-    title: "Computer Science Basics",
-    syllabus: "Intro to CS",
-    faculty: ["dr_watson"],
-    feedbacks: [],
-  },
-  {
-    id: "EC201",
-    title: "Electronics I",
-    syllabus: "Basics of Electronics",
-    faculty: [],
-    feedbacks: [],
-  },
-];
+// var courses_array: Course[] = [
+//   {
+//     id: "CS101",
+//     title: "Computer Science Basics",
+//     syllabus: "Intro to CS",
+//     faculty: ["dr_watson"],
+//     feedbacks: [],
+//   },
+//   {
+//     id: "EC201",
+//     title: "Electronics I",
+//     syllabus: "Basics of Electronics",
+//     faculty: [],
+//     feedbacks: [],
+//   },
+// ];
 
-var students_array: Student[] = [
-  {
-    id: "1",
-    username: "john_doe",
-    password: "pass123",
-    branch: "CSE",
-    year: 3,
-    student_courses: ["CS101"],
-  },
-  {
-    id: "2",
-    username: "jane_smith",
-    password: "pass123",
-    branch: "ECE",
-    year: 2,
-    student_courses: [],
-  },
-];
+// var students_array: Student[] = [
+//   {
+//     id: "1",
+//     username: "john_doe",
+//     password: "pass123",
+//     branch: "CSE",
+//     year: 3,
+//     student_courses: ["CS101"],
+//   },
+//   {
+//     id: "2",
+//     username: "jane_smith",
+//     password: "pass123",
+//     branch: "ECE",
+//     year: 2,
+//     student_courses: [],
+//   },
+// ];
 
-var faculties_array: Faculty[] = [
-  {
-    id: "1",
-    username: "dr_watson",
-    password: "pass123",
-    department: "CSE",
-    faculty_courses: ["CS101"],
-  },
-  {
-    id: "2",
-    username: "dr_smith",
-    password: "pass123",
-    department: "ECE",
-    faculty_courses: [],
-  },
-];
+// var faculties_array: Faculty[] = [
+//   {
+//     id: "1",
+//     username: "dr_watson",
+//     password: "pass123",
+//     department: "CSE",
+//     faculty_courses: ["CS101"],
+//   },
+//   {
+//     id: "2",
+//     username: "dr_smith",
+//     password: "pass123",
+//     department: "ECE",
+//     faculty_courses: [],
+//   },
+// ];
 
 var departments_array: String[] = [
   "Computer Science",
@@ -114,9 +112,9 @@ var departments_array: String[] = [
 /* -------------------------- Admin Component Starts from Here -------------------------*/
 
 export default function page() {
-  const [students, setStudents] = useState<Student[]>(students_array);
-
-  const [faculties, setFaculties] = useState<Faculty[]>(faculties_array);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [faculties, setFaculties] = useState<Faculty[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
 
   const [newFaculty, setNewFaculty] = useState({
     username: "",
@@ -124,13 +122,20 @@ export default function page() {
     department: "",
   });
 
-  const [courses, setCourses] = useState<Course[]>(courses_array);
-
   const [newCourse, setNewCourse] = useState({
-    id: "",
+    id_: "",
     title: "",
     syllabus: "",
   });
+
+  const [newStudent, setNewStudent] = useState<Student>({
+    username: "",
+    password: "",
+    branch: "",
+    year: 1,
+    student_courses: [],
+  });
+
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
@@ -139,45 +144,67 @@ export default function page() {
   const [facultySuggestions, setFacultySuggestions] = useState<Faculty[]>([]);
   const [courseSuggestions, setCourseSuggestions] = useState<Course[]>([]);
 
-  const [newStudent, setNewStudent] = useState<Student>({
-    id: "",
-    username: "",
-    password: "",
-    branch: "",
-    year: 1,
-    student_courses: [],
-  });
-
   /* ------------------------- Handler Functions ------------------------- */
 
   //@add-new-course
-  const addCourse = () => {
-    setCourses([...courses, { ...newCourse, faculty: [], feedbacks: [] }]);
-    setNewCourse({ id: "", title: "", syllabus: "" });
+  const addCourse = async () => {
+    //post request to backend for adding course
+    const response = await fetch("/api/admin/course/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newCourse),
+    });
+    console.log("Course added successfully", response);
+    setNewCourse({ id_: "", title: "", syllabus: "" });
+
+    if (response.ok) {
+      fetchCourses(); //refresh courses
+    } else {
+      console.log("Failed to add course");
+    }
   };
 
   //@add-new-faculty
-  const addFaculty = () => {
-    const newId = (faculties.length + 1).toString();
-    setFaculties([
-      ...faculties,
-      { ...newFaculty, id: newId, faculty_courses: [] },
-    ]);
+  const addFaculty = async () => {
+    const response = await fetch("/api/admin/faculty/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newFaculty),
+    });
+    console.log("Faculty added successfully", response);
+
     setNewFaculty({ username: "", password: "", department: "" });
+
+    if (response.ok) {
+      fetchFaculties(); //refresh faculties
+    } else {
+      console.log("Failed to add faculty");
+    }
   };
 
   //@assign-course-to-faculty
-  const assignCourseToFaculty = () => {
+  const assignCourseToFaculty = async () => {
     if (selectedFaculty && selectedCourse) {
-      const updatedFaculties = faculties.map((faculty) =>
-        faculty.id === selectedFaculty.id
-          ? {
-              ...faculty,
-              faculty_courses: [...faculty.faculty_courses, selectedCourse.id],
-            }
-          : faculty
-      );
-      setFaculties(updatedFaculties);
+      const response = await fetch("/api/admin/course/assign", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseid_: selectedCourse.id_,
+          facultyId: selectedFaculty.username,
+        }),
+      });
+
+      if (response.ok) {
+        fetchFaculties();
+      } else {
+        console.log("Failed to assign course to faculty");
+      }
       setSelectedFaculty(null);
       setSelectedCourse(null);
       setFacultySearch("");
@@ -186,11 +213,21 @@ export default function page() {
   };
 
   //@add-new-student
-  const addStudent = () => {
-    const newId = (students.length + 1).toString();
-    setStudents([...students, { ...newStudent, id: newId }]);
+  const addStudent = async () => {
+    const response = await fetch("/api/admin/student/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newStudent),
+    });
+    console.log("Student added successfully", response);
+    if (response.ok) {
+      fetchStudents(); //refresh students
+    } else {
+      console.log("Failed to add student");
+    }
     setNewStudent({
-      id: "",
       username: "",
       password: "",
       branch: "",
@@ -211,6 +248,39 @@ export default function page() {
 
   /* ------------------------- UseEffect Functions ------------------------- */
 
+  //get courses from backend and set it to courses state
+  const fetchCourses = async () => {
+    const response = await fetch("/api/admin/course/get");
+    const courses_backend = await response.json();
+    console.log(courses_backend);
+    setCourses(courses_backend);
+  };
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  //get faculties from backend and set it to faculties state
+  const fetchFaculties = async () => {
+    const response = await fetch("/api/admin/faculty/get");
+    const faculties_backend = await response.json();
+    console.log(faculties_backend);
+    setFaculties(faculties_backend);
+  };
+  useEffect(() => {
+    fetchFaculties();
+  }, []);
+
+  //get students from backend and set it to students state
+  const fetchStudents = async () => {
+    const response = await fetch("/api/admin/student/getall");
+    const students_backend = await response.json();
+    console.log(students_backend);
+    setStudents(students_backend);
+  };
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
   useEffect(() => {
     const filteredFaculty = faculties
       .filter(
@@ -229,7 +299,7 @@ export default function page() {
       .filter(
         (course) =>
           course.title.toLowerCase().includes(courseSearch.toLowerCase()) ||
-          course.id.toLowerCase().includes(courseSearch.toLowerCase())
+          course.id_.toLowerCase().includes(courseSearch.toLowerCase())
       )
       .slice(0, 5);
     setCourseSuggestions(filteredCourses);
@@ -257,9 +327,9 @@ export default function page() {
                 <div className="flex space-y-2 flex-col">
                   <Input
                     placeholder="Course ID"
-                    value={newCourse.id}
+                    value={newCourse.id_}
                     onChange={(e) =>
-                      setNewCourse({ ...newCourse, id: e.target.value })
+                      setNewCourse({ ...newCourse, id_: e.target.value })
                     }
                     className="mb-2 w-1/2"
                   />
@@ -285,7 +355,13 @@ export default function page() {
                     <Input id="context" type="file" />
                   </div>
 
-                  <Button onClick={addCourse} className="w-1/4">
+                  <Button
+                    onClick={addCourse}
+                    className="w-1/4"
+                    disabled={
+                      !newCourse.id_ || !newCourse.title || !newCourse.syllabus
+                    }
+                  >
                     Add Course
                   </Button>
                 </div>
@@ -295,10 +371,10 @@ export default function page() {
                   </h3>
                   <ul className="space-y-2">
                     {courses.map((course) => (
-                      <li key={course.id} className="bg-gray-100 p-2 rounded">
+                      <li key={course.id_} className="bg-gray-100 p-2 rounded">
                         <span className="font-medium">{course.title}</span> (
-                        {course.id}) - Faculty:{" "}
-                        {course.faculty.join(", ") || "None"}
+                        {course.id_})
+                        {/* {course.faculty.join(", ") || "None"} */}
                       </li>
                     ))}
                   </ul>
@@ -414,14 +490,14 @@ export default function page() {
                     <ul className="bg-white border rounded-md shadow-sm">
                       {courseSuggestions.map((course) => (
                         <li
-                          key={course.id}
+                          key={course.id_}
                           className="p-2 hover:bg-gray-100 cursor-pointer"
                           onClick={() => {
                             setSelectedCourse(course);
                             setCourseSearch(course.title);
                           }}
                         >
-                          {course.title} ({course.id})
+                          {course.title} ({course.id_})
                         </li>
                       ))}
                     </ul>
@@ -555,6 +631,52 @@ export default function page() {
                         </SelectContent>
                       </Select>
 
+                      <Select
+                        onValueChange={(value) => {
+                          if (newStudent.student_courses.includes(value)) {
+                            console.log("Already in the list");
+                          } else {
+                            setNewStudent({
+                              ...newStudent,
+                              student_courses: [
+                                ...newStudent.student_courses,
+                                value,
+                              ],
+                            });
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Courses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {courses.map((course) => (
+                            <SelectItem
+                              key={course.id_}
+                              value={course.id_.toString()}
+                            >
+                              {course.id_}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {newStudent.student_courses.length > 0 && (
+                        <div className="gap-1">
+                          <p>Selected Courses</p>
+                          <ul className="flex flex-wrap gap-1">
+                            {newStudent.student_courses.map((course) => (
+                              <li
+                                key={course}
+                                className="bg-gray-200 rounded-md p-1"
+                              >
+                                {course}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
                       <Button
                         onClick={addStudent}
                         disabled={
@@ -572,7 +694,10 @@ export default function page() {
 
                 <ul className="space-y-2">
                   {students.map((student) => (
-                    <li key={student.id} className="bg-gray-100 p-2 rounded">
+                    <li
+                      key={student.username}
+                      className="bg-gray-100 p-2 rounded"
+                    >
                       <span className="font-medium">{student.username}</span> -{" "}
                       {student.branch}, Year: {student.year}, Courses:{" "}
                       {student.student_courses.join(", ") || "None"}

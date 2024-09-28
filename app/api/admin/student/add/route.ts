@@ -3,8 +3,8 @@ import Student from "@/models/Student";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, res: NextResponse) {
-  const { username, password, branch, year } = await req.json();
-  if (!username || !password || !branch || !year) {
+  const { username, password, branch, year, student_courses } = await req.json();
+  if (!username || !password || !branch || !year || !student_courses) {
     return NextResponse.json(
       { message: "Please fill in all fields" },
       { status: 400 }
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       password,
       branch,
       year,
-      student_courses: [],
+      student_courses,
     });
 
     await newStudent.save();
