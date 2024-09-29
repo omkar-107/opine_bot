@@ -23,7 +23,7 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } else {
       setError(data.message);
     }

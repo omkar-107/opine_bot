@@ -23,10 +23,11 @@ export async function GET() {
   const secret = process.env.JWT_SECRET || "secret";
 
   try {
-    verify(value, secret);
-
+    let user = verify(value, secret);
+    user = user as { user: string };
+    console.log(user)
     const response = {
-      user: "Super Top Secret User",
+      user
     };
 
     return new Response(JSON.stringify(response), {
