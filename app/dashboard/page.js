@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import StudentDashboard from "./StudentDashboard";
 
-async function handleLogout(router){
+async function handleLogout(router) {
   const response = await fetch('/api/auth/logout', {
     method: 'POST',
   });
@@ -14,10 +15,53 @@ async function handleLogout(router){
   }
 }
 
+async function getUser() {
+  try {
+    let res = await fetch("/api/auth/me");
+    res = await res.json();
+
+    return {
+      user: res.user,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      user: null,
+      error: error,
+    };
+  }
+}
+
 export default function Page() {
   const router = useRouter();
+  const [userobj, setUserObj] = useState({});
 
-  return <div>authenticated users only
-    <button className="flex" onClick={() => handleLogout(router)}>logout</button>
-  </div>;
+  useEffect(() => {
+    (async () => {
+      const { user, error } = await getUser();
+      user
+        ? setUserObj(user.user)
+        : router.push("/login");
+    })();
+  }, []);
+
+  // return (<div>authenticated users only
+
+  //   {userobj && <p>{JSON.stringify(userobj.user)}</p>}
+  //   <button className="flex" onClick={() => handleLogout(router)}>logout</button>
+  // </div>);
+
+  return (
+    <div>
+      {userobj ? (
+        userobj.role === 'student' ? (
+          <StudentDashboard />
+        ) : (
+          <div>Other</div>
+        )
+      ) : (
+        <div>Loading...</div>
+      )}
+    </div>
+  );
 }
