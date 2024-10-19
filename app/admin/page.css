@@ -1,0 +1,63 @@
+.container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+  }
+  .TabsList {
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 5px;
+  }
+  
+  .TabsTrigger {
+    transition: all 0.3s ease;
+  }
+  
+  .TabsTrigger[data-state="active"] {
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .Card {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    transition: all 0.3s ease;
+  }
+  
+  .Card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+  }
+  .Button {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .Button:hover {
+    background: linear-gradient(45deg, #2980b9, #3498db);
+    transform: scale(1.05);
+  }
+  .Input, .Textarea, .Select {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .Input:focus, .Textarea:focus, .Select:focus {
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .space-y-2 > * {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  

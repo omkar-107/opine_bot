@@ -21,6 +21,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+import "./page.css";
+
 /* -------------------- Interfaces for Schema ------------------- */
 interface Student {
   username: string;
