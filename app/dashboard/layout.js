@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }) {
     (async () => {
       const { user, error } = await getUser();
       
-      if (user.user === null) {
+      if (user && user.user === null) {
         push("/login");
         return;
       }
@@ -33,12 +33,12 @@ export default function DashboardLayout({ children }) {
 
   return (
     <main>
-      <header>
+      {/* <header>
         <Link href='/dashboard'>
           Dashboard
         </Link>
         {user && <p>Role: {user.role}</p>}
-      </header>
+      </header> */}
       {children}
     </main>
   );
