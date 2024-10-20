@@ -22,8 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// import { saveAs } from 'file-saver'; // Import file-saver if needed
-import * as XLSX from 'xlsx'; // Import xlsx
+
+import * as XLSX from 'xlsx';
 
 import { DataGrid } from '@mui/x-data-grid';
 
@@ -113,7 +113,7 @@ interface Course {
 //   },
 // ];
 
-var departments_array: String[] = [
+var departments_array: string[] = [
   "Computer Science",
   "Information Technology",
   "Electronics",
@@ -121,6 +121,7 @@ var departments_array: String[] = [
   "Mechanical",
   "Civil",
 ];
+
 // Data for the pie chart (students)
 const pieData = {
   labels: ['Boys', 'Girls'],
@@ -150,43 +151,43 @@ const barData = {
   ],
 };
 
-const DashboardContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+// const DashboardContent = () => (
+//   <div>
+//     <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
 
 
-  </div>
-);
+//   </div>
+// );
 
-const StudentContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Profile</h2>
-    <p>
-      Here you can view and update your profile details, such as name, email,
-      and other personal information.
-    </p>
-  </div>
-);
+// const StudentContent = () => (
+//   <div>
+//     <h2 className="text-2xl font-bold mb-4">Profile</h2>
+//     <p>
+//       Here you can view and update your profile details, such as name, email,
+//       and other personal information.
+//     </p>
+//   </div>
+// );
 
-const FacultyContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
-    <p>
-      View all your past feedback and comments here. You can also track your
-      feedback progress.
-    </p>
-  </div>
-);
+// const FacultyContent = () => (
+//   <div>
+//     <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
+//     <p>
+//       View all your past feedback and comments here. You can also track your
+//       feedback progress.
+//     </p>
+//   </div>
+// );
 
-const CourseContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
-    <p>
-      View all your past feedback and comments here. You can also track your
-      feedback progress.
-    </p>
-  </div>
-);
+// const CourseContent = () => (
+//   <div>
+//     <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
+//     <p>
+//       View all your past feedback and comments here. You can also track your
+//       feedback progress.
+//     </p>
+//   </div>
+// );
 
 /* -------------------------- Admin Component Starts from Here -------------------------*/
 
@@ -194,6 +195,7 @@ export default function page() {
   const [students, setStudents] = useState<Student[]>([]);
   const [faculties, setFaculties] = useState<Faculty[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [searchQuery, setSearchQuery] = useState('')
 
 
   const [newFaculty, setNewFaculty] = useState({
@@ -224,9 +226,10 @@ export default function page() {
   const [facultySuggestions, setFacultySuggestions] = useState<Faculty[]>([]);
   const [courseSuggestions, setCourseSuggestions] = useState<Course[]>([]);
   const [logoutActive, setLogoutActive] = useState(true);
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  // const [activeTab, setActiveTab] = useState("Dashboard");
   const [selectedTab, setSelectedTab] = useState<string>(""); // Specify state type
   const router = useRouter(); // Initialize useRouter
+  const [showCreateStudentDialog, setShowCreateStudentDialog] = useState(false);
 
 
   /* ------------------------- Handler Functions ------------------------- */
@@ -413,28 +416,28 @@ const exportToExcel = () => {
 
 
 
-  const tabs = [
-    {
-      name: "Dashboard",
-      component: <DashboardContent />,
-      icon: "/assets/Dashboard.svg",
-    },
-    {
-      name: "Courses",
-      component: < CourseContent />,
-      icon: "/assets/Profile.svg",
-    },
-    {
-      name: "Faculty",
-      component: <FacultyContent />,
-      icon: "/assets/Feedback History.svg",
-    },
-    {
-      name: "Student",
-      component: <FacultyContent />,
-      icon: "/assets/Feedback History.svg",
-    },
-  ];
+  // const tabs = [
+  //   {
+  //     name: "Dashboard",
+  //     component: <DashboardContent />,
+  //     icon: "/assets/Dashboard.svg",
+  //   },
+  //   {
+  //     name: "Courses",
+  //     component: < CourseContent />,
+  //     icon: "/assets/Profile.svg",
+  //   },
+  //   {
+  //     name: "Faculty",
+  //     component: <FacultyContent />,
+  //     icon: "/assets/Feedback History.svg",
+  //   },
+  //   {
+  //     name: "Student",
+  //     component: <FacultyContent />,
+  //     icon: "/assets/Feedback History.svg",
+  //   },
+  // ];
 
   const chartOptions = {
     responsive: true, // Ensure the chart is responsive
@@ -461,6 +464,14 @@ const exportToExcel = () => {
     }
   }
 
+  const filteredStudents = students.filter((student) =>
+    student.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const deleteStudent = (username: string) => {
+    setStudents(students.filter((student) => student.username !== username));
+  };
+  
+
   return (
     <div className="flex h-screen">
       {/* Left Side Header (Sidebar) */}
@@ -473,7 +484,7 @@ const exportToExcel = () => {
             {/* <h5>Student</h5> */}
             <div className="h-[0.5px] w-[90%] bg-white mt-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
 
-            <nav>
+            {/* <nav>
               {tabs.map((tab) => (
                 <button
                   key={tab.name}
@@ -483,17 +494,17 @@ const exportToExcel = () => {
                       : ""
                     }`}
                 >
-                  {/* <Image
+                  <Image
                 src={tab.icon}
                 alt={`${tab.name} icon`}
                 width={20}
                 height={20}
                 className="mr-2"
-              /> */}
+              />
                   {tab.name}
                 </button>
               ))}
-            </nav>
+            </nav> */}
           </div>
           <button
             onClick={handleLogout}
@@ -768,188 +779,174 @@ const exportToExcel = () => {
               </Card>
             </TabsContent>
 
-    {/* ------------------------- Students Tab ------------------------- */}
+{/* ---------------------------------------Student Management Tab */}
 <TabsContent value="students">
-  <Card className="shadow-lg rounded-lg overflow-hidden">
-    <CardHeader className="bg-blue-600 text-white p-4">
-      <CardTitle className="text-xl font-bold">Student Management</CardTitle>
-    </CardHeader>
-    <CardContent className="p-4">
-      <div className="space-y-6">
-        {/* Dialog for Adding New Student */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="bg-blue-500 text-white hover:bg-blue-600 transition duration-200">
-              Add New Student
+  <div className="p-8 space-y-6">
+    <div className="flex justify-between items-center">
+      <h1 className="text-2xl font-bold">Students</h1>
+      <Button
+        className="bg-blue-500 text-white hover:bg-blue-600 transition duration-200 rounded-md px-4 py-2"
+        onClick={() => setShowCreateStudentDialog(true)}
+      >
+        + Add Student
+      </Button>
+    </div>
+
+    {/* Search Bar */}
+    <Input
+      placeholder="Search..."
+      className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+
+    {/* Student Table */}
+    <table className="w-full border-collapse border border-gray-300 rounded-lg">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="border border-gray-300 p-2 text-left">Username</th>
+          <th className="border border-gray-300 p-2 text-left">Branch</th>
+          <th className="border border-gray-300 p-2 text-left">Year</th>
+          <th className="border border-gray-300 p-2 text-left">Courses</th>
+          {/* <th className="border border-gray-300 p-2 text-left">A</th> */}
+        </tr>
+      </thead>
+      <tbody>
+        {filteredStudents.map((student) => (
+          <tr key={student.username} className="border-t">
+            <td className="p-2">{student.username}</td>
+            <td className="p-2">{student.branch}</td>
+            <td className="p-2">{student.year}</td>
+            <td className="p-2">{student.student_courses.join(', ')}</td>
+            <td className="p-2">
+              <button
+                className="text-red-500 hover:text-red-700"
+                onClick={() => deleteStudent(student.username)}
+              >
+                🗑️
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {/* Total Students */}
+    <p className="text-gray-600">Total: {filteredStudents.length}</p>
+
+    {/* Create Student Dialog */}
+    {showCreateStudentDialog && (
+      <Dialog open={showCreateStudentDialog} onOpenChange={setShowCreateStudentDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">Add New Student</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Inputs for Adding Student */}
+            <Input
+              required
+              placeholder="Username"
+              className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={newStudent.username}
+              onChange={(e) =>
+                setNewStudent({ ...newStudent, username: e.target.value })
+              }
+            />
+            <Input
+              required
+              type="password"
+              placeholder="Password"
+              className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={newStudent.password}
+              onChange={(e) =>
+                setNewStudent({ ...newStudent, password: e.target.value })
+              }
+            />
+            <Select
+              onValueChange={(value) =>
+                setNewStudent({ ...newStudent, branch: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Branch" />
+              </SelectTrigger>
+              <SelectContent>
+                {departments_array.map((dept, index) => (
+                  <SelectItem key={index} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              onValueChange={(value) =>
+                setNewStudent({ ...newStudent, year: parseInt(value) })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4].map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    Year {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              onValueChange={(value) => {
+                if (!newStudent.student_courses.includes(value)) {
+                  setNewStudent({
+                    ...newStudent,
+                    student_courses: [...newStudent.student_courses, value],
+                  });
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Courses" />
+              </SelectTrigger>
+              <SelectContent>
+                {courses.map((course) => (
+                  <SelectItem key={course.id_} value={course.id_.toString()}>
+                    {course.id_}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {newStudent.student_courses.length > 0 && (
+              <div className="gap-1">
+                <p className="font-semibold">Selected Courses:</p>
+                <ul className="flex flex-wrap gap-2">
+                  {newStudent.student_courses.map((course) => (
+                    <li key={course} className="bg-blue-200 text-blue-800 rounded-md p-1">
+                      {course}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <Button
+              onClick={addStudent}
+              disabled={
+                !newStudent.username || !newStudent.password || !newStudent.branch || !newStudent.year
+              }
+              className="bg-blue-600 text-white hover:bg-blue-700 transition duration-200 rounded-md p-2"
+            >
+              Add Student
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-semibold">Add New Student</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {/* Inputs for Adding New Student */}
-              <Input
-                required
-                placeholder="Username"
-                className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={newStudent.username}
-                onChange={(e) =>
-                  setNewStudent({
-                    ...newStudent,
-                    username: e.target.value,
-                  })
-                }
-              />
-              <Input
-                required
-                type="password"
-                placeholder="Password"
-                className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={newStudent.password}
-                onChange={(e) =>
-                  setNewStudent({
-                    ...newStudent,
-                    password: e.target.value,
-                  })
-                }
-              />
-              <Select
-                onValueChange={(value) =>
-                  setNewStudent({
-                    ...newStudent,
-                    branch: value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments_array.map((dept, index) => (
-                    <SelectItem key={index} value={dept.toString()}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                onValueChange={(value) =>
-                  setNewStudent({
-                    ...newStudent,
-                    year: parseInt(value),
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4].map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      Year {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                onValueChange={(value) => {
-                  if (!newStudent.student_courses.includes(value)) {
-                    setNewStudent({
-                      ...newStudent,
-                      student_courses: [
-                        ...newStudent.student_courses,
-                        value,
-                      ],
-                    });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Courses" />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses.map((course) => (
-                    <SelectItem
-                      key={course.id_}
-                      value={course.id_.toString()}
-                    >
-                      {course.id_}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {newStudent.student_courses.length > 0 && (
-                <div className="gap-1">
-                  <p className="font-semibold">Selected Courses:</p>
-                  <ul className="flex flex-wrap gap-2">
-                    {newStudent.student_courses.map((course) => (
-                      <li key={course} className="bg-blue-200 text-blue-800 rounded-md p-1">
-                        {course}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <Button
-                onClick={addStudent}
-                disabled={
-                  !newStudent.username ||
-                  !newStudent.password ||
-                  !newStudent.branch ||
-                  !newStudent.year
-                }
-                className="bg-blue-600 text-white hover:bg-blue-700 transition duration-200 rounded-md p-2"
-              >
-                Add Student
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Export Button */}
-        <div className="flex justify-end">
-          <Button
-            onClick={exportToExcel}
-            className="bg-green-500 text-white hover:bg-green-600 transition duration-200 rounded-md p-2"
-          >
-            Export to Excel
-          </Button>
-        </div>
-
-        {/* Table Displaying Students */}
-        <div className="border border-gray-300 rounded-lg overflow-hidden">
-          <DataGrid
-            rows={students.map((student, index) => ({
-              id: index,
-              username: student.username,
-              branch: student.branch,
-              year: student.year,
-              student_courses: student.student_courses.join(", "),
-            }))}
-            columns={[
-              { field: 'username', headerName: 'Username', width: 150 },
-              { field: 'branch', headerName: 'Branch', width: 150 },
-              { field: 'year', headerName: 'Year', width: 100 },
-              { field: 'student_courses', headerName: 'Courses', width: 250 },
-            ]}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 5 },
-              },
-            }}
-            pageSizeOptions={[5, 10, 20]}
-            checkboxSelection
-          />
-        </div>
-      </div>
-    </CardContent>
-  </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
+  </div>
 </TabsContent>
+
 
 
             {/* ------------------------- Dashboard Tab ------------------------- */}
