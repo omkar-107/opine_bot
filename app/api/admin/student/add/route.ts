@@ -1,10 +1,21 @@
 import connectToDatabase from "@/utils/db";
 import Student from "@/models/Student";
+import User from "@/models/User";
+import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, res: NextResponse) {
-  const { username, password, branch, year, student_courses } = await req.json();
-  if (!username || !password || !branch || !year || !student_courses) {
+  const { email, username, password, branch, year, student_courses, semester } =
+    await req.json();
+  if (
+    !email ||
+    !username ||
+    !password ||
+    !branch ||
+    !year ||
+    !student_courses ||
+    !semester
+  ) {
     return NextResponse.json(
       { message: "Please fill in all fields" },
       { status: 400 }
@@ -23,14 +34,29 @@ export async function POST(req: NextRequest, res: NextResponse) {
       );
     }
 
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const newStudent = new Student({
+      email,
       username,
-      password,
+      password: hashedPassword,
       branch,
       year,
       student_courses,
+      semester,
     });
 
+    const newUser = new User({
+      email,
+      username,
+      password: hashedPassword,
+      role: "student",
+    });
+
+    console.log(newUser, newStudent);
+
+    await newUser.save();
     await newStudent.save();
 
     return NextResponse.json({ message: "Student added successfully" });

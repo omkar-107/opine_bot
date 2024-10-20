@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Logout from "@/public/assets/Logout.svg";
 import { useRouter } from "next/navigation";
+import Edit from "@/public/assets/Edit.svg";
+import Student from "@/public/assets/Student.svg";
+import PasswordImg from "@/public/assets/Password.svg";
+import { u } from "framer-motion/client";
+import { Button } from "@/components/ui/button";
 
 async function getUser() {
   try {
@@ -20,35 +25,225 @@ async function getUser() {
   }
 }
 
-const DashboardContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-    <p>
-      Welcome to your dashboard! Here, you will see an overview of your
-      activities and updates.
-    </p>
-  </div>
-);
+const DashboardContent = (userobj) => {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+      <p>
+        Welcome to your dashboard! Here, you will see an overview of your
+        activities and updates.
+      </p>
+    </div>
+  );
+};
 
-const ProfileContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Profile</h2>
-    <p>
-      Here you can view and update your profile details, such as name, email,
-      and other personal information.
-    </p>
-  </div>
-);
+const ProfileContent = ({ userobj }) => {
+  const [courses, setCourses] = useState([]);
+  const [userDetailsObj, setUserDetailsObj] = useState({});
 
-const FeedbackHistoryContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
-    <p>
-      View all your past feedback and comments here. You can also track your
-      feedback progress.
-    </p>
-  </div>
-);
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(
+        "/api/student/getcourses/" + userobj.username
+      );
+      const courses_backend = await response.json();
+      setCourses(courses_backend.student_courses);
+      console.log(courses_backend.student_courses);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(
+        "/api/student/getdetails/" + userobj.username
+      );
+      const userdetails_backend = await response.json();
+      setUserDetailsObj(userdetails_backend);
+      console.log(userdetails_backend.user_details);
+    })();
+  }, []);
+
+  const handlePasswordSubmit = async (event) => {
+    event.preventDefault();
+    const password = event.target.password.value;
+    console.log("to be implemented later");
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">My Profile</h2>
+      <div className="flex flex-col gap-4 text-[#14171f]">
+        {/* Profile */}
+        <div className="w-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex p-4 items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Image
+              src={Student}
+              alt="Student"
+              width={100}
+              height={100}
+              className="mx-auto"
+            />
+            <div>
+              <h1 className="font-semibold text-xl">
+                {userobj ? userobj.username : USERNAME}
+              </h1>
+              <h3>Student</h3>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="text-[#14171f] flex items-center gap-2 rounded-xl"
+          >
+            <p>Edit</p>
+            <Image
+              src={Edit}
+              alt="Edit"
+              width={20}
+              height={20}
+              className="mx-auto"
+            />
+          </Button>
+        </div>
+
+        <div className="w-full flex items-center justify-between h-[300px]">
+          {/* Personal Details */}
+          <div className="w-[45%] h-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex p-4 items-center justify-between">
+            <div className="flex flex-col gap-2 h-full items-center">
+              <h2 className="text-lg font-bold mb-2">Personal Details</h2>
+              <div className="flex w-full items-start">
+                <div className="grid grid-cols-2 gap-8 mb-8">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500">
+                      Branch
+                    </h3>
+                    <p className="text-md text-[#14171f]">
+                      {userDetailsObj.branch || "Dept"}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500">
+                      Email
+                    </h3>
+                    <p className="text-md text-[#14171f]">
+                      {userDetailsObj.email || "Email_"}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500">
+                      Year
+                    </h3>
+                    <p className="text-md text-[#14171f]">
+                      {userDetailsObj.year || "Year"}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500">
+                      Semester
+                    </h3>
+                    <p className="text-md text-[#14171f]">
+                      {userDetailsObj.semester || "Sem"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-gray-500">
+                Note: Please contact your department admin for any queries
+                related to your details
+              </p>
+            </div>
+          </div>
+
+          {/* Password Change Window */}
+          <div className="w-[50%] h-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex p-4 items-center justify-between">
+            <div className="flex flex-col gap-4 items-center w-full">
+              <h2 className="text-lg font-bold">Password Change</h2>
+              <div className="flex justify-start gap-10 items-center">
+                <Image
+                  src={PasswordImg}
+                  alt="Password"
+                  width={100}
+                  height={100}
+                  className=""
+                />
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Current Password *
+                    </label>
+                    <input
+                      type="password"
+                      className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      placeholder="Enter current password"
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        New Password *
+                      </label>
+                      <input
+                        type="password"
+                        className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Enter new password"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Confirm Password *
+                      </label>
+                      <input
+                        type="password"
+                        className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Confirm new password"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={true}
+                    onClick={handlePasswordSubmit}
+                    className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-sm"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Course Details */}
+        <div className="w-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex flex-col justify-start gap-2 p-4 items-start">
+          <h2 className="text-lg font-bold">Course Details</h2>
+          <div className="flex flex-wrap gap-2">
+            {courses && courses.length > 0 ? (
+              courses.map((course) => (
+                <div className="bg-slate-200 p-2 rounded-full">{course}</div>
+              ))
+            ) : (
+              <div>No courses found</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FeedbackHistoryContent = (userobj) => {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
+      <p>
+        View all your past feedback and comments here. You can also track your
+        feedback progress.
+      </p>
+    </div>
+  );
+};
 
 // Array of tabs with names, components, and icon paths
 const tabs = [
@@ -149,7 +344,13 @@ const StudentDashboard = () => {
 
       {/* Content Area */}
       <div className="flex-1 p-8">
-        {tabs.find((tab) => tab.name === activeTab)?.component}
+        {activeTab === "Profile" ? (
+          <ProfileContent userobj={userobj} />
+        ) : activeTab === "Feedback History" ? (
+          <FeedbackHistoryContent userobj={userobj} />
+        ) : (
+          <DashboardContent userobj={userobj} />
+        )}
       </div>
     </div>
   );

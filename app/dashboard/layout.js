@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }) {
         push("/login");
         return;
       }
-      if(user.user.role === 'admin') {
+      if(user && user.user.role === 'admin') {
         push("/admin");
         return;
       }
