@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent} from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,11 +25,12 @@ import {
 
 import * as XLSX from 'xlsx';
 
-import { DataGrid } from '@mui/x-data-grid';
+// import { DataGrid } from '@mui/x-data-grid';
 
 import { Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import { div } from "framer-motion/client";
+// import { div } from "framer-motion/client";
+// import { ClassNames } from "@emotion/react";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -151,44 +152,6 @@ const barData = {
   ],
 };
 
-// const DashboardContent = () => (
-//   <div>
-//     <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-
-
-//   </div>
-// );
-
-// const StudentContent = () => (
-//   <div>
-//     <h2 className="text-2xl font-bold mb-4">Profile</h2>
-//     <p>
-//       Here you can view and update your profile details, such as name, email,
-//       and other personal information.
-//     </p>
-//   </div>
-// );
-
-// const FacultyContent = () => (
-//   <div>
-//     <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
-//     <p>
-//       View all your past feedback and comments here. You can also track your
-//       feedback progress.
-//     </p>
-//   </div>
-// );
-
-// const CourseContent = () => (
-//   <div>
-//     <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
-//     <p>
-//       View all your past feedback and comments here. You can also track your
-//       feedback progress.
-//     </p>
-//   </div>
-// );
-
 /* -------------------------- Admin Component Starts from Here -------------------------*/
 
 export default function page() {
@@ -226,32 +189,33 @@ export default function page() {
   const [facultySuggestions, setFacultySuggestions] = useState<Faculty[]>([]);
   const [courseSuggestions, setCourseSuggestions] = useState<Course[]>([]);
   const [logoutActive, setLogoutActive] = useState(true);
-  // const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const [selectedTab, setSelectedTab] = useState<string>(""); // Specify state type
   const router = useRouter(); // Initialize useRouter
   const [showCreateStudentDialog, setShowCreateStudentDialog] = useState(false);
 
 
+
   /* ------------------------- Handler Functions ------------------------- */
-  
-  {/* Function to Export Data to Excel */}
-const exportToExcel = () => {
-  const ws = XLSX.utils.json_to_sheet(
-    students.map((student) => ({
-      Username: student.username,
-      Branch: student.branch,
-      Year: student.year,
-      Courses: student.student_courses.join(", "),
-    }))
-  );
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Students");
+  {/* Function to Export Data to Excel */ }
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(
+      students.map((student) => ({
+        Username: student.username,
+        Branch: student.branch,
+        Year: student.year,
+        Courses: student.student_courses.join(", "),
+      }))
+    );
 
-  // Export the file
-  XLSX.writeFile(wb, "students_data.xlsx");
-};
-// 
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+
+    // Export the file
+    XLSX.writeFile(wb, "students_data.xlsx");
+  };
+  // 
 
   //@add-new-course
   const addCourse = async () => {
@@ -343,15 +307,7 @@ const exportToExcel = () => {
     });
   };
 
-  /* ------------------------- Dashboard Constants ------------------------- */
 
-  const totalCourses = courses.length;
-  const totalStudents = students.length;
-  const totalFaculty = faculties.length;
-  const totalEnrollments = students.reduce(
-    (sum, student) => sum + student.student_courses.length,
-    0
-  );
 
   /* ------------------------- UseEffect Functions ------------------------- */
 
@@ -416,29 +372,6 @@ const exportToExcel = () => {
 
 
 
-  // const tabs = [
-  //   {
-  //     name: "Dashboard",
-  //     component: <DashboardContent />,
-  //     icon: "/assets/Dashboard.svg",
-  //   },
-  //   {
-  //     name: "Courses",
-  //     component: < CourseContent />,
-  //     icon: "/assets/Profile.svg",
-  //   },
-  //   {
-  //     name: "Faculty",
-  //     component: <FacultyContent />,
-  //     icon: "/assets/Feedback History.svg",
-  //   },
-  //   {
-  //     name: "Student",
-  //     component: <FacultyContent />,
-  //     icon: "/assets/Feedback History.svg",
-  //   },
-  // ];
-
   const chartOptions = {
     responsive: true, // Ensure the chart is responsive
     maintainAspectRatio: false, // Allow resizing
@@ -470,566 +403,595 @@ const exportToExcel = () => {
   const deleteStudent = (username: string) => {
     setStudents(students.filter((student) => student.username !== username));
   };
-  
 
-  return (
-    <div className="flex h-screen">
-      {/* Left Side Header (Sidebar) */}
-      <div className="w-64 bg-[#14171f] text-white flex flex-col justify-between items-center fixed h-full">
-        <div className="flex flex-col justify-center gap-2 w-full">
-          <div className="flex flex-col justify-center items-center mt-2 mb-8">
-            <div className="h-[1px] w-[90%] bg-white mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-            <h2 className="text-2xl font-bold p-4">Admin Dashboard</h2>
-            {/* <h3>{userobj ? userobj.username : USERNAME}</h3> */}
-            {/* <h5>Student</h5> */}
-            <div className="h-[0.5px] w-[90%] bg-white mt-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
 
-            {/* <nav>
-              {tabs.map((tab) => (
-                <button
-                  key={tab.name}
-                  onClick={() => setActiveTab(tab.name)}
-                  className={`flex items-center w-[100%] text-left px-2 py-2 my-2 ${activeTab === tab.name
-                      ? "border-2 border-[#7b61ff] rounded-2xl"
-                      : ""
-                    }`}
-                >
-                  <Image
-                src={tab.icon}
-                alt={`${tab.name} icon`}
-                width={20}
-                height={20}
-                className="mr-2"
-              />
-                  {tab.name}
-                </button>
-              ))}
-            </nav> */}
+  /* ------------------------- Dashboard Constants ------------------------- */
+
+  const totalCourses = courses.length;
+  const totalStudents = students.length;
+  const totalFaculty = faculties.length;
+  const totalEnrollments = students.reduce(
+    (sum, student) => sum + student.student_courses.length,
+    0
+  );
+
+  const DashboardContent = () => (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+        <div className="p-6 bg-gray-50 w-full h-full">
+          {/* General Information Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <InfoCard title="Total Courses" value={totalCourses} />
+            <InfoCard title="Total Students" value={totalStudents} />
+            <InfoCard title="Total Faculty" value={totalFaculty} />
+            <InfoCard title="Total Enrollments" value={totalEnrollments} />
           </div>
-          <button
-            onClick={handleLogout}
-            disabled={!logoutActive}
-            className="flex items-center w-[70%] justify-center rounded-md bg-[#7b61ff] text-left px-2 py-2 my-2"
-          >
-            {/* <Image
-          src={Logout}
-          alt={`logout icon`}
-          width={20}
-          height={20}
-          className="mr-2"
-        /> */}
-            <p className="mr-2">Logout</p>
-          </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+
+            {/* Pie Chart (Students distribution) */}
+            <div className="bg-white p-4 rounded-lg shadow flex flex-col" style={{ minHeight: '350px', width: '300px', height: '300px' }}>
+              <h2 className="text-lg font-semibold mb-4 text-center">Students</h2>
+              <div className="flex-grow w-full">
+                <Pie data={pieData} />
+              </div>
+            </div>
+
+            {/* Teacher List */}
+            <div className="bg-white p-4 rounded-lg shadow flex flex-col" style={{ minHeight: '350px', width: '450px', height: '300px' }}>
+              <h2 className="text-lg font-semibold mb-4 text-center">Teacher List</h2>
+              <table className="min-w-full table-auto">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Class</th>
+                    <th className="px-4 py-2">Subject</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: 'Morris Jhonson', class: 'Class 6', subject: 'English' },
+                    { name: 'Jane Cooper', class: 'Class 5', subject: 'Music' },
+                    { name: 'Esther Howard', class: 'Class 8', subject: 'Arts' },
+                    { name: 'Wade Warren', class: 'Class 7', subject: 'Physics' },
+                    { name: 'Jenny Wilson', class: 'Class 9', subject: 'Chemistry' },
+                  ].map((teacher, index) => (
+                    <tr key={index}>
+                      <td className="border px-4 py-2">{teacher.name}</td>
+                      <td className="border px-4 py-2">{teacher.class}</td>
+                      <td className="border px-4 py-2">{teacher.subject}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Attendance Bar Chart */}
+            <div className="bg-white p-4 rounded-lg shadow flex flex-col col-span-2" style={{ minHeight: '350px' }}>
+              <h2 className="text-lg font-semibold mb-4 text-center">Attendance</h2>
+              <div className="flex-grow w-full">
+                <Bar data={barData} />
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
+   
 
-      {/* Main Content */}
-      <div className="ml-64 w-full h-full overflow-y-auto p-4">
-        {/* Main Content */}
-        <div className="flex-1 ml-6 p-6 bg-white rounded-lg shadow-md">
-          <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-          <Tabs defaultValue={selectedTab} className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="courses">Courses</TabsTrigger>
-              <TabsTrigger value="faculty">Faculty</TabsTrigger>
-              <TabsTrigger value="students">Students</TabsTrigger>
-              <TabsTrigger value="dashboard">General</TabsTrigger>
-            </TabsList>
+    </div >
+    //     </div >
+    //   </div >
 
-            {/* ------------------------- Courses Tab ------------------------- */}
-            <TabsContent value="courses">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Course Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Add course form */}
-                    <div className="flex space-y-4 flex-col">
-                      <Input
-                        placeholder="Course ID"
-                        value={newCourse.id_}
-                        onChange={(e) =>
-                          setNewCourse({ ...newCourse, id_: e.target.value })
-                        }
-                        className="mb-2 w-1/2"
-                      />
-                      <Input
-                        placeholder="Course Title"
-                        value={newCourse.title}
-                        onChange={(e) =>
-                          setNewCourse({ ...newCourse, title: e.target.value })
-                        }
-                        className="mb-2 w-1/2"
-                      />
-                      <Textarea
-                        placeholder="Enter Syllabus Text"
-                        value={newCourse.syllabus}
-                        onChange={(e) =>
-                          setNewCourse({ ...newCourse, syllabus: e.target.value })
-                        }
-                        className="mb-2 w-1/2"
-                      />
-                      <div className="flex items-center gap-4 w-1/2">
-                        <Label htmlFor="context">Context</Label>
-                        <Input id="context" type="file" />
-                      </div>
-                      <Button
-                        onClick={addCourse}
-                        className="w-1/4"
-                        disabled={
-                          !newCourse.id_ || !newCourse.title || !newCourse.syllabus
-                        }
-                      >
-                        Add Course
-                      </Button>
-                    </div>
+    // </div >
+  );
 
-                    {/* List of courses in table format */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Existing Courses</h3>
-                      <table className="min-w-full table-auto bg-white rounded-md shadow-md">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="px-4 py-2">Course ID</th>
-                            <th className="px-4 py-2">Course Title</th>
-                            <th className="px-4 py-2">Syllabus</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {courses.map((course) => (
-                            <tr key={course.id_} className="border-b">
-                              <td className="px-4 py-2">{course.id_}</td>
-                              <td className="px-4 py-2">{course.title}</td>
-                              <td className="px-4 py-2">{course.syllabus}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+  const StudentContent = () => (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Student Management</h2>
+     <div>
+        <div className="p-8 space-y-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Students</h1>
+            <Button
+              className="bg-blue-500 text-white hover:bg-blue-600 transition duration-200 rounded-md px-4 py-2"
+              onClick={() => setShowCreateStudentDialog(true)}
+            >
+              + Add Student
+            </Button>
+          </div>
 
-            {/* ------------------------- Faculty Tab ------------------------- */}
-            <TabsContent value="faculty">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Faculty Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline">Add New Faculty</Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Add New Faculty</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <Input
-                            placeholder="Username"
-                            value={newFaculty.username}
-                            onChange={(e) =>
-                              setNewFaculty({
-                                ...newFaculty,
-                                username: e.target.value,
-                              })
-                            }
-                          />
-                          <Input
-                            type="password"
-                            placeholder="Password"
-                            value={newFaculty.password}
-                            onChange={(e) =>
-                              setNewFaculty({
-                                ...newFaculty,
-                                password: e.target.value,
-                              })
-                            }
-                          />
+          {/* Search Bar */}
+          <Input
+            placeholder="Search..."
+            className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
 
-                          <Select
-                            onValueChange={(value) =>
-                              setNewFaculty({
-                                ...newFaculty,
-                                department: value,
-                              })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Department" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {departments_array.map((dept, index) => (
-                                <SelectItem key={index} value={dept.toString()}>
-                                  {dept}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <Button
-                            onClick={addFaculty}
-                            disabled={
-                              newFaculty.username === "" ||
-                              newFaculty.password === "" ||
-                              newFaculty.department === ""
-                            }
-                          >
-                            Add Faculty
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Search Faculty"
-                        value={facultySearch}
-                        onChange={(e) => setFacultySearch(e.target.value)}
-                      />
-                      {facultySuggestions.length > 0 && (
-                        <ul className="bg-white border rounded-md shadow-sm">
-                          {facultySuggestions.map((faculty) => (
-                            <li
-                              key={faculty.id}
-                              className="p-2 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => {
-                                setSelectedFaculty(faculty);
-                                setFacultySearch(faculty.username);
-                              }}
-                            >
-                              {faculty.username} - {faculty.department}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Search Course"
-                        value={courseSearch}
-                        onChange={(e) => setCourseSearch(e.target.value)}
-                      />
-                      {courseSuggestions.length > 0 && (
-                        <ul className="bg-white border rounded-md shadow-sm">
-                          {courseSuggestions.map((course) => (
-                            <li
-                              key={course.id_}
-                              className="p-2 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => {
-                                setSelectedCourse(course);
-                                setCourseSearch(course.title);
-                              }}
-                            >
-                              {course.title} ({course.id_})
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                    {selectedCourse && selectedFaculty ? (
-                      <div className="flex gap-4">
-                        <p>
-                          <i>
-                            <b>{selectedCourse.title}</b>
-                          </i>{" "}
-                          course is being assigned to the{" "}
-                          <i>
-                            <b>{selectedFaculty.username}</b>
-                          </i>{" "}
-                          faculty
-                        </p>
-                        <p
-                          className="cursor-pointer"
-                          onClick={() => {
-                            setSelectedFaculty(null);
-                            setSelectedCourse(null);
-                            setFacultySearch("");
-                            setCourseSearch("");
-                          }}
-                        >
-                          <u>Click Here to Dismiss</u>
-                        </p>
-                      </div>
-                    ) : null}
-                    <Button
-                      onClick={assignCourseToFaculty}
-                      disabled={!selectedFaculty || !selectedCourse}
+          {/* Student Table */}
+          <table className="w-full border-collapse border border-gray-300 rounded-lg">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border border-gray-300 p-2 text-left">Username</th>
+                <th className="border border-gray-300 p-2 text-left">Branch</th>
+                <th className="border border-gray-300 p-2 text-left">Year</th>
+                <th className="border border-gray-300 p-2 text-left">Courses</th>
+                {/* <th className="border border-gray-300 p-2 text-left">A</th> */}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStudents.map((student) => (
+                <tr key={student.username} className="border-t">
+                  <td className="p-2">{student.username}</td>
+                  <td className="p-2">{student.branch}</td>
+                  <td className="p-2">{student.year}</td>
+                  <td className="p-2">{student.student_courses.join(', ')}</td>
+                  <td className="p-2">
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => deleteStudent(student.username)}
                     >
-                      Assign Course
-                    </Button>
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Faculty List</h3>
-                      <ul className="space-y-2">
-                        {faculties.map((faculty) => (
-                          <li key={faculty.id} className="bg-gray-100 p-2 rounded">
-                            <span className="font-medium">{faculty.username}</span>{" "}
-                            ({faculty.department}) - Courses:{" "}
-                            {faculty.faculty_courses.join(", ") || "None"}
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Total Students */}
+          <p className="text-gray-600">Total: {filteredStudents.length}</p>
+
+          {/* Create Student Dialog */}
+          {showCreateStudentDialog && (
+            <Dialog open={showCreateStudentDialog} onOpenChange={setShowCreateStudentDialog}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-lg font-semibold">Add New Student</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  {/* Inputs for Adding Student */}
+                  <Input
+                    required
+                    placeholder="Username"
+                    className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={newStudent.username}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, username: e.target.value })
+                    }
+                  />
+                  <Input
+                    required
+                    type="password"
+                    placeholder="Password"
+                    className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={newStudent.password}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, password: e.target.value })
+                    }
+                  />
+                  <Select
+                    onValueChange={(value) =>
+                      setNewStudent({ ...newStudent, branch: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments_array.map((dept, index) => (
+                        <SelectItem key={index} value={dept}>
+                          {dept}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    onValueChange={(value) =>
+                      setNewStudent({ ...newStudent, year: parseInt(value) })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4].map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          Year {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    onValueChange={(value) => {
+                      if (!newStudent.student_courses.includes(value)) {
+                        setNewStudent({
+                          ...newStudent,
+                          student_courses: [...newStudent.student_courses, value],
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Courses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {courses.map((course) => (
+                        <SelectItem key={course.id_} value={course.id_.toString()}>
+                          {course.id_}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {newStudent.student_courses.length > 0 && (
+                    <div className="gap-1">
+                      <p className="font-semibold">Selected Courses:</p>
+                      <ul className="flex flex-wrap gap-2">
+                        {newStudent.student_courses.map((course) => (
+                          <li key={course} className="bg-blue-200 text-blue-800 rounded-md p-1">
+                            {course}
                           </li>
                         ))}
                       </ul>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  )}
 
-{/* ---------------------------------------Student Management Tab */}
-<TabsContent value="students">
-  <div className="p-8 space-y-6">
-    <div className="flex justify-between items-center">
-      <h1 className="text-2xl font-bold">Students</h1>
-      <Button
-        className="bg-blue-500 text-white hover:bg-blue-600 transition duration-200 rounded-md px-4 py-2"
-        onClick={() => setShowCreateStudentDialog(true)}
-      >
-        + Add Student
-      </Button>
+                  <Button
+                    onClick={addStudent}
+                    disabled={
+                      !newStudent.username || !newStudent.password || !newStudent.branch || !newStudent.year
+                    }
+                    className="bg-blue-600 text-white hover:bg-blue-700 transition duration-200 rounded-md p-2"
+                  >
+                    Add Student
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      
+      </div>
     </div>
+  );
 
-    {/* Search Bar */}
-    <Input
-      placeholder="Search..."
-      className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-    />
+  const FacultyContent = () => (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Faculty Dashboard</h2>
+        <Card>
+          <CardHeader>
+            <CardTitle>Faculty Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Add New Faculty</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Add New Faculty</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <Input
+                      placeholder="Username"
+                      value={newFaculty.username}
+                      onChange={(e) =>
+                        setNewFaculty({
+                          ...newFaculty,
+                          username: e.target.value,
+                        })
+                      }
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={newFaculty.password}
+                      onChange={(e) =>
+                        setNewFaculty({
+                          ...newFaculty,
+                          password: e.target.value,
+                        })
+                      }
+                    />
 
-    {/* Student Table */}
-    <table className="w-full border-collapse border border-gray-300 rounded-lg">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border border-gray-300 p-2 text-left">Username</th>
-          <th className="border border-gray-300 p-2 text-left">Branch</th>
-          <th className="border border-gray-300 p-2 text-left">Year</th>
-          <th className="border border-gray-300 p-2 text-left">Courses</th>
-          {/* <th className="border border-gray-300 p-2 text-left">A</th> */}
-        </tr>
-      </thead>
-      <tbody>
-        {filteredStudents.map((student) => (
-          <tr key={student.username} className="border-t">
-            <td className="p-2">{student.username}</td>
-            <td className="p-2">{student.branch}</td>
-            <td className="p-2">{student.year}</td>
-            <td className="p-2">{student.student_courses.join(', ')}</td>
-            <td className="p-2">
-              <button
-                className="text-red-500 hover:text-red-700"
-                onClick={() => deleteStudent(student.username)}
+                    <Select
+                      onValueChange={(value) =>
+                        setNewFaculty({
+                          ...newFaculty,
+                          department: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments_array.map((dept, index) => (
+                          <SelectItem key={index} value={dept.toString()}>
+                            {dept}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Button
+                      onClick={addFaculty}
+                      disabled={
+                        newFaculty.username === "" ||
+                        newFaculty.password === "" ||
+                        newFaculty.department === ""
+                      }
+                    >
+                      Add Faculty
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <div className="space-y-2">
+                <Input
+                  placeholder="Search Faculty"
+                  value={facultySearch}
+                  onChange={(e) => setFacultySearch(e.target.value)}
+                />
+                {facultySuggestions.length > 0 && (
+                  <ul className="bg-white border rounded-md shadow-sm">
+                    {facultySuggestions.map((faculty) => (
+                      <li
+                        key={faculty.id}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setSelectedFaculty(faculty);
+                          setFacultySearch(faculty.username);
+                        }}
+                      >
+                        {faculty.username} - {faculty.department}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Input
+                  placeholder="Search Course"
+                  value={courseSearch}
+                  onChange={(e) => setCourseSearch(e.target.value)}
+                />
+                {courseSuggestions.length > 0 && (
+                  <ul className="bg-white border rounded-md shadow-sm">
+                    {courseSuggestions.map((course) => (
+                      <li
+                        key={course.id_}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setSelectedCourse(course);
+                          setCourseSearch(course.title);
+                        }}
+                      >
+                        {course.title} ({course.id_})
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {selectedCourse && selectedFaculty ? (
+                <div className="flex gap-4">
+                  <p>
+                    <i>
+                      <b>{selectedCourse.title}</b>
+                    </i>{" "}
+                    course is being assigned to the{" "}
+                    <i>
+                      <b>{selectedFaculty.username}</b>
+                    </i>{" "}
+                    faculty
+                  </p>
+                  <p
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedFaculty(null);
+                      setSelectedCourse(null);
+                      setFacultySearch("");
+                      setCourseSearch("");
+                    }}
+                  >
+                    <u>Click Here to Dismiss</u>
+                  </p>
+                </div>
+              ) : null}
+              <Button
+                onClick={assignCourseToFaculty}
+                disabled={!selectedFaculty || !selectedCourse}
               >
-                🗑️
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-
-    {/* Total Students */}
-    <p className="text-gray-600">Total: {filteredStudents.length}</p>
-
-    {/* Create Student Dialog */}
-    {showCreateStudentDialog && (
-      <Dialog open={showCreateStudentDialog} onOpenChange={setShowCreateStudentDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">Add New Student</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {/* Inputs for Adding Student */}
-            <Input
-              required
-              placeholder="Username"
-              className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={newStudent.username}
-              onChange={(e) =>
-                setNewStudent({ ...newStudent, username: e.target.value })
-              }
-            />
-            <Input
-              required
-              type="password"
-              placeholder="Password"
-              className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={newStudent.password}
-              onChange={(e) =>
-                setNewStudent({ ...newStudent, password: e.target.value })
-              }
-            />
-            <Select
-              onValueChange={(value) =>
-                setNewStudent({ ...newStudent, branch: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Branch" />
-              </SelectTrigger>
-              <SelectContent>
-                {departments_array.map((dept, index) => (
-                  <SelectItem key={index} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              onValueChange={(value) =>
-                setNewStudent({ ...newStudent, year: parseInt(value) })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4].map((year) => (
-                  <SelectItem key={year} value={year.toString()}>
-                    Year {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              onValueChange={(value) => {
-                if (!newStudent.student_courses.includes(value)) {
-                  setNewStudent({
-                    ...newStudent,
-                    student_courses: [...newStudent.student_courses, value],
-                  });
-                }
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Courses" />
-              </SelectTrigger>
-              <SelectContent>
-                {courses.map((course) => (
-                  <SelectItem key={course.id_} value={course.id_.toString()}>
-                    {course.id_}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {newStudent.student_courses.length > 0 && (
-              <div className="gap-1">
-                <p className="font-semibold">Selected Courses:</p>
-                <ul className="flex flex-wrap gap-2">
-                  {newStudent.student_courses.map((course) => (
-                    <li key={course} className="bg-blue-200 text-blue-800 rounded-md p-1">
-                      {course}
+                Assign Course
+              </Button>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Faculty List</h3>
+                <ul className="space-y-2">
+                  {faculties.map((faculty) => (
+                    <li key={faculty.id} className="bg-gray-100 p-2 rounded">
+                      <span className="font-medium">{faculty.username}</span>{" "}
+                      ({faculty.department}) - Courses:{" "}
+                      {faculty.faculty_courses.join(", ") || "None"}
                     </li>
                   ))}
                 </ul>
               </div>
-            )}
+            </div>
+          </CardContent>
+        </Card>
+      
+    </div>
+  );
 
-            <Button
-              onClick={addStudent}
-              disabled={
-                !newStudent.username || !newStudent.password || !newStudent.branch || !newStudent.year
-              }
-              className="bg-blue-600 text-white hover:bg-blue-700 transition duration-200 rounded-md p-2"
-            >
-              Add Student
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )}
-  </div>
-</TabsContent>
-
-
-
-            {/* ------------------------- Dashboard Tab ------------------------- */}
-            <TabsContent value="dashboard">
-              <div className="p-6 bg-gray-50 w-full h-full">
-                {/* General Information Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <InfoCard title="Total Courses" value="50" />
-                  <InfoCard title="Total Students" value="2468" />
-                  <InfoCard title="Total Faculty" value="245" />
-                  <InfoCard title="Total Enrollments" value="508" />
+  const CourseContent = () => (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Course Dashboard</h2>
+     
+        <Card>
+          <CardHeader>
+            <CardTitle>Course Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Add course form */}
+              <div className="flex space-y-4 flex-col">
+                <Input
+                  placeholder="Course ID"
+                  value={newCourse.id_}
+                  onChange={(e) =>
+                    setNewCourse({ ...newCourse, id_: e.target.value })
+                  }
+                  className="mb-2 w-1/2"
+                />
+                <Input
+                  placeholder="Course Title"
+                  value={newCourse.title}
+                  onChange={(e) =>
+                    setNewCourse({ ...newCourse, title: e.target.value })
+                  }
+                  className="mb-2 w-1/2"
+                />
+                <Textarea
+                  placeholder="Enter Syllabus Text"
+                  value={newCourse.syllabus}
+                  onChange={(e) =>
+                    setNewCourse({ ...newCourse, syllabus: e.target.value })
+                  }
+                  className="mb-2 w-1/2"
+                />
+                <div className="flex items-center gap-4 w-1/2">
+                  <Label htmlFor="context">Context</Label>
+                  <Input id="context" type="file" />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-
-                  {/* Pie Chart (Students distribution) */}
-                  <div className="bg-white p-4 rounded-lg shadow flex flex-col" style={{ minHeight: '350px', width: '300px', height: '300px' }}>
-                    <h2 className="text-lg font-semibold mb-4 text-center">Students</h2>
-                    <div className="flex-grow w-full">
-                      <Pie data={pieData} />
-                    </div>  
-                  </div>
-
-                  {/* Teacher List */}
-                  <div className="bg-white p-4 rounded-lg shadow flex flex-col" style={{ minHeight: '350px', width: '450px', height: '300px' }}>
-                    <h2 className="text-lg font-semibold mb-4 text-center">Teacher List</h2>
-                    <table className="min-w-full table-auto">
-                      <thead>
-                        <tr className="bg-gray-100">
-                          <th className="px-4 py-2">Name</th>
-                          <th className="px-4 py-2">Class</th>
-                          <th className="px-4 py-2">Subject</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { name: 'Morris Jhonson', class: 'Class 6', subject: 'English' },
-                          { name: 'Jane Cooper', class: 'Class 5', subject: 'Music' },
-                          { name: 'Esther Howard', class: 'Class 8', subject: 'Arts' },
-                          { name: 'Wade Warren', class: 'Class 7', subject: 'Physics' },
-                          { name: 'Jenny Wilson', class: 'Class 9', subject: 'Chemistry' },
-                        ].map((teacher, index) => (
-                          <tr key={index}>
-                            <td className="border px-4 py-2">{teacher.name}</td>
-                            <td className="border px-4 py-2">{teacher.class}</td>
-                            <td className="border px-4 py-2">{teacher.subject}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Attendance Bar Chart */}
-                  <div className="bg-white p-4 rounded-lg shadow flex flex-col col-span-2" style={{ minHeight: '350px' }}>
-                    <h2 className="text-lg font-semibold mb-4 text-center">Attendance</h2>
-                    <div className="flex-grow w-full">
-                      <Bar data={barData} />
-                    </div>
-                  </div>
-
-                </div>
+                <Button
+                  onClick={addCourse}
+                  className="w-1/4"
+                  disabled={
+                    !newCourse.id_ || !newCourse.title || !newCourse.syllabus
+                  }
+                >
+                  Add Course
+                  
+                </Button>
               </div>
-            </TabsContent>
 
-          </Tabs>
+              {/* List of courses in table format */}
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Existing Courses</h3>
+                <table className="min-w-full table-auto bg-white rounded-md shadow-md">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-2">Course ID</th>
+                      <th className="px-4 py-2">Course Title</th>
+                      <th className="px-4 py-2">Syllabus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courses.map((course) => (
+                      <tr key={course.id_} className="border-b">
+                        <td className="px-4 py-2">{course.id_}</td>
+                        <td className="px-4 py-2">{course.title}</td>
+                        <td className="px-4 py-2">{course.syllabus}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+   
+    </div>
+  );
+
+  const tabs = [
+    {
+      name: "Dashboard",
+      component: <DashboardContent />
+    },
+    {
+      name: "Courses",
+      component: <CourseContent />
+    },
+    {
+      name: "Faculty",
+      component: <FacultyContent />
+    },
+    {
+      name: "Students",
+      component: <StudentContent />
+    },
+  ];
+
+
+  return (
+    <div className="flex h-screen">
+    {/* Sidebar */}
+    <div className="w-64 bg-[#14171f] text-white flex flex-col justify-between items-center fixed h-full">
+      <div className="flex flex-col justify-center gap-2">
+        <h2 className="text-2xl font-bold p-4">Admin Dashboard</h2>
+        <div className="flex flex-col justify-center items-center mt-2 mb-8">
+          <div className="h-[1px] w-[90%] bg-white mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+          {/* <h3>{userobj ? userobj.username : USERNAME}</h3> */}
+          {/* <h5>Student</h5> */}
+          <div className="h-[0.5px] w-[90%] bg-white mt-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
         </div>
-        </div>
-        </div>
-      );
+        <nav className="flex flex-col justify-center items-center">
+          {tabs.map((tab) => (
+            <button
+              key={tab.name}
+              onClick={() => setActiveTab(tab.name)}
+              className={`flex items-center w-[80%] text-left px-2 py-2 my-2 ${
+                activeTab === tab.name
+                  ? "border-2 border-[#7b61ff] rounded-2xl"
+                  : ""
+              }`}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </nav>
+      </div>
+      <button
+        onClick={handleLogout}
+        disabled={!logoutActive}
+        className="flex items-center w-[70%] justify-center rounded-md bg-[#7b61ff] text-left px-2 py-2 my-2"
+      >
+        <p className="mr-2">Logout</p>
+      </button>
+    </div>
+  
+    {/* Content Area */}
+    <div className="flex-1 p-8 ml-64 overflow-auto">
+      {activeTab === "Dashboard" ? (
+        <DashboardContent />
+      ) : activeTab === "Faculty" ? (
+        <FacultyContent />
+      ) : activeTab === "Courses" ? (
+        <CourseContent />
+      ) : activeTab === "Students" ? (
+        <StudentContent />
+      ) : null}
+    </div>
+  </div>
+  );  
 }
 
 
-
-
-        interface InfoCardProps {
-          title: string;
-        value: string | number;
+interface InfoCardProps {
+  title: string;
+  value: string | number;
 }
 
-        const InfoCard: React.FC<InfoCardProps> = ({title, value}) => (
+const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => (
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-600">{title}</h3>
-            <div className="text-2xl font-bold text-gray-900">{value}</div>
-          </div>
-          );
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-sm font-medium text-gray-600">{title}</h3>
+    <div className="text-2xl font-bold text-gray-900">{value}</div>
+  </div>
+);
