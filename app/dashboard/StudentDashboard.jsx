@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import Edit from "@/public/assets/Edit.svg";
 import Student from "@/public/assets/Student.svg";
 import PasswordImg from "@/public/assets/Password.svg";
-import { u } from "framer-motion/client";
 import { Button } from "@/components/ui/button";
+import Emoji from "@/public/assets/Reaction.png";
+import { Bars, FallingLines } from "react-loader-spinner";
+import FeedbackHistory from "@/public/assets/FeedbackHistory.png";
 
 async function getUser() {
   try {
@@ -25,7 +27,49 @@ async function getUser() {
   }
 }
 
-const DashboardContent = (userobj) => {
+const DashboardContent = ({ userobj }) => {
+  const [feedbackTasks, setFeedbackTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeedbackTasks = async () => {
+      try {
+        const response = await fetch(
+          `/api/student/gettasks/${userobj.username}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setFeedbackTasks(data);
+        } else {
+          console.error("Error fetching feedback tasks:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeedbackTasks();
+  }, [userobj.username]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-full flex flex-col justify-center items-center gap-2">
+        <Bars
+          height="80"
+          width="80"
+          color="#7b61ff"
+          ariaLabel="bars-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+        <p>Hold on tight, loading your dashboard...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
@@ -33,6 +77,50 @@ const DashboardContent = (userobj) => {
         Welcome to your dashboard! Here, you will see an overview of your
         activities and updates.
       </p>
+
+      <h3 className="text-xl font-semibold mt-6">Outstanding Feedbacks</h3>
+      {feedbackTasks.length > 0 ? (
+        <ul className="mt-4">
+          {feedbackTasks.map((task, index) => (
+            <li
+              key={index}
+              className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
+            >
+              <div className="flex items-center gap-4">
+                <Image
+                  src={Emoji}
+                  alt="Emoji"
+                  width={100}
+                  height={100}
+                  className="mr-2"
+                />
+                <div>
+                  <h4 className="font-bold text-lg">{task.title}</h4>
+                  <p>Course ID: {task.course_id}</p>
+                  <p>Created by: {task.created_by}</p>
+                  {/* <p>Status: {task.active ? "Active" : "Inactive"}</p> */}
+                  <div className="px-2 py-1 bg-green-400 inline-block rounded-md mt-2">
+                    {task.active ? "Active" : "Closed"}
+                  </div>
+                </div>
+              </div>
+              <div>
+                {task.active ? (
+                  <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+                    Complete feedback now
+                  </button>
+                ) : (
+                  <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+                    View feedback
+                  </button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No outstanding feedback tasks available.</p>
+      )}
     </div>
   );
 };
@@ -241,6 +329,16 @@ const FeedbackHistoryContent = (userobj) => {
         View all your past feedback and comments here. You can also track your
         feedback progress.
       </p>
+      <div className="w-full flex flex-col min-h-[500px] justify-center items-center gap-2">
+        <Image
+          src={FeedbackHistory}
+          alt="Feedback History"
+          width={200}
+          height={200}
+          className=""
+        />
+        <p>No feedback history available</p>
+      </div>
     </div>
   );
 };
@@ -343,15 +441,27 @@ const StudentDashboard = () => {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 p-8">
-        {activeTab === "Profile" ? (
-          <ProfileContent userobj={userobj} />
-        ) : activeTab === "Feedback History" ? (
-          <FeedbackHistoryContent userobj={userobj} />
-        ) : (
-          <DashboardContent userobj={userobj} />
-        )}
-      </div>
+      {logoutActive === true ? (
+        <div className="flex-1 p-8">
+          {activeTab === "Profile" ? (
+            <ProfileContent userobj={userobj} />
+          ) : activeTab === "Feedback History" ? (
+            <FeedbackHistoryContent userobj={userobj} />
+          ) : (
+            <DashboardContent userobj={userobj} />
+          )}
+        </div>
+      ) : (
+        <div className="w-full h-full flex flex-col justify-center items-center gap-2">
+          <FallingLines
+            color="#7b61ff"
+            width="100"
+            visible={true}
+            ariaLabel="logout label"
+          />
+          <p>Logging out ...</p>
+        </div>
+      )}
     </div>
   );
 };

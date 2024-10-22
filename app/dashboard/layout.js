@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { TailSpin } from 'react-loader-spinner'
 
 export default function DashboardLayout({ children }) {
   const [user, setUser] = useState(null);
@@ -12,12 +13,12 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     (async () => {
       const { user, error } = await getUser();
-      
+
       if (user && user.user === null) {
         push("/login");
         return;
       }
-      if(user && user.user.role === 'admin') {
+      if (user && user.user.role === 'admin') {
         push("/admin");
         return;
       }
@@ -28,7 +29,19 @@ export default function DashboardLayout({ children }) {
   }, [push]);
 
   if (!isSuccess) {
-    return <p>Loading...</p>;
+    return <div className="flex flex-col w-full h-lvh justify-center items-center gap-2">
+      <TailSpin
+        visible={true}
+        height="80"
+        width="80"
+        color="#7b61ff"
+        ariaLabel="tail-spin-loading"
+        radius="1"
+        wrapperStyle={{}}
+        wrapperClass=""
+      />
+      <p>Loading...</p>
+    </div>;
   }
 
   return (
@@ -48,7 +61,7 @@ async function getUser() {
   try {
     let res = await fetch("/api/auth/me");
     res = await res.json();
-   
+
     return {
       user: res.user,
       error: null,
