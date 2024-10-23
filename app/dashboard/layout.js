@@ -22,8 +22,9 @@ export default function DashboardLayout({ children }) {
         push("/admin");
         return;
       }
-
-      setUser(user.user);
+      if (user) {
+        setUser(user.user);
+      }
       setIsSuccess(true);
     })();
   }, [push]);

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import StudentDashboard from "./StudentDashboard";
+import FacultyDashboard from "./FacultyDashboard";
 
 async function handleLogout(router) {
   const response = await fetch('/api/auth/logout', {
@@ -57,7 +58,9 @@ export default function Page() {
         userobj.role === 'student' ? (
           <StudentDashboard />
         ) : (
-          <div>Other</div>
+
+          userobj.role === 'faculty' ? (<FacultyDashboard />) : (
+            <div>Other</div>)
         )
       ) : (
         <div>Loading...</div>
