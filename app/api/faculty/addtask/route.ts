@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest, res: NextResponse) {
   const { title, course_id, created_by, active } = await req.json();
 
-  if (!title || !course_id || !created_by || !active) {
+  if (!title || !course_id || !created_by || typeof active !== "boolean") {
     return NextResponse.json(
       { message: "Please fill in all fields" },
       { status: 400 }

@@ -7,7 +7,7 @@ import Student from "@/public/assets/Student.svg";
 import PasswordImg from "@/public/assets/Password.svg";
 import { Button } from "@/components/ui/button";
 import Emoji from "@/public/assets/Reaction.png";
-import { Bars, FallingLines } from "react-loader-spinner";
+import { Bars, FallingLines, BallTriangle } from "react-loader-spinner";
 import FeedbackHistory from "@/public/assets/FeedbackHistory.png";
 
 async function getUser() {
@@ -99,14 +99,23 @@ const DashboardContent = ({ userobj }) => {
                   <p>Course ID: {task.course_id}</p>
                   <p>Created by: {task.created_by}</p>
                   {/* <p>Status: {task.active ? "Active" : "Inactive"}</p> */}
-                  <div className="px-2 py-1 bg-green-400 inline-block rounded-md mt-2">
+                  <div
+                    className={`px-2 py-1 ${
+                      task.active ? "bg-green-500" : "bg-red-500"
+                    } text-white inline-block rounded-md mt-2`}
+                  >
                     {task.active ? "Active" : "Closed"}
                   </div>
                 </div>
               </div>
               <div>
                 {task.active ? (
-                  <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+                  <button
+                    onClick={() =>
+                      window.open("http://localhost:3000/chat", "_blank")
+                    }
+                    className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+                  >
                     Complete feedback now
                   </button>
                 ) : (
@@ -128,6 +137,7 @@ const DashboardContent = ({ userobj }) => {
 const ProfileContent = ({ userobj }) => {
   const [courses, setCourses] = useState([]);
   const [userDetailsObj, setUserDetailsObj] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -148,6 +158,7 @@ const ProfileContent = ({ userobj }) => {
       const userdetails_backend = await response.json();
       setUserDetailsObj(userdetails_backend);
       console.log(userdetails_backend.user_details);
+      setLoading(false);
     })();
   }, []);
 
@@ -156,6 +167,24 @@ const ProfileContent = ({ userobj }) => {
     const password = event.target.password.value;
     console.log("to be implemented later");
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center gap-4">
+        <BallTriangle
+          height={100}
+          width={100}
+          radius={5}
+          color="#7b61ff"
+          ariaLabel="ball-triangle-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+        <p>Loading profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
