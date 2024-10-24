@@ -27,7 +27,12 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
-      router.replace('/dashboard');
+      if (data.user.role === 'student' || data.user.role === 'faculty') {
+        router.push('/dashboard');
+      }
+      else {
+        router.push('/admin');
+      }
     } else {
       setError(data.message);
     }
