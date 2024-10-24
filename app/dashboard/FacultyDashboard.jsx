@@ -27,7 +27,7 @@ const DashboardContent = ({ userobj, loadingParent }) => {
   const [loading, setLoading] = useState(true);
 
   const openFeedbackPage = (_id) => {
-    window.open("https://localhost:3000/faculty/feedbacktask/" + _id, "_blank");
+    window.open("http://localhost:3000/faculty/feedbacktask/" + _id, "_blank");
   };
 
   const isFirstRender = useRef(true);

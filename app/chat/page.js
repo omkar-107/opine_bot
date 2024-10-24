@@ -238,7 +238,7 @@ export default function ChatbotUI() {
       </div>
       {isRecording && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4/5 max-w-md bg-white rounded-lg shadow-2xl border border-zinc-700 flex flex-col items-center justify-center z-50 p-4">
-          <h2 className="text-lg font-semibold mb-2 text-zinc-50">Recording{ellipsis}</h2>
+          <h2 className="text-lg font-semibold mb-2 text-black">Recording{ellipsis}</h2>
           <div className="w-16 h-16 rounded-full bg-red-500 animate-pulse mb-2"></div>
           <div className="w-full max-h-40 overflow-y-auto text-sm text-zinc-300 text-center px-4">
             <p className="mb-2 text-black">{finalTranscription}</p>
