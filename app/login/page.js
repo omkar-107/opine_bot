@@ -2,6 +2,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import signup from "../signup/page.js";
+import LoginIcon from "@/public/assets/LoginIcon.png"
+import Image from 'next/image.js';
+
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,12 +40,12 @@ export default function Login() {
         <div className="w-full md:w-1/2 p-8">
           <h1 className="mb-6 text-3xl font-semibold text-center">Log in to your Account</h1>
           <p className="mb-2 text-center text-gray-500">
-            Welcome back! 
+            Welcome back!
           </p>
-            <p className='mb-6 text-center'>
-              
-              Select method to log in:
-              </p>
+          <p className='mb-6 text-center'>
+
+            Select method to log in:
+          </p>
 
           <div className="flex space-x-4 justify-center mb-6">
             <button className="w-1/2 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
@@ -117,12 +121,19 @@ export default function Login() {
         <div className="hidden md:block w-1/2 bg-blue-600 p-8 text-white">
           <div className="flex items-center justify-center h-full">
             <div className="text-center mt-2">
-               
-                <p className=" text-lg">
+
+              {/* <p className=" text-lg">
                  lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Sed euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Sed euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Sed euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Sed euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Sed euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Sed euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl.
 
-                </p>
-            
+                </p> */}
+              <Image
+                src={LoginIcon}
+                alt="Login Icon"
+                width={150}
+                height={150}
+                className=""
+              />
+
             </div>
           </div>
         </div>
