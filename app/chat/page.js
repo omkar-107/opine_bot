@@ -1,105 +1,215 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { MicrophoneIcon } from '@heroicons/react/outline'; // Import icons from Heroicons
-import { motion } from 'framer-motion'; // Import Framer Motion
+import { MicrophoneIcon ,StopIcon} from '@heroicons/react/outline';
+import { motion } from 'framer-motion';
 
-const getNextQuestion = (currentQuestion, userResponse) => {
-  switch (currentQuestion) {
-    case null:
-      return "How satisfied are you with your overall university experience?";
-    case "How satisfied are you with your overall university experience?":
-      if (userResponse.toLowerCase().includes("not satisfied") || userResponse.toLowerCase().includes("poor")) {
-        return "I'm sorry to hear that. What specific areas do you think need improvement?";
-      } else {
-        return "That's great to hear! Which aspects of the university do you enjoy the most?";
-      }
-    case "I'm sorry to hear that. What specific areas do you think need improvement?":
-    case "That's great to hear! Which aspects of the university do you enjoy the most?":
-      return "Thank you for sharing. Do you have any suggestions for new programs or services?";
-    default:
-      return "Is there anything else you'd like to add to your feedback?";
-  }
-};
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
 
 export default function ChatbotUI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [recognition, setRecognition] = useState(null); // State to hold recognition instance
-  const [isListening, setIsListening] = useState(false); // State to track if listening
-  const MAX_CHAR_LIMIT = 3000; // Set the maximum character limit
+  const [recognition, setRecognition] = useState(null);
+  const [finalTranscription, setFinalTranscription] = useState('');
+  const [transcription, setTranscription] = useState('');
+  const [ellipsis, setEllipsis] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const MAX_CHAR_LIMIT = 3000;
+  const course = "Operating Systems";
+  const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const transcriptionTimeoutRef = useRef(null);
 
-  // Use useEffect to initialize the recognition on the client side
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const recognitionInstance = new window.webkitSpeechRecognition();
-      recognitionInstance.continuous = false; // Stop after one phrase
-      recognitionInstance.interimResults = false; // No intermediate results
+    scrollToBottom();
+  }, [messages]);
 
-      // Set up recognition event handlers
-      recognitionInstance.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        console.log("Recognized speech:", transcript); // Log recognized speech to the console
-        setInput(transcript); // Set the input to the recognized text
+  useEffect(() => {
+    startFeedbackSession();
+  }, []);
+
+  useEffect(() => {
+    let ellipsisInterval;
+    if (isRecording) {
+      ellipsisInterval = setInterval(() => {
+        setEllipsis(prev => prev.length < 3 ? prev + '.' : '');
+      }, 500);
+    }
+    return () => clearInterval(ellipsisInterval);
+  }, [isRecording]);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.onresult = (event) => {
+        clearTimeout(transcriptionTimeoutRef.current);
+        let interimTranscript = '';
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        setFinalTranscription(prev => prev + finalTranscript);
+        setTranscription(interimTranscript);
+        transcriptionTimeoutRef.current = setTimeout(() => {
+          setTranscription('');
+        }, 1000);
       };
-
-      recognitionInstance.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        alert(`Error occurred in speech recognition: ${event.error}`); // Alerting the user
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error', event);
       };
-
-      // Set up end event to toggle listening state
-      recognitionInstance.onend = () => {
-        console.log('Speech recognition service disconnected');
-        setIsListening(false); // Update listening state
-      };
-
-      setRecognition(recognitionInstance); // Store the recognition instance
     } else {
-      console.error('Speech recognition not supported in this browser.');
+      console.warn('Web Speech API is not supported in this browser.');
     }
   }, []);
 
-  const handleBotMessage = (message) => {
-    setMessages((prev) => [...prev, { text: message, sender: 'bot' }]);
-    setCurrentQuestion(message);
-  };
 
-  const handleSendMessage = () => {
-    if (input.trim() === '') return;
-    const userMessage = { text: input, sender: 'user' };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-
-    setTimeout(() => {
-      const nextQuestion = getNextQuestion(currentQuestion, input);
-      handleBotMessage(nextQuestion);
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const toggleListening = () => {
-    if (recognition) {
-      if (isListening) {
-        recognition.stop(); // Stop speech recognition
-      } else {
-        recognition.start(); // Start speech recognition
-      }
-      setIsListening(!isListening); // Toggle listening state
+  const handleVoiceInput = () => {
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      const sanitizedTranscription = (finalTranscription + transcription).replace(/\s+/g, ' ').trim()
+      setInput(sanitizedTranscription);
+      setTranscription('');
+      setFinalTranscription('');
+    } else {
+      recognitionRef.current.start();
+      setIsRecording(true);
+      setTranscription('');
+      setFinalTranscription('');
     }
   };
+
+
+
+  const startFeedbackSession = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${baseUrl}/start_feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ course }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to start feedback session:', response.status);
+        throw new Error('Failed to start feedback session');
+      }
+
+      const data = await response.json();
+      if (!data.chat_history || !Array.isArray(data.chat_history)) {
+        console.error('Invalid chat history format:', data);
+        throw new Error('Invalid response format');
+      }
+
+      // Filter out system messages when setting the chat history
+      setMessages(data.chat_history
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          text: msg.content,
+          sender: msg.role
+        }))
+      );
+    } catch (error) {
+      console.error('Error starting feedback session:', error);
+      alert('Failed to start feedback session. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (input.trim() === '') return;
+    
+    const currentInput = input;
+    const currentMessages = messages;
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${baseUrl}/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          course,
+          chat_history: currentMessages.map(msg => ({
+            role: msg.sender,
+            content: msg.text
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to send message:', response.status);
+        throw new Error('Failed to send message');
+      }
+
+      const data = await response.json();
+      
+      if (!data.chat_history || !Array.isArray(data.chat_history)) {
+        console.error('Invalid chat history format:', data);
+        throw new Error('Invalid response format');
+      }
+
+      // Filter out system messages when updating the chat history
+      setMessages(data.chat_history
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          text: msg.content,
+          sender: msg.role
+        }))
+      );
+      setInput('');
+
+      if (data.is_last_question) {
+        console.log('Feedback session completed');
+        // Handle completion if needed
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // const toggleListening = () => {
+  //   if (recognition) {
+  //     if (isListening) {
+  //       recognition.stop();
+  //     } else {
+  //       recognition.start();
+  //     }
+  //     setIsListening(!isListening);
+  //   }
+  // };
 
   return (
     <div className="flex flex-col h-screen bg-white text-gray-900">
       <div className="bg-white p-6 shadow-lg text-center">
-        <h1 className="text-4xl font-bold text-black">OpineBot</h1>
+        <h1 className="text-4xl font-bold text-black">Course Feedback Bot</h1>
+        <p className="text-gray-600 mt-2">{course} Course Feedback</p>
       </div>
 
-      <div className="flex-1 p-4">
-        {/* Display message history */}
+      <div className="flex-1 p-4 overflow-y-auto">
         {messages.map((message, index) => (
           <motion.div
             key={index}
@@ -108,44 +218,76 @@ export default function ChatbotUI() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className={`inline-block p-3 rounded-lg shadow-md ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}`}>
+            <div 
+              className={`inline-block p-3 rounded-lg shadow-md max-w-[80%] ${
+                message.sender === 'user' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-100 text-gray-900'
+              }`}
+            >
               {message.text}
             </div>
           </motion.div>
         ))}
-        {isLoading && <div className="text-center py-2">Loading...</div>}
+        {isLoading && (
+          <div className="flex justify-center items-center py-4">
+            <div className="animate-pulse text-gray-600">Processing...</div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
+      {isRecording && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4/5 max-w-md bg-white rounded-lg shadow-2xl border border-zinc-700 flex flex-col items-center justify-center z-50 p-4">
+          <h2 className="text-lg font-semibold mb-2 text-zinc-50">Recording{ellipsis}</h2>
+          <div className="w-16 h-16 rounded-full bg-red-500 animate-pulse mb-2"></div>
+          <div className="w-full max-h-40 overflow-y-auto text-sm text-zinc-300 text-center px-4">
+            <p className="mb-2 text-black">{finalTranscription}</p>
+            <p className="text-blue-500">{transcription}</p>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white p-6 shadow-lg">
-        {/* Input and Button Section */}
-        <div className="mt-6 flex items-center space-x-2 border border-gray-300 rounded-full p-2 shadow-md">
+        <div className="flex items-center space-x-2 border border-gray-300 rounded-full p-2 shadow-md">
           <button 
-            className="p-2" 
-            onClick={toggleListening} // Toggle listening on button click
-          >
-            <MicrophoneIcon className={`h-6 w-6 ${isListening ? 'text-blue-600' : 'text-gray-400'}`} />
+            className="p-2"
+            onClick={handleVoiceInput}
+          >{!isRecording ?
+            <MicrophoneIcon 
+              className={`h-6 w-6 text-blue-600 `}
+          />: 
+          <StopIcon className={`h-6 w-6 text-red-600 `}  />
+          }
           </button>
 
-          {/* Chat Input */}
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Summarize the latest"
+            placeholder="Type your feedback here..."
             className="flex-1 py-2 px-4 text-gray-900 bg-transparent focus:outline-none"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
           />
 
-          {/* Character Count */}
-          <span className={`text-sm ${input.length > MAX_CHAR_LIMIT ? 'text-red-500' : 'text-gray-400'}`}>
+          <span className={`text-sm ${
+            input.length > MAX_CHAR_LIMIT ? 'text-red-500' : 'text-gray-400'
+          }`}>
             {input.length} / {MAX_CHAR_LIMIT}
           </span>
 
-          {/* Send Button */}
-          <Button onClick={handleSendMessage} disabled={input.length > MAX_CHAR_LIMIT} className="py-2 px-4 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600">
+          <Button
+            onClick={handleSendMessage}
+            disabled={input.length > MAX_CHAR_LIMIT || isLoading}
+            className="py-2 px-4 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 disabled:opacity-50"
+          >
             Send
           </Button>
         </div>
-       
       </div>
     </div>
   );

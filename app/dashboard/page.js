@@ -46,11 +46,7 @@ export default function Page() {
     })();
   }, []);
 
-  // return (<div>authenticated users only
 
-  //   {userobj && <p>{JSON.stringify(userobj.user)}</p>}
-  //   <button className="flex" onClick={() => handleLogout(router)}>logout</button>
-  // </div>);
 
   return (
     <div>

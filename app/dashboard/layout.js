@@ -1,28 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React from "react";
+import{ useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TailSpin } from 'react-loader-spinner'
+import { TailSpin } from 'react-loader-spinner';
 
 export default function DashboardLayout({ children }) {
   const [user, setUser] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const { push } = useRouter();
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
     (async () => {
       const { user, error } = await getUser();
+      if (error) {
+        push("/login");
+        return;
+      }
 
       if (user && user.user === null) {
         push("/login");
         return;
       }
-      if (user && user.user.role === 'admin') {
-        push("/admin");
-        return;
-      }
       if (user) {
+        setRole(user.user.role);
         setUser(user.user);
       }
       setIsSuccess(true);
@@ -47,12 +50,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <main>
-      {/* <header>
-        <Link href='/dashboard'>
-          Dashboard
-        </Link>
-        {user && <p>Role: {user.role}</p>}
-      </header> */}
+
       {children}
     </main>
   );
@@ -62,7 +60,12 @@ async function getUser() {
   try {
     let res = await fetch("/api/auth/me");
     res = await res.json();
-
+    if (res.message === "Unauthorized") {
+      return {
+        user: null,
+        error: new Error("Unauthorized"),
+      };
+    }
     return {
       user: res.user,
       error: null,
