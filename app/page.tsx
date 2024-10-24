@@ -7,7 +7,7 @@ import { HoverEffect } from "../components/ui/card_hover_effect.js";
 import { BackgroundBeamsWithCollision } from "../components/ui/background_beams_with_collision.js"; 
 import { HoveredLink, Menu, MenuItem, ProductItem } from "../components/ui/navbar_mwnu.js";
 import { cn } from "@/lib/utils";
-export const projects = [
+const projects = [
   {
     // title: "Stripe",
     description:
@@ -156,11 +156,11 @@ export default function LandingPage() {
 
 
       <section id="features" className="w-full py-0 bg-gray-100">
-      <BackgroundBeamsWithCollision>
+      <BackgroundBeamsWithCollision className="">
          <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl font-semibold text-gray-800">What Services we offer</h2>
           <div className="mt-10 grid grid-cols-1 md:grid-cols-1 gap-8">
-           <HoverEffect items={projects}/>
+           <HoverEffect items={projects} className=""/>
           </div>
         </div>
       {/* <h2 className="text-2xl relative z-20 md:text-4xl lg:text-7xl font-bold text-center text-black dark:text-white font-sans tracking-tight"> */}
