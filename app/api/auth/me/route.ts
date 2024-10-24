@@ -25,9 +25,9 @@ export async function GET() {
   try {
     let user = verify(value, secret);
     user = user as { user: string };
-    console.log(user)
+    console.log(user);
     const response = {
-      user
+      user,
     };
 
     return new Response(JSON.stringify(response), {
