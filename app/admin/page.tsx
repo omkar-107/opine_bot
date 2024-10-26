@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useRouter } from 'next/navigation';
+import CourseContent from "./course_page.jsx";
 import {
   Select,
   SelectContent,
@@ -828,86 +829,86 @@ export default function page() {
     </div>
   );
 
-  const CourseContent = () => (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Course Dashboard</h2>
+  // const CourseContent = () => (
+  //   <div>
+  //     <h2 className="text-2xl font-bold mb-4">Course Dashboard</h2>
      
-        <Card>
-          <CardHeader>
-            <CardTitle>Course Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Add course form */}
-              <div className="flex space-y-4 flex-col">
-                <Input
-                  placeholder="Course ID"
-                  value={newCourse.id_}
-                  onChange={(e) =>
-                    setNewCourse({ ...newCourse, id_: e.target.value })
-                  }
-                  className="mb-2 w-1/2"
-                />
-                <Input
-                  placeholder="Course Title"
-                  value={newCourse.title}
-                  onChange={(e) =>
-                    setNewCourse({ ...newCourse, title: e.target.value })
-                  }
-                  className="mb-2 w-1/2"
-                />
-                <Textarea
-                  placeholder="Enter Syllabus Text"
-                  value={newCourse.syllabus}
-                  onChange={(e) =>
-                    setNewCourse({ ...newCourse, syllabus: e.target.value })
-                  }
-                  className="mb-2 w-1/2"
-                />
-                <div className="flex items-center gap-4 w-1/2">
-                  <Label htmlFor="context">Context</Label>
-                  <Input id="context" type="file" />
-                </div>
-                <Button
-                  onClick={addCourse}
-                  className="w-1/4"
-                  disabled={
-                    !newCourse.id_ || !newCourse.title || !newCourse.syllabus
-                  }
-                >
-                  Add Course
+  //       <Card>
+  //         <CardHeader>
+  //           <CardTitle>Course Management</CardTitle>
+  //         </CardHeader>
+  //         <CardContent>
+  //           <div className="space-y-4">
+  //             {/* Add course form */}
+  //             <div className="flex space-y-4 flex-col">
+  //               <Input
+  //                 placeholder="Course ID"
+  //                 value={newCourse.id_}
+  //                 onChange={(e) =>
+  //                   setNewCourse({ ...newCourse, id_: e.target.value })
+  //                 }
+  //                 className="mb-2 w-1/2"
+  //               />
+  //               <Input
+  //                 placeholder="Course Title"
+  //                 value={newCourse.title}
+  //                 onChange={(e) =>
+  //                   setNewCourse({ ...newCourse, title: e.target.value })
+  //                 }
+  //                 className="mb-2 w-1/2"
+  //               />
+  //               <Textarea
+  //                 placeholder="Enter Syllabus Text"
+  //                 value={newCourse.syllabus}
+  //                 onChange={(e) =>
+  //                   setNewCourse({ ...newCourse, syllabus: e.target.value })
+  //                 }
+  //                 className="mb-2 w-1/2"
+  //               />
+  //               <div className="flex items-center gap-4 w-1/2">
+  //                 <Label htmlFor="context">Context</Label>
+  //                 <Input id="context" type="file" />
+  //               </div>
+  //               <Button
+  //                 onClick={addCourse}
+  //                 className="w-1/4"
+  //                 disabled={
+  //                   !newCourse.id_ || !newCourse.title || !newCourse.syllabus
+  //                 }
+  //               >
+  //                 Add Course
                   
-                </Button>
-              </div>
+  //               </Button>
+  //             </div>
 
-              {/* List of courses in table format */}
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Existing Courses</h3>
-                <table className="min-w-full table-auto bg-white rounded-md shadow-md">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-4 py-2">Course ID</th>
-                      <th className="px-4 py-2">Course Title</th>
-                      <th className="px-4 py-2">Syllabus</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {courses.map((course) => (
-                      <tr key={course.id_} className="border-b">
-                        <td className="px-4 py-2">{course.id_}</td>
-                        <td className="px-4 py-2">{course.title}</td>
-                        <td className="px-4 py-2">{course.syllabus}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  //             {/* List of courses in table format */}
+  //             <div>
+  //               <h3 className="text-lg font-semibold mb-2">Existing Courses</h3>
+  //               <table className="min-w-full table-auto bg-white rounded-md shadow-md">
+  //                 <thead className="bg-gray-100">
+  //                   <tr>
+  //                     <th className="px-4 py-2">Course ID</th>
+  //                     <th className="px-4 py-2">Course Title</th>
+  //                     <th className="px-4 py-2">Syllabus</th>
+  //                   </tr>
+  //                 </thead>
+  //                 <tbody>
+  //                   {courses.map((course) => (
+  //                     <tr key={course.id_} className="border-b">
+  //                       <td className="px-4 py-2">{course.id_}</td>
+  //                       <td className="px-4 py-2">{course.title}</td>
+  //                       <td className="px-4 py-2">{course.syllabus}</td>
+  //                     </tr>
+  //                   ))}
+  //                 </tbody>
+  //               </table>
+  //             </div>
+  //           </div>
+  //         </CardContent>
+  //       </Card>
    
-    </div>
-  );
+  //   </div>
+  // );
 
   const tabs = [
     {

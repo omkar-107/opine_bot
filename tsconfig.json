@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/admin/page.tsx", "components/ui/button_lamp_demo.js", "components/ui/lamp.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/admin/page.tsx", "components/ui/button_lamp_demo.js", "components/ui/lamp.js", "app/admin/course_page.jsx"],
   "exclude": ["node_modules"]
 }

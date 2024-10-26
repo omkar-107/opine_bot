@@ -1,162 +1,199 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function SignUp() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+const SignUpPage = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    confirmPassword: false
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const togglePasswordVisibility = (field) => {
+    setShowPassword(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
       return;
     }
 
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
+      setLoading(false);
 
-    if (res.ok) {
-      router.replace('/login');
-    } else {
-      setError(data.message);
+      if (res.ok) {
+        router.replace('/login');
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Something went wrong. Please try again.');
     }
   };
 
+  const inputClasses = "w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c89ff] bg-gray-50/50";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white rounded-lg shadow-lg flex overflow-hidden max-w-4xl w-full">
-        {/* Left Section */}
-        <div className="hidden md:flex md:w-1/2 bg-blue-600 items-center justify-center p-10">
-          <div className="text-center">
-           
-          </div>
+    <div className="min-h-screen bg-[#ddd8ff] p-6 flex items-center justify-center">
+      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden flex">
+
+        <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-[#9c89ff] to-[#ddd8ff] p-8 relative">
+          
         </div>
 
-        {/* Right Section (Form) */}
-        <div className="w-full md:w-1/2 p-8">
-          <h1 className="text-2xl font-bold text-center mb-6">Create Your Account</h1>
-
-          <div className="flex gap-4 mb-4">
-            <button className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
-            <img
-                src="https://img.icons8.com/color/48/000000/google-logo.png"
-                alt="Google"
-                className="inline-block w-5 mr-2"
-              />
-              Continue with Google
-            </button>
-            <button className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
-            <img
-                src="https://img.icons8.com/fluency/48/000000/linkedin.png"
-                alt="Linkedin"
-                className="inline-block w-5 mr-2"
-              />
-              Continue with Linkedin
-            </button>
+      
+        <div className="w-full md:w-1/2 p-8 max-w-md mx-auto rounded-3xl overflow-hidden">
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-4 h-4 rounded-sm" />
+           
+            </div>
+            <h1 className="text-2xl font-semibold">Create account</h1>
           </div>
 
-          <div className="flex items-center my-6">
-            <div className="border-t w-full"></div>
-            <p className="px-4 text-sm text-gray-500">Or</p>
-            <div className="border-t w-full"></div>
-          </div>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-sm">
+              {error}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 mb-2">Name</label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
               <input
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Full name"
                 required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClasses}
               />
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 mb-2">Email Address</label>
+            <div>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email address"
                 required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClasses}
               />
             </div>
 
-            <div className="mb-4 flex gap-4">
-              <div className="w-1/2">
-                <label className="block text-sm font-medium text-gray-600 mb-2">Password</label>
+            <div className="flex gap-4">
+              <div className="flex-1 relative">
                 <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword.password ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Password"
                   required
                   minLength={8}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClasses}
                 />
+                <button
+                  type="button"
+                  onClick={() => togglePasswordVisibility('password')}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword.password ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
 
-              <div className="w-1/2">
-                <label className="block text-sm font-medium text-gray-600 mb-2">Confirm Password</label>
+              <div className="flex-1 relative">
                 <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  type={showPassword.confirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm password"
                   required
                   minLength={8}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClasses}
                 />
+                <button
+                  type="button"
+                  onClick={() => togglePasswordVisibility('confirmPassword')}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword.confirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center mb-6">
+            <div className="flex items-center">
               <input type="checkbox" id="terms" required className="mr-2" />
               <label htmlFor="terms" className="text-sm text-gray-600">
-                I agree to the{' '}
-                <a href="#" className="text-blue-500 hover:underline">
-                  Terms & Conditions
-                </a>
+                By creating an account you agree to OpineBot's{' '}
+                <a href="#" className="text-[#7b61ff] hover:underline">Terms of Service</a>{' '}
+                and{' '}
+                <a href="#" className="text-[#7b61ff] hover:underline">Privacy Policy</a>
               </label>
             </div>
-
-            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="w-full bg-[#9c89ff] text-gray-800 py-3 rounded-2xl font-medium hover:bg-[#7b61ff] transition-colors disabled:opacity-50"
             >
-              {loading ? 'Signing Up...' : 'Sign Up'}
+              {loading ? 'Creating account...' : 'Create account'}
             </button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+            </div>
+
           </form>
 
-          <p className="text-center text-gray-500 mt-6">
-            Already have an account?{' '}
-            <a href="/login" className="text-blue-500 hover:underline">
-              Sign in
-            </a>
-          </p>
+          <div className="text-sm text-center mt-6">
+            Have an account?{' '}
+            <a href="/login" className="text-[#7b61ff] hover:underline">Log in</a>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default SignUpPage;
