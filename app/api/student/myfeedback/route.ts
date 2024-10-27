@@ -1,6 +1,7 @@
 import connectToDatabase from "@/utils/db";
 import Feedback from "@/models/Feedback";
 import { NextRequest, NextResponse } from "next/server";
+import { SunMedium } from "lucide-react";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const { task_id, given_by, for_course, faculty } = await req.json();
@@ -33,10 +34,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
         timestamp: new Date().toISOString(),
         user_chat: [],
         gpt_chat: [],
+        summary: "",
       });
       await newFeedback.save();
       console.log("Feedback created");
-      return NextResponse.json({ feedbackId: newFeedback._id });
+      return NextResponse.json({ feedbackId: newFeedback._id, newFeedback });
     }
   } catch (error) {
     console.log(error);

@@ -19,7 +19,7 @@ export default function ChatbotUI() {
   const [ellipsis, setEllipsis] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const MAX_CHAR_LIMIT = 3000;
-  const course = "Operating Systems";
+  const [course, setCourse] = useState('');
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const transcriptionTimeoutRef = useRef(null);
@@ -34,6 +34,7 @@ export default function ChatbotUI() {
   const getFeedbackDetails = async () => {
     const response = await fetch("/api/student/getfeedbackdetails/" + feedbackId);
     const data = await response.json();
+    setCourse(data.course);
     console.log('data', data);
     setFeedbackDetails(data);
   }
@@ -44,12 +45,16 @@ export default function ChatbotUI() {
   }, []);
 
   useEffect(() => {
+    if (course) {
+      startFeedbackSession();
+    }
+  }, [course]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    startFeedbackSession();
-  }, []);
+ 
 
   useEffect(() => {
     let ellipsisInterval;
@@ -198,8 +203,56 @@ export default function ChatbotUI() {
       setInput('');
 
       if (data.is_last_question) {
+        setIsLoading(true);
         console.log('Feedback session completed');
-        // Handle completion if needed
+        console.log('Feedback data:',data );
+        let res = await fetch(`${baseUrl}/summarize`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            course,
+            chat_history: currentMessages.map(msg => ({
+              role: msg.sender,
+              content: msg.text
+            }))
+          }),
+        });
+
+        if (!res.ok) {
+          console.error('Failed to summarize feedback:', response.status);
+          throw new Error('Failed to summarize feedback');
+        }
+
+        res = await res.json();
+        
+      
+        let feedbackData = feedbackDetails;
+        feedbackData.summary = res.summary;
+        feedbackData.user_chat = res.chat_history
+        .filter(msg => msg.role !== 'system' && msg.role !== 'user')
+        .map(msg => (msg.content))
+        feedbackData.gpt_chat = res.chat_history
+        .filter(msg => msg.role !== 'system' && msg.role !== 'assistant')
+        .map(msg => (msg.content))
+
+        console.log('feedbackData in client', feedbackData);
+
+        const response = await fetch("/api/student/getfeedbackdetails/" + feedbackId, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            course,
+            feedbackData
+            
+          }),
+        });
+        console.log("successfully submitted")
+        setIsLoading(false);
+
       }
     } catch (error) {
       console.error('Error sending message:', error);

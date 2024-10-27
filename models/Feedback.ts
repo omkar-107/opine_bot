@@ -8,26 +8,23 @@ export interface IFeedback extends Document {
   timestamp: string;
   user_chat: string[];
   gpt_chat: string[];
+  summary: string;
 }
 
 const FeedbackSchema: Schema = new Schema({
   given_by: {
-    //student username
     type: String,
     required: true,
   },
   for_task: {
-    //feedbacktask id
     type: String,
     required: true,
   },
   for_course: {
-    //course id
     type: String,
     required: true,
   },
   faculty: {
-    //faculty username
     type: String,
     required: true,
   },
@@ -43,7 +40,13 @@ const FeedbackSchema: Schema = new Schema({
     type: [String],
     required: true,
   },
+  summary: {
+    type: String,
+    required: false,
+  },
 });
 
-export default mongoose.models.Feedback ||
-  mongoose.model<IFeedback>("Feedback", FeedbackSchema);
+
+// delete mongoose.models.Feedback;
+
+export default mongoose.models.Feedback || mongoose.model<IFeedback>("Feedback", FeedbackSchema);
