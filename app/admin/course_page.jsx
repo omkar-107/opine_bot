@@ -4,36 +4,42 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Plus, X, Search, BookOpen, FileText, Hash, Upload, GraduationCap, ClipboardList } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, X, Search, BookOpen, FileText, Hash, Upload, GraduationCap, ClipboardList, Sparkles } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert_dialog';
 
-// Course Card Component
+// Course Card Component with enhanced animations and styling
 const CourseCard = ({ course, onDelete }) => (
-  <div className="mb-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 p-4 transform hover:-translate-y-1">
-    <div className="flex items-start gap-4">
-      <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-        <span className="text-2xl font-bold text-blue-600">{course.id_}</span>
+  <div className="group mb-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-500 p-6 transform hover:-translate-y-1 border border-gray-100">
+    <div className="flex items-start gap-6">
+      <div className="w-28 h-28 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center transform group-hover:rotate-3 transition-transform duration-500">
+        <span className="text-3xl font-bold text-white">{course.id_}</span>
       </div>
       
       <div className="flex-1">
         <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <BookOpen className="w-5 h-5 text-blue-600" />
-              <h3 className="text-xl font-semibold text-gray-800">{course.title}</h3>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+                {course.title}
+              </h3>
             </div>
-            <div className="flex items-start gap-2">
-              <FileText className="w-4 h-4 text-gray-500 mt-1" />
-              <p className="text-gray-600 text-sm">{course.syllabus}</p>
+            <div className="flex items-start gap-3 pr-8">
+              <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300 mt-1">
+                <FileText className="w-4 h-4 text-gray-600" />
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed">{course.syllabus}</p>
             </div>
           </div>
           {onDelete && (
             <Button
               variant="ghost"
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
               onClick={() => onDelete(course.id_)}
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </Button>
           )}
         </div>
@@ -42,7 +48,7 @@ const CourseCard = ({ course, onDelete }) => (
   </div>
 );
 
-// Add Course Form Component
+// Enhanced Add Course Form Component
 const AddCourseForm = ({ onSubmit, onClose, error }) => {
   const [formData, setFormData] = useState({
     id_: '',
@@ -90,27 +96,29 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm z-50">
-      <Card className="w-2/3 max-w-2xl transform transition-all duration-300 shadow-2xl">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center backdrop-blur-sm z-50 animate-in fade-in duration-300">
+      <Card className="w-2/3 max-w-2xl transform transition-all duration-500 shadow-2xl animate-in slide-in-from-bottom-4">
         <form onSubmit={handleSubmit}>
-          <CardHeader className="relative">
+          <CardHeader className="relative border-b">
             <Button 
               type="button"
               variant="ghost" 
-              className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100"
+              className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
               onClick={onClose}
             >
               <X className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-2">
-              <GraduationCap className="w-6 h-6 text-blue-600" />
-              <CardTitle>Add New Course</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-50">
+                <GraduationCap className="w-6 h-6 text-blue-600" />
+              </div>
+              <CardTitle className="text-2xl">Add New Course</CardTitle>
             </div>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="pt-6">
             {(error || formError) && (
-              <Alert variant="destructive" className="mb-6">
+              <Alert variant="destructive" className="mb-6 animate-in slide-in-from-top duration-300">
                 <AlertDescription>
                   {error || formError}
                 </AlertDescription>
@@ -119,8 +127,8 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="courseId" className="flex items-center gap-2">
-                  <Hash className="w-4 h-4" />
+                <Label htmlFor="courseId" className="flex items-center gap-2 text-sm font-medium">
+                  <Hash className="w-4 h-4 text-blue-600" />
                   Course ID
                 </Label>
                 <Input
@@ -128,14 +136,14 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   placeholder="e.g., CS101"
                   value={formData.id_}
                   onChange={(e) => setFormData({ ...formData, id_: e.target.value })}
-                  className="w-full"
+                  className="w-full focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="courseTitle" className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4" />
+                <Label htmlFor="courseTitle" className="flex items-center gap-2 text-sm font-medium">
+                  <BookOpen className="w-4 h-4 text-blue-600" />
                   Course Title
                 </Label>
                 <Input
@@ -143,14 +151,14 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   placeholder="e.g., Introduction to Computer Science"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full"
+                  className="w-full focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="courseSyllabus" className="flex items-center gap-2">
-                  <ClipboardList className="w-4 h-4" />
+                <Label htmlFor="courseSyllabus" className="flex items-center gap-2 text-sm font-medium">
+                  <ClipboardList className="w-4 h-4 text-blue-600" />
                   Syllabus
                 </Label>
                 <Textarea
@@ -158,39 +166,51 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   placeholder="Enter detailed course syllabus..."
                   value={formData.syllabus}
                   onChange={(e) => setFormData({ ...formData, syllabus: e.target.value })}
-                  className="w-full min-h-[100px]"
+                  className="w-full min-h-[120px] focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="courseFile" className="flex items-center gap-2">
-                  <Upload className="w-4 h-4" />
+                <Label htmlFor="courseFile" className="flex items-center gap-2 text-sm font-medium">
+                  <Upload className="w-4 h-4 text-blue-600" />
                   Course Materials (Optional)
                 </Label>
-                <Input
-                  id="courseFile"
-                  type="file"
-                  onChange={(e) => setFormData({ ...formData, file: e.target.files[0] })}
-                  className="w-full cursor-pointer"
-                />
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 transition-colors duration-300">
+                  <div className="space-y-1 text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-600">
+                      <label htmlFor="courseFile" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
+                        <span>Upload a file</span>
+                        <Input
+                          id="courseFile"
+                          type="file"
+                          className="sr-only"
+                          onChange={(e) => setFormData({ ...formData, file: e.target.files[0] })}
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">PDF, DOC up to 10MB</p>
+                  </div>
+                </div>
               </div>
               
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 transition-colors"
+                className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 py-6 text-lg font-semibold"
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                    Adding Course...
+                  <div className="flex items-center gap-3 justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                    <span>Adding Course...</span>
                   </div>
                 ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Course
-                  </>
+                  <div className="flex items-center gap-2 justify-center">
+                    <Plus className="w-5 h-5" />
+                    <span>Add Course</span>
+                  </div>
                 )}
               </Button>
             </div>
@@ -201,7 +221,7 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
   );
 };
 
-// Main Course Content Component
+// Enhanced Main Course Content Component
 const CourseContent = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -232,7 +252,6 @@ const CourseContent = () => {
 
   const addCourse = async (courseData) => {
     try {
-      // First, send the course data
       const response = await fetch("/api/admin/course/add", {
         method: "POST",
         headers: {
@@ -250,7 +269,6 @@ const CourseContent = () => {
         throw new Error(errorText || 'Failed to add course');
       }
 
-      // If there's a file, upload it separately
       if (courseData.file) {
         const formData = new FormData();
         formData.append('file', courseData.file);
@@ -297,48 +315,52 @@ const CourseContent = () => {
   );
 
   return (
-      <div className="min-h-screen p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          {/* <GraduationCap className="w-8 h-8 text-blue-600" /> */}
-          {/* <h2 className="text-3xl font-bold text-gray-800">Course Dashboard</h2> */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="p-3 rounded-xl bg-blue-600 text-white shadow-lg">
+            <GraduationCap className="w-8 h-8" />
+          </div>
+          <h2 className="text-4xl font-bold text-gray-800">Course Dashboard</h2>
         </div>
         
         {error && (
-          <Alert variant="destructive" className="mb-6">
+          <Alert variant="destructive" className="mb-6 animate-in slide-in-from-top duration-300">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <Card className="shadow-lg">
-          <CardHeader>
+        <Card className="shadow-xl border-0 rounded-xl overflow-hidden">
+          <CardHeader className="border-b bg-white">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-blue-600" />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-50">
+                  <BookOpen className="w-6 h-6 text-blue-600" />
+                </div>
                 <CardTitle className="text-2xl">Course Management</CardTitle>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div className="relative flex items-center">
                   <Search className="w-4 h-4 absolute left-3 text-gray-400" />
                   <Input
                     type="search"
                     placeholder="Search courses..."
-                    className="w-[300px] pl-9 pr-4 py-2"
+                    className="w-[300px] pl-9 pr-4 py-2 focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <Button 
-                  className="bg-blue-600 hover:bg-blue-700 transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 gap-2"
                   onClick={() => setShowAddForm(true)}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-5 h-5" />
                   Add Course
                 </Button>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-white p-6">
             {loading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
