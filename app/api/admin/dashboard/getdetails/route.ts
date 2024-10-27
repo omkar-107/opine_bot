@@ -1,25 +1,33 @@
 import connectToDatabase from "@/utils/db";
-import { NextResponse } from "next/server";
 import Faculty from "@/models/Faculty";
 import Student from "@/models/Student";
 import Course from "@/models/Course";
 import FeedbackTask from "@/models/FeedbackTask";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextResponse) {
+export async function GET(req: NextRequest) {
   await connectToDatabase();
+
   try {
-    const facultyCount = await Faculty.countDocuments();
-    const studentCount = await Student.countDocuments();
-    const courseCount = await Course.countDocuments();
-    const activeFeedbackTasks = await FeedbackTask.countDocuments({
-      active: true,
-    });
+    const [
+      facultyCount,
+      studentCount,
+      courseCount,
+      activeFeedbackTasks
+    ] = await Promise.all([
+      Faculty.countDocuments({}),
+      Student.countDocuments({}),
+      Course.countDocuments({}),
+      FeedbackTask.countDocuments({ status: "active" })
+    ]);
+
     return NextResponse.json({
       facultyCount,
       studentCount,
       courseCount,
-      activeFeedbackTasks,
+      activeFeedbackTasks
     });
+
   } catch (error) {
     console.error("Error fetching dashboard details:", error);
     return NextResponse.json(

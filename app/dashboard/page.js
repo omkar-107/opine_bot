@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import StudentDashboard from "./StudentDashboard";
 import FacultyDashboard from "./FacultyDashboard";
+import AdminDashboard from "../admin/page";
 
 async function handleLogout(router) {
   const response = await fetch('/api/auth/logout', {
@@ -50,17 +51,19 @@ export default function Page() {
 
   return (
     <div>
-      {userobj ? (
-        userobj.role === 'student' ? (
-          <StudentDashboard />
-        ) : (
-
-          userobj.role === 'faculty' ? (<FacultyDashboard />) : (
-            <div>Other</div>)
-        )
+    {userobj ? (
+      userobj.role === 'student' ? (
+        <StudentDashboard />
+      ) : userobj.role === 'faculty' ? (
+        <FacultyDashboard />
+      ) : userobj.role === 'admin' ? (
+        <AdminDashboard />
       ) : (
-        <div>Loading...</div>
-      )}
-    </div>
+        <div>Other</div>
+      )
+    ) : (
+      <div>Loading...</div>
+    )}
+  </div>
   );
 }
