@@ -6,6 +6,7 @@ import { InfinitySpin } from 'react-loader-spinner'
 const FeedbackTaskPage = () => {
     const { taskid } = useParams();
     const [taskDetails, setTaskDetails] = useState(null);
+    const [summaries, setSummaries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isActive, setIsActive] = useState(false);
 
@@ -14,10 +15,13 @@ const FeedbackTaskPage = () => {
         const fetchTaskDetails = async () => {
             try {
                 const response = await fetch(`/api/faculty/gettaskdetails/${taskid}`);
+                const summaries = await fetch(`/api/faculty/getsummary/${taskid}`);
                 if (response.ok) {
                     const data = await response.json();
                     setTaskDetails(data);
                     setIsActive(data.active);
+                    const summariesData = await summaries.json();
+                    setSummaries(summariesData);
                 } else {
                     console.error("Error fetching task details:", response.statusText);
                 }
@@ -95,16 +99,23 @@ const FeedbackTaskPage = () => {
                 </div>
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold">Feedbacks</h3>
-                    {taskDetails.feedbacks.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                            {taskDetails.feedbacks.map((feedback, index) => (
-                                <li key={index} className="ml-4">{feedback}</li>
+                    {summaries.length > 0 ? (
+                        <ul className="list-none list-inside">
+                            {summaries.map((item) => (
+                                <li
+                                    key={item._id}
+                                    className="mt-4 bg-gray-100 shadow-lg p-4 rounded-md"
+                                    dangerouslySetInnerHTML={{
+                                        __html: item.summary.replace(/\n/g, "<br />"),
+                                    }}
+                                />
                             ))}
                         </ul>
                     ) : (
                         <p>No feedbacks available</p>
                     )}
                 </div>
+
             </div>
         </div>
     );
