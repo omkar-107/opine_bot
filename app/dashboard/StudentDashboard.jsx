@@ -70,6 +70,29 @@ const DashboardContent = ({ userobj }) => {
     );
   }
 
+  const handleFeedbackButton = async ({ _id, course_id, created_by }) => {
+    const response = await fetch(`/api/student/myfeedback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        task_id: _id,
+        given_by: userobj.username,
+        for_course: course_id,
+        faculty: created_by,
+      }),
+    });
+    const data = await response.json();
+    console.log(data.feedbackId);
+
+    if (response.ok) {
+      window.open("http://localhost:3000/chat/" + data.feedbackId, "_blank");
+    } else {
+      alert("Error opening feedback page. Please try again.");
+    }
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
@@ -111,9 +134,13 @@ const DashboardContent = ({ userobj }) => {
               <div>
                 {task.active ? (
                   <button
-                    onClick={() =>
-                      window.open("http://localhost:3000/chat", "_blank")
-                    }
+                    onClick={() => {
+                      handleFeedbackButton({
+                        _id: task._id,
+                        course_id: task.course_id,
+                        created_by: task.created_by,
+                      });
+                    }}
                     className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
                   >
                     Complete feedback now

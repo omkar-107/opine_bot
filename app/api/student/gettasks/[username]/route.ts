@@ -30,7 +30,13 @@ export async function GET(req: NextRequest, res: NextResponse) {
       {
         $project: {
           name: 1,
-          courseDetails: { title: 1, course_id: 1, created_by: 1, active: 1 },
+          courseDetails: {
+            _id: 1,
+            title: 1,
+            course_id: 1,
+            created_by: 1,
+            active: 1,
+          },
         },
       },
     ]);

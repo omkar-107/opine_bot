@@ -1,8 +1,11 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, use } from 'react';
 import { Button } from '@/components/ui/button';
-import { MicrophoneIcon ,StopIcon} from '@heroicons/react/outline';
+import { MicrophoneIcon, StopIcon } from '@heroicons/react/outline';
 import { motion } from 'framer-motion';
+import { useParams } from 'next/navigation';
+import { set } from 'mongoose';
+import { InfinitySpin } from 'react-loader-spinner'
 
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
 
@@ -20,10 +23,25 @@ export default function ChatbotUI() {
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const transcriptionTimeoutRef = useRef(null);
+  const { feedbackId } = useParams();
+  const [feedbackDetails, setFeedbackDetails] = useState({});
+  const [pageLoading, setPageLoading] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const getFeedbackDetails = async () => {
+    const response = await fetch("/api/student/getfeedbackdetails/" + feedbackId);
+    const data = await response.json();
+    console.log('data', data);
+    setFeedbackDetails(data);
+  }
+
+  useEffect(() => {
+    getFeedbackDetails();
+    setPageLoading(false);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -136,7 +154,7 @@ export default function ChatbotUI() {
 
   const handleSendMessage = async () => {
     if (input.trim() === '') return;
-    
+
     const currentInput = input;
     const currentMessages = messages;
     setIsLoading(true);
@@ -163,7 +181,7 @@ export default function ChatbotUI() {
       }
 
       const data = await response.json();
-      
+
       if (!data.chat_history || !Array.isArray(data.chat_history)) {
         console.error('Invalid chat history format:', data);
         throw new Error('Invalid response format');
@@ -202,11 +220,27 @@ export default function ChatbotUI() {
   //   }
   // };
 
+  if (pageLoading) {
+    return <div className='w-full h-lvh flex flex-col justify-center items-center gap-4'>
+      <InfinitySpin
+        visible={true}
+        width="200"
+        color="#4fa94d"
+        ariaLabel="infinity-spin-loading"
+      />
+      <p>Loading feedback details...</p>
+    </div>;
+  }
+
   return (
     <div className="flex flex-col h-screen bg-white text-gray-900">
       <div className="bg-white p-6 shadow-lg text-center">
         <h1 className="text-4xl font-bold text-black">Course Feedback Bot</h1>
-        <p className="text-gray-600 mt-2">{course} Course Feedback</p>
+        <div className='w-full flex gap-4 justify-center text-slate-700 mt-2'>
+          <span className="text-lg">Course: {feedbackDetails.course}</span>
+          <span className="text-lg">CourseId: {feedbackDetails.forCourse}</span>
+          <span className="text-lg ">Created By: {feedbackDetails.faculty}</span>
+        </div>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto">
@@ -218,12 +252,11 @@ export default function ChatbotUI() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div 
-              className={`inline-block p-3 rounded-lg shadow-md max-w-[80%] ${
-                message.sender === 'user' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-100 text-gray-900'
-              }`}
+            <div
+              className={`inline-block p-3 rounded-lg shadow-md max-w-[80%] ${message.sender === 'user'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-100 text-gray-900'
+                }`}
             >
               {message.text}
             </div>
@@ -249,15 +282,15 @@ export default function ChatbotUI() {
 
       <div className="bg-white p-6 shadow-lg">
         <div className="flex items-center space-x-2 border border-gray-300 rounded-full p-2 shadow-md">
-          <button 
+          <button
             className="p-2"
             onClick={handleVoiceInput}
           >{!isRecording ?
-            <MicrophoneIcon 
+            <MicrophoneIcon
               className={`h-6 w-6 text-blue-600 `}
-          />: 
-          <StopIcon className={`h-6 w-6 text-red-600 `}  />
-          }
+            /> :
+            <StopIcon className={`h-6 w-6 text-red-600 `} />
+            }
           </button>
 
           <input
@@ -274,9 +307,8 @@ export default function ChatbotUI() {
             }}
           />
 
-          <span className={`text-sm ${
-            input.length > MAX_CHAR_LIMIT ? 'text-red-500' : 'text-gray-400'
-          }`}>
+          <span className={`text-sm ${input.length > MAX_CHAR_LIMIT ? 'text-red-500' : 'text-gray-400'
+            }`}>
             {input.length} / {MAX_CHAR_LIMIT}
           </span>
 

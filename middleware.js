@@ -6,6 +6,11 @@ export async function middleware(req) {
     const { nextUrl } = req;
     const cookieStore = cookies();
     const token = cookieStore.get(process.env.COOKIE_NAME || "auth");
+    const { pathname } = nextUrl;
+
+    if (!token && pathname.startsWith('/login')) {
+        return NextResponse.next();
+    }
 
     if (!token) {
         return NextResponse.redirect(new URL('/login', nextUrl.origin));
@@ -18,8 +23,17 @@ export async function middleware(req) {
         // Verify the token
         const { payload } = await jwtVerify(token.value, secretKey);
 
-        const { pathname } = nextUrl;
+
         const userRole = payload.user.role;
+
+        if (pathname.startsWith('/login')) {
+            if (userRole === 'faculty' || userRole === 'student') {
+                return NextResponse.redirect(new URL('/dashboard', nextUrl.origin));
+            }
+            else {
+                return NextResponse.redirect(new URL('/admin', nextUrl.origin));
+            }
+        }
 
         // Check role-based access
         if (
@@ -32,7 +46,9 @@ export async function middleware(req) {
         else if (
             (pathname.startsWith('/admin') && userRole === 'admin') ||
             (pathname.startsWith('/faculty') && userRole === 'faculty') ||
-            (pathname.startsWith('/dashboard') && (userRole === 'student' || userRole === 'faculty'))) {
+            (pathname.startsWith('/dashboard') && (userRole === 'student' || userRole === 'faculty')) ||
+            (pathname.startsWith('/chat') && userRole === 'student')
+        ) {
             return NextResponse.next();
         }
         else {
@@ -51,5 +67,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-    matcher: ['/api/admin/:path*', '/api/faculty/:path*', '/api/student/:path*', '/admin', '/faculty/:path*', '/dashboard'],
+    matcher: ['/api/admin/:path*', '/api/faculty/:path*', '/api/student/:path*', '/admin', '/faculty/:path*', '/dashboard', '/login', '/chat/:path*'],
 };

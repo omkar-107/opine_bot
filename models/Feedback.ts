@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IFeedback extends Document {
-  id_: string;
   given_by: string;
+  for_task: string;
   for_course: string;
   faculty: string;
   timestamp: string;
@@ -11,13 +11,13 @@ export interface IFeedback extends Document {
 }
 
 const FeedbackSchema: Schema = new Schema({
-  id_: {
-    //feedback id
+  given_by: {
+    //student username
     type: String,
     required: true,
   },
-  given_by: {
-    //student username
+  for_task: {
+    //feedbacktask id
     type: String,
     required: true,
   },
