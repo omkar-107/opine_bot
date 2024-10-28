@@ -103,57 +103,59 @@ const DashboardContent = ({ userobj }) => {
 
       <h3 className="text-xl font-semibold mt-6">Outstanding Feedbacks</h3>
       {feedbackTasks.length > 0 ? (
-        <ul className="mt-4">
-          {feedbackTasks.map((task, index) => (
-            <li
-              key={index}
-              className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
-            >
-              <div className="flex items-center gap-4">
-                <Image
-                  src={Emoji}
-                  alt="Emoji"
-                  width={100}
-                  height={100}
-                  className="mr-2"
-                />
-                <div>
-                  <h4 className="font-bold text-lg">{task.title}</h4>
-                  <p>Course ID: {task.course_id}</p>
-                  <p>Created by: {task.created_by}</p>
-                  {/* <p>Status: {task.active ? "Active" : "Inactive"}</p> */}
-                  <div
-                    className={`px-2 py-1 ${
-                      task.active ? "bg-green-500" : "bg-red-500"
-                    } text-white inline-block rounded-md mt-2`}
-                  >
-                    {task.active ? "Active" : "Closed"}
+        <div className="mt-4 overflow-y-auto max-h-[30rem]">
+          <ul className="mt-4">
+            {feedbackTasks.map((task, index) => (
+              <li
+                key={index}
+                className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
+              >
+                <div className="flex items-center gap-4">
+                  <Image
+                    src={Emoji}
+                    alt="Emoji"
+                    width={100}
+                    height={100}
+                    className="mr-2"
+                  />
+                  <div>
+                    <h4 className="font-bold text-lg">{task.title}</h4>
+                    <p>Course ID: {task.course_id}</p>
+                    <p>Created by: {task.created_by}</p>
+                    {/* <p>Status: {task.active ? "Active" : "Inactive"}</p> */}
+                    <div
+                      className={`px-2 py-1 ${
+                        task.active ? "bg-green-500" : "bg-red-500"
+                      } text-white inline-block rounded-md mt-2`}
+                    >
+                      {task.active ? "Active" : "Closed"}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                {task.active ? (
-                  <button
-                    onClick={() => {
-                      handleFeedbackButton({
-                        _id: task._id,
-                        course_id: task.course_id,
-                        created_by: task.created_by,
-                      });
-                    }}
-                    className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-                  >
-                    Complete feedback now
-                  </button>
-                ) : (
-                  <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
-                    View feedback
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div>
+                  {task.active ? (
+                    <button
+                      onClick={() => {
+                        handleFeedbackButton({
+                          _id: task._id,
+                          course_id: task.course_id,
+                          created_by: task.created_by,
+                        });
+                      }}
+                      className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+                    >
+                      Complete feedback now
+                    </button>
+                  ) : (
+                    <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+                      View feedback
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
         <p>No outstanding feedback tasks available.</p>
       )}
