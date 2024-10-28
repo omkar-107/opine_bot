@@ -27,6 +27,15 @@ import {
 } from "@/components/ui/alert_dialog";
 import { useToast } from "@/components/ui/use-toaster";
 
+const ENGINEERING_BRANCHES = [
+  "Computer Science Engineering",
+  "Mechanical Engineering",
+  "Electrical Engineering",
+  "Civil Engineering",
+  "Electronics Engineering",
+  "Chemical Engineering"
+];
+
 const StudentContent = () => {
     const { toast } = useToast();
     const [searchQuery, setSearchQuery] = useState("");
@@ -85,7 +94,7 @@ const StudentContent = () => {
       setIsLoading(true);
       console.log("Attempting to delete student with username:", username); // Log the username
       try {
-          const response = await fetch(`/api/admin/student/${username}`, {
+          const response = await fetch(`/api/admin/student/delete/${username}`, {
               method: "DELETE",
               headers: {
                   'Content-Type': 'application/json', // Ensure content-type is set if needed
@@ -121,55 +130,67 @@ const StudentContent = () => {
       }
   };
   
-    const addStudent = async () => {
-      setIsLoading(true);
-      try {
-        if (!newStudent.username || !newStudent.password || !newStudent.branch || !newStudent.year) {
-          throw new Error("Please fill in all required fields");
-        }
-  
-        const response = await fetch("/api/admin/student/add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newStudent),
-        });
-  
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to add student");
-        }
-  
-        const data = await response.json();
-        
-        // Update the local state by adding the new student
-        setStudents((prevStudents) => [...prevStudents, data]);
-        
-        setShowCreateStudentDialog(false);
-        setNewStudent({
-          username: "",
-          password: "",
-          branch: "",
-          year: 1,
-          student_courses: [],
-        });
-        
-        toast({
-          title: "Success",
-          description: "Student added successfully",
-        });
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to add student. Please try again.",
-          variant: "destructive",
-        });
-        console.error("Error adding student:", error);
-      } finally {
-        setIsLoading(false);
+  const addStudent = async () => {
+    setIsLoading(true);
+    try {
+
+      if (!newStudent.username || !newStudent.password || !newStudent.branch || !newStudent.year) {
+        throw new Error("Please fill in all required fields");
       }
-    };
+
+      const studentData = {
+        username: newStudent.username,
+        password: newStudent.password,
+        branch: newStudent.branch,
+        year: parseInt(newStudent.year),
+        student_courses: newStudent.student_courses 
+      };
+
+      console.log("Sending student data:", studentData); // Debug log
+
+      const response = await fetch("/api/admin/student/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(studentData),
+      });
+
+      const responseData = await response.json();
+      console.log("Server response:", responseData);
+
+      if (!response.ok) {
+        throw new Error(responseData.message || "Failed to add student");
+      }
+      
+      // Update the local state
+      await fetchStudents(); // Refresh the student list
+      
+      // Reset form and close dialog
+      setShowCreateStudentDialog(false);
+      setNewStudent({
+        username: "",
+        password: "",
+        branch: "",
+        year: 1,
+        student_courses: [],
+      });
+      
+      toast({
+        title: "Success",
+        description: "Student added successfully",
+      });
+    } catch (error) {
+      console.error("Error adding student:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add student. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
     useEffect(() => {
       fetchStudents();
@@ -365,7 +386,7 @@ const StudentContent = () => {
                 }
               />
 
-              <Select
+               <Select
                 value={newStudent.branch}
                 onValueChange={(value) =>
                   setNewStudent({ ...newStudent, branch: value })
@@ -375,16 +396,14 @@ const StudentContent = () => {
                   <SelectValue placeholder="Select Branch" />
                 </SelectTrigger>
                 <SelectContent>
-                  {departments.map((dept) => (
-                    <SelectItem
-                      key={dept.id || dept._id || dept.department_id}
-                      value={dept.name || dept.department_name || dept}
-                    >
-                      {dept.name || dept.department_name || dept}
+                  {ENGINEERING_BRANCHES.map((branch) => (
+                    <SelectItem key={branch} value={branch}>
+                      {branch}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+
 
               <Select
                 value={newStudent.year.toString()}
@@ -464,6 +483,7 @@ const StudentContent = () => {
                 !newStudent.password ||
                 !newStudent.branch ||
                 !newStudent.year
+          
               }
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl py-2 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
             >

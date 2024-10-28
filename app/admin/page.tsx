@@ -438,10 +438,10 @@ export default function Page() {
           <button
             onClick={handleLogout}
             disabled={!logoutActive}
-            className="flex items-center justify-center w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors"
+            className="flex items-center justify-center w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors  bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
           >
             <LogOut className="w-5 h-5 mr-3" />
-            <span className="font-medium">Logout</span>
+            <span className="font-medium ">Logout</span>
           </button>
         </div>
       </div>
