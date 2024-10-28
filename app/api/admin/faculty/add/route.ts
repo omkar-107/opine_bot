@@ -1,5 +1,7 @@
 import connectToDatabase from "@/utils/db";
 import Faculty from "@/models/Faculty";
+import User from "@/models/User";
+import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -24,13 +26,24 @@ export async function POST(req: NextRequest, res: NextResponse) {
       );
     }
 
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const newFaculty = new Faculty({
       username,
-      password,
+      password: hashedPassword,
       department,
       faculty_courses: [],
     });
 
+    const newUser = new User({
+      email: username,
+      username,
+      password: hashedPassword,
+      role: "faculty",
+    });
+
+    await newUser.save();
     await newFaculty.save();
 
     return NextResponse.json(

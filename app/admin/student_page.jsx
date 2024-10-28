@@ -28,122 +28,135 @@ import {
 import { useToast } from "@/components/ui/use-toaster";
 
 const ENGINEERING_BRANCHES = [
-  "Computer Science Engineering",
-  "Mechanical Engineering",
-  "Electrical Engineering",
-  "Civil Engineering",
-  "Electronics Engineering",
-  "Chemical Engineering"
+  "Computer Science",
+  "Information Technology",
+  "Electronics",
+  "Electrical",
+  "Mechanical",
+  "Civil",
 ];
 
 const StudentContent = () => {
-    const { toast } = useToast();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [showCreateStudentDialog, setShowCreateStudentDialog] = useState(false);
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [studentToDelete, setStudentToDelete] = useState(null);
-    const [students, setStudents] = useState([]);
-    const [courses, setCourses] = useState([]);
-    const [departments, setDepartments] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [newStudent, setNewStudent] = useState({
-      username: "",
-      password: "",
-      branch: "",
-      year: 1,
-      student_courses: [],
-    });
-  
-    const fetchStudents = async () => {
-      try {
-        const response = await fetch("/api/admin/student/getall");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setStudents(data);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch students. Please try again later.",
-          variant: "destructive",
-        });
-        console.error("Error fetching students:", error);
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showCreateStudentDialog, setShowCreateStudentDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    email: "",
+    username: "",
+    password: "",
+    branch: "",
+    year: 1,
+    student_courses: [],
+    semester: 1,
+  });
+
+  const fetchStudents = async () => {
+    try {
+      const response = await fetch("/api/admin/student/getall");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
-  
-    const fetchCourses = async () => {
-      try {
-        const response = await fetch("/api/admin/course/get");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setCourses(data);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch courses. Please try again later.",
-          variant: "destructive",
-        });
-        console.error("Error fetching courses:", error);
-      }
-    };
-  
-    const deleteStudent = async (username) => {
-      setIsLoading(true);
-      console.log("Attempting to delete student with username:", username); // Log the username
-      try {
-          const response = await fetch(`/api/admin/student/delete/${username}`, {
-              method: "DELETE",
-              headers: {
-                  'Content-Type': 'application/json', // Ensure content-type is set if needed
-              },
-          });
-  
-          console.log("Response status:", response.status); // Log response status
-          if (!response.ok) {
-              const errorData = await response.json();
-              console.error("Error details:", errorData); // Log error details
-              throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-          }
-  
-          // Refresh the student list after deletion
-          await fetchStudents();
-  
-          toast({
-              title: "Success",
-              description: "Student deleted successfully",
-          });
-  
-          setShowDeleteDialog(false);
-          setStudentToDelete(null);
-      } catch (error) {
-          console.error("Error deleting student:", error); // Log the full error
-          toast({
-              title: "Error",
-              description: error.message || "Failed to delete student. Please try again.",
-              variant: "destructive",
-          });
-      } finally {
-          setIsLoading(false);
-      }
+      const data = await response.json();
+      setStudents(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch students. Please try again later.",
+        variant: "destructive",
+      });
+      console.error("Error fetching students:", error);
+    }
   };
-  
+
+  const fetchCourses = async () => {
+    try {
+      const response = await fetch("/api/admin/course/get");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setCourses(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch courses. Please try again later.",
+        variant: "destructive",
+      });
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  const deleteStudent = async (username) => {
+    setIsLoading(true);
+    console.log("Attempting to delete student with username:", username); // Log the username
+    try {
+      const response = await fetch(`/api/admin/student/delete/${username}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json", // Ensure content-type is set if needed
+        },
+      });
+
+      console.log("Response status:", response.status); // Log response status
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error details:", errorData); // Log error details
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      // Refresh the student list after deletion
+      await fetchStudents();
+
+      toast({
+        title: "Success",
+        description: "Student deleted successfully",
+      });
+
+      setShowDeleteDialog(false);
+      setStudentToDelete(null);
+    } catch (error) {
+      console.error("Error deleting student:", error); // Log the full error
+      toast({
+        title: "Error",
+        description:
+          error.message || "Failed to delete student. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addStudent = async () => {
     setIsLoading(true);
     try {
-
-      if (!newStudent.username || !newStudent.password || !newStudent.branch || !newStudent.year) {
+      if (
+        !newStudent.email ||
+        !newStudent.username ||
+        !newStudent.password ||
+        !newStudent.branch ||
+        !newStudent.year ||
+        !newStudent.semester
+      ) {
         throw new Error("Please fill in all required fields");
       }
 
       const studentData = {
+        email: newStudent.email,
         username: newStudent.username,
         password: newStudent.password,
         branch: newStudent.branch,
         year: parseInt(newStudent.year),
-        student_courses: newStudent.student_courses 
+        student_courses: newStudent.student_courses,
+        semester: parseInt(newStudent.semester),
       };
 
       console.log("Sending student data:", studentData); // Debug log
@@ -162,20 +175,22 @@ const StudentContent = () => {
       if (!response.ok) {
         throw new Error(responseData.message || "Failed to add student");
       }
-      
+
       // Update the local state
       await fetchStudents(); // Refresh the student list
-      
+
       // Reset form and close dialog
       setShowCreateStudentDialog(false);
       setNewStudent({
+        email: "",
         username: "",
         password: "",
         branch: "",
         year: 1,
         student_courses: [],
+        semester: 1,
       });
-      
+
       toast({
         title: "Success",
         description: "Student added successfully",
@@ -184,32 +199,31 @@ const StudentContent = () => {
       console.error("Error adding student:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to add student. Please try again.",
+        description:
+          error.message || "Failed to add student. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
-  
-    useEffect(() => {
-      fetchStudents();
-      fetchCourses();
-    }, []);
-  
-    const filteredStudents = students.filter(
-      (student) =>
-        student.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.branch.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  
-    const handleDeleteClick = (student) => {
-      console.log("Selected student for deletion:", student); // Log the selected student
-      setStudentToDelete(student);
-      setShowDeleteDialog(true);
+
+  useEffect(() => {
+    fetchStudents();
+    fetchCourses();
+  }, []);
+
+  const filteredStudents = students.filter(
+    (student) =>
+      student.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.branch.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleDeleteClick = (student) => {
+    console.log("Selected student for deletion:", student); // Log the selected student
+    setStudentToDelete(student);
+    setShowDeleteDialog(true);
   };
-  
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-8">
@@ -330,10 +344,12 @@ const StudentContent = () => {
                       <X size={20} />
                     </button>
                   </div>
-                  
+
                   {student.student_courses?.length > 0 && (
                     <div className="mt-4">
-                      <p className="text-sm font-medium text-gray-500 mb-2">Enrolled Courses</p>
+                      <p className="text-sm font-medium text-gray-500 mb-2">
+                        Enrolled Courses
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {student.student_courses.map((course) => (
                           <span
@@ -368,6 +384,15 @@ const StudentContent = () => {
             <div className="space-y-4">
               <Input
                 required
+                placeholder="Email"
+                className="rounded-xl border-2 focus:border-blue-500"
+                value={newStudent.email}
+                onChange={(e) =>
+                  setNewStudent({ ...newStudent, email: e.target.value })
+                }
+              />
+              <Input
+                required
                 placeholder="Username"
                 className="rounded-xl border-2 focus:border-blue-500"
                 value={newStudent.username}
@@ -386,7 +411,7 @@ const StudentContent = () => {
                 }
               />
 
-               <Select
+              <Select
                 value={newStudent.branch}
                 onValueChange={(value) =>
                   setNewStudent({ ...newStudent, branch: value })
@@ -404,7 +429,6 @@ const StudentContent = () => {
                 </SelectContent>
               </Select>
 
-
               <Select
                 value={newStudent.year.toString()}
                 onValueChange={(value) =>
@@ -418,6 +442,23 @@ const StudentContent = () => {
                   {[1, 2, 3, 4].map((year) => (
                     <SelectItem key={year} value={year.toString()}>
                       Year {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={newStudent.semester.toString()}
+                onValueChange={(value) =>
+                  setNewStudent({ ...newStudent, semester: parseInt(value) })
+                }
+              >
+                <SelectTrigger className="w-full rounded-xl border-2 focus:border-blue-500">
+                  <SelectValue placeholder="Select Sememster" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+                    <SelectItem key={sem} value={sem.toString()}>
+                      Sem {sem}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -459,9 +500,10 @@ const StudentContent = () => {
                           onClick={() =>
                             setNewStudent({
                               ...newStudent,
-                              student_courses: newStudent.student_courses.filter(
-                                (c) => c !== course
-                              ),
+                              student_courses:
+                                newStudent.student_courses.filter(
+                                  (c) => c !== course
+                                ),
                             })
                           }
                           className="text-blue-600 hover:text-blue-800"
@@ -479,11 +521,12 @@ const StudentContent = () => {
               onClick={addStudent}
               disabled={
                 isLoading ||
+                !newStudent.email ||
                 !newStudent.username ||
                 !newStudent.password ||
                 !newStudent.branch ||
-                !newStudent.year
-          
+                !newStudent.year ||
+                !newStudent.semester
               }
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl py-2 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
             >
