@@ -7,17 +7,19 @@ export async function POST(req: NextRequest) {
   let email: string;
   let password: string;
   let username: string;
+  let confirmPassword: string;
 
   try {
     const body = await req.json();
     email = body.email;
     password = body.password;
     username = body.username;
+    confirmPassword = body.confirmPassword;
   } catch (e) {
     return NextResponse.json({ message: 'Invalid JSON' }, { status: 400 });
   }
 
-  if (!email || !password || !username) {
+  if (!email || !password || !username || !confirmPassword) {
     console.log('Please fill in all fields');
     return NextResponse.json({ message: 'Please fill in all fields' }, { status: 400 });
   }

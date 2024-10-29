@@ -32,7 +32,6 @@ export async function GET(req: NextRequest) {
       forTask: feedback.for_task,
       forCourse: feedback.for_course,
       course: course.title,
-      syllabus: course.syllabus,
       faculty: feedback.faculty,
       timestamp: feedback.timestamp,
       user_chat: feedback.user_chat,
