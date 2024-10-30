@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Mic, Square, ChevronDown, Send, Clock } from "lucide-react";
 import { InfinitySpin } from "react-loader-spinner";
 import { useParams } from "next/navigation";
+import { set } from "mongoose";
 
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
 
@@ -78,6 +79,7 @@ export default function ChatbotUI() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const MAX_CHAR_LIMIT = 3000;
   const [course, setCourse] = useState("");
+  const [syllabus, setSyllabus] = useState("");
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const transcriptionTimeoutRef = useRef(null);
@@ -96,6 +98,7 @@ export default function ChatbotUI() {
     );
     const data = await response.json();
     setCourse(data.course);
+    setSyllabus(data.syllabus);
     setFeedbackDetails(data);
     setPageLoading(false);
   };
@@ -187,7 +190,8 @@ const startFeedbackSession = async () => {
       },
       body: JSON.stringify({ 
         course,
-        feedbackId, // Include feedbackId to track the session 
+        feedbackId,
+        syllabus, 
       }),
     });
 
@@ -212,7 +216,7 @@ const startFeedbackSession = async () => {
   }
 };
 
-// Modify handleSendMessage to save messages
+
 const handleSendMessage = async () => {
   if (input.trim() === "") return;
 
@@ -221,15 +225,9 @@ const handleSendMessage = async () => {
   setIsLoading(true);
 
   try {
-    // Save the user's message first
-    await saveFeedbackMessage({
-      feedbackId,
-      role: 'user',
-      content: currentInput,
-      timestamp: new Date().toISOString()
-    });
+   
+    
 
-    // Get AI response
     const response = await fetch(`${baseUrl}/feedback`, {
       method: "POST",
       headers: {
@@ -239,6 +237,7 @@ const handleSendMessage = async () => {
         message: currentInput,
         course,
         feedbackId,
+        syllabus,
         chat_history: currentMessages.map((msg) => ({
           role: msg.sender,
           content: msg.text,
@@ -249,29 +248,30 @@ const handleSendMessage = async () => {
     if (!response.ok) {
       throw new Error("Failed to send message");
     }
-
+    const updatedMessages = [
+      ...currentMessages,
+      { text: currentInput, sender: "user" }
+    ];
     const data = await response.json();
-    
-    // Save the AI's response
-    await saveFeedbackMessage({
-      feedbackId,
-      role: 'assistant',
-      content: data.chat_history[data.chat_history.length - 1].content,
-      timestamp: new Date().toISOString()
-    });
 
-    setMessages(
-      data.chat_history
-        .filter((msg) => msg.role !== "system")
-        .map((msg) => ({
-          text: msg.content,
-          sender: msg.role,
-        }))
-    );
+    // Get the assistant's response from the last message in chat_history
+    const assistantResponse = data.chat_history[data.chat_history.length - 1];
+
+    // Add the assistant's response to the messages
+    const finalMessages = [
+      ...updatedMessages,
+      { 
+        text: assistantResponse.content, 
+        sender: assistantResponse.role 
+      }
+    ];
+
+    // Update messages state with the complete history
+    setMessages(finalMessages.filter((msg) => msg.sender !== "system"));
     setInput("");
 
     if (data.is_last_question) {
-      await handleLastQuestion(currentMessages);
+      await handleLastQuestion(finalMessages);
     }
   } catch (error) {
     console.error("Error sending message:", error);
@@ -281,27 +281,7 @@ const handleSendMessage = async () => {
   }
 };
 
-// Add helper function to save individual messages
-const saveFeedbackMessage = async (messageData) => {
-  try {
-    const response = await fetch('/api/student/savefeedbackmessage', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(messageData),
-    });
 
-    if (!response.ok) {
-      throw new Error('Failed to save message');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error saving message:', error);
-    throw error;
-  }
-};
 
 // Handle the last question and summary
 const handleLastQuestion = async (currentMessages) => {
@@ -331,10 +311,10 @@ const handleLastQuestion = async (currentMessages) => {
       ...feedbackDetails,
       summary: summary.summary,
       user_chat: summary.chat_history
-        .filter((msg) => msg.role !== "system" && msg.role !== "user")
+        .filter((msg) => msg.role !== "system" && msg.role !== "assistant")
         .map((msg) => msg.content),
       gpt_chat: summary.chat_history
-        .filter((msg) => msg.role !== "system" && msg.role !== "assistant")
+        .filter((msg) => msg.role !== "system" && msg.role !== "user")
         .map((msg) => msg.content),
       completed: true,
       completedAt: new Date().toISOString()
@@ -350,6 +330,7 @@ const handleLastQuestion = async (currentMessages) => {
         feedbackData,
       }),
     });
+    console.log("Feedback session completed:", feedbackData);
   } catch (error) {
     console.error("Error handling last question:", error);
     throw error;
