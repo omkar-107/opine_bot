@@ -188,6 +188,7 @@ const startFeedbackSession = async () => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ 
         course,
         feedbackId,
@@ -233,6 +234,7 @@ const handleSendMessage = async () => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         message: currentInput,
         course,
@@ -292,6 +294,7 @@ const handleLastQuestion = async (currentMessages) => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials : "include",
       body: JSON.stringify({
         course,
         feedbackId,
