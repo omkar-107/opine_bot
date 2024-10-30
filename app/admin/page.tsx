@@ -1,18 +1,25 @@
-
-
-"use client"
+"use client";
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import CourseContent from "./course_page.jsx";
 import StudentContent from "./student_page.jsx";
 import FacultyContent from "./faculty_page.jsx";
 import { Bar, Pie } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  Users, 
-  GraduationCap, 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  GraduationCap,
   LogOut,
   Book,
   UserCheck,
@@ -20,10 +27,18 @@ import {
   PieChart,
   Bell,
   Search,
-  User
-} from 'lucide-react';
+  User,
+} from "lucide-react";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 // Define interfaces for the dashboard data structure
 interface DashboardData {
@@ -67,35 +82,36 @@ interface DashboardContentProps {
   barData: any;
 }
 
-const InfoCard: React.FC<InfoCardProps> = ({ 
-  title, 
-  value, 
-  icon, 
-  gradientTo, 
-  gradientFrom 
+const InfoCard: React.FC<InfoCardProps> = ({
+  title,
+  value,
+  icon,
+  gradientTo,
+  gradientFrom,
 }) => (
   <div className="bg-white p-6 rounded-2xl shadow-lg">
     <div className="flex justify-between items-start">
       <div>
         <p className="text-sm font-medium text-gray-500">{title}</p>
         <p className="text-2xl font-bold mt-2">{value}</p>
-        <div className="flex items-center mt-2">
-        </div>
+        <div className="flex items-center mt-2"></div>
       </div>
-      <div className={`p-3 rounded-xl bg-gradient-to-r ${gradientFrom} ${gradientTo}`}>
+      <div
+        className={`p-3 rounded-xl bg-gradient-to-r ${gradientFrom} ${gradientTo}`}
+      >
         {icon}
       </div>
     </div>
   </div>
 );
 
-const DashboardContent: React.FC<DashboardContentProps> = ({ 
-  userobj, 
-  dashboardStats, 
-  isLoading, 
-  error, 
-  pieData, 
-  barData 
+const DashboardContent: React.FC<DashboardContentProps> = ({
+  userobj,
+  dashboardStats,
+  isLoading,
+  error,
+  pieData,
+  barData,
 }) => {
   return (
     <div className="space-y-6">
@@ -119,36 +135,39 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
             </div>
             <div>
               <p className="text-sm font-medium">Admin User</p>
-              <p className="text-xs text-gray-500">  {userobj ? userobj.username : "Guest"}</p>
+              <p className="text-xs text-gray-500">
+                {" "}
+                {userobj ? userobj.username : "Guest"}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <InfoCard 
-          title="Total Courses" 
+        <InfoCard
+          title="Total Courses"
           value={dashboardStats.courseCount}
           icon={<BookOpen className="w-6 h-6 text-white" />}
           gradientFrom="from-blue-500"
           gradientTo="to-indigo-500"
         />
-        <InfoCard 
-          title="Total Students" 
+        <InfoCard
+          title="Total Students"
           value={dashboardStats.studentCount}
           icon={<GraduationCap className="w-6 h-6 text-white" />}
           gradientFrom="from-pink-500"
           gradientTo="to-purple-500"
         />
-        <InfoCard 
-          title="Total Faculty" 
+        <InfoCard
+          title="Total Faculty"
           value={dashboardStats.facultyCount}
           icon={<Users className="w-6 h-6 text-white" />}
           gradientFrom="from-orange-500"
           gradientTo="to-red-500"
         />
-        <InfoCard 
-          title="Total Enrollments" 
+        <InfoCard
+          title="Total Enrollments"
           value={dashboardStats.enrollmentCount}
           icon={<FileSpreadsheet className="w-6 h-6 text-white" />}
           gradientFrom="from-green-500"
@@ -195,14 +214,18 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
               <table className="min-w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Department
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Subject
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
-                
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           )}
@@ -224,8 +247,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
             </div>
           </div>
           <div className="h-[300px]">
-            <Bar 
-              data={barData} 
+            <Bar
+              data={barData}
               options={{
                 maintainAspectRatio: false,
                 scales: {
@@ -233,7 +256,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
                     beginAtZero: true,
                     grid: {
                       display: true,
-                      color: 'rgba(0, 0, 0, 0.05)',
+                      color: "rgba(0, 0, 0, 0.05)",
                     },
                   },
                   x: {
@@ -244,8 +267,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
                 },
                 plugins: {
                   legend: {
-                    position: 'top' as const,
-                    align: 'end' as const,
+                    position: "top" as const,
+                    align: "end" as const,
                   },
                 },
               }}
@@ -266,16 +289,16 @@ export default function Page() {
     studentDistribution: { boys: 0, girls: 0 },
     attendance: {
       present: [0, 0, 0, 0, 0],
-      absent: [0, 0, 0, 0, 0]
-    }
+      absent: [0, 0, 0, 0, 0],
+    },
   });
-  
+
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
     courseCount: 0,
     studentCount: 0,
     facultyCount: 0,
     activeFeedbackTasks: 0,
-    enrollmentCount: 0
+    enrollmentCount: 0,
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -284,15 +307,15 @@ export default function Page() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('/api/user/profile');
+        const response = await fetch("/api/user/profile");
         const data = await response.json();
         setUserobj(data);
       } catch (error) {
-        console.error('Failed to fetch user data:', error);
+        console.error("Failed to fetch user data:", error);
       }
     };
 
@@ -304,61 +327,64 @@ export default function Page() {
       setIsLoading(true);
       const response = await fetch("/api/admin/dashboard/getdetails");
       if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data');
+        throw new Error("Failed to fetch dashboard data");
       }
       const data = await response.json();
-      
+
       setDashboardStats({
         courseCount: data.courseCount,
         studentCount: data.studentCount,
         facultyCount: data.facultyCount,
         activeFeedbackTasks: data.activeFeedbackTasks,
-        enrollmentCount: data.enrollmentCount || 0
+        enrollmentCount: data.enrollmentCount || 0,
       });
-      
+
       const newDashboardData: DashboardData = {
-        studentDistribution: { boys: 100, girls: 40},
+        studentDistribution: { boys: 100, girls: 40 },
         attendance: data.attendance || {
           present: [75, 80, 55, 85, 60],
-          absent: [25, 20, 45, 15, 40]
-        }
+          absent: [25, 20, 45, 15, 40],
+        },
       };
-      
+
       setDashboardData(newDashboardData);
       setError(null);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
-      setError('Failed to load dashboard data');
+      setError("Failed to load dashboard data");
     } finally {
       setIsLoading(false);
     }
   };
 
   const pieData = {
-    labels: ['Boys', 'Girls'],
+    labels: ["Boys", "Girls"],
     datasets: [
       {
-        data: [dashboardData.studentDistribution.boys, dashboardData.studentDistribution.girls],
-        backgroundColor: ['#818cf8', '#f472b6'],
-        hoverBackgroundColor: ['#6366f1', '#ec4899'],
+        data: [
+          dashboardData.studentDistribution.boys,
+          dashboardData.studentDistribution.girls,
+        ],
+        backgroundColor: ["#818cf8", "#f472b6"],
+        hoverBackgroundColor: ["#6366f1", "#ec4899"],
         borderWidth: 0,
       },
     ],
   };
 
   const barData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
     datasets: [
       {
-        label: 'Total Present',
+        label: "Total Present",
         data: dashboardData.attendance.present,
-        backgroundColor: '#818cf8',
+        backgroundColor: "#818cf8",
         borderRadius: 8,
       },
       {
-        label: 'Total Absent',
+        label: "Total Absent",
         data: dashboardData.attendance.absent,
-        backgroundColor: '#f472b6',
+        backgroundColor: "#f472b6",
         borderRadius: 8,
       },
     ],
@@ -380,29 +406,31 @@ export default function Page() {
     {
       name: "Dashboard",
       icon: <LayoutDashboard className="w-5 h-5 mr-3" />,
-      component: <DashboardContent 
-        userobj={userobj}
-        dashboardStats={dashboardStats}
-        isLoading={isLoading}
-        error={error}
-        pieData={pieData}
-        barData={barData}
-      />
+      component: (
+        <DashboardContent
+          userobj={userobj}
+          dashboardStats={dashboardStats}
+          isLoading={isLoading}
+          error={error}
+          pieData={pieData}
+          barData={barData}
+        />
+      ),
     },
     {
       name: "Courses",
       icon: <BookOpen className="w-5 h-5 mr-3" />,
-      component: <CourseContent />
+      component: <CourseContent />,
     },
     {
       name: "Faculty",
       icon: <Users className="w-5 h-5 mr-3" />,
-      component: <FacultyContent />
+      component: <FacultyContent />,
     },
     {
       name: "Students",
       icon: <GraduationCap className="w-5 h-5 mr-3" />,
-      component: <StudentContent />
+      component: <StudentContent />,
     },
   ];
 
@@ -416,7 +444,7 @@ export default function Page() {
               Admin Portal
             </h2>
           </div>
-          
+
           <nav className="flex-1 px-4 space-y-2">
             {tabs.map((tab) => (
               <button
@@ -424,42 +452,42 @@ export default function Page() {
                 onClick={() => setActiveTab(tab.name)}
                 className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 ${
                   activeTab === tab.name
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {tab.icon}
-              <span className="font-medium">{tab.name}</span>
-            </button>
-          ))}
-        </nav>
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {tab.icon}
+                <span className="font-medium">{tab.name}</span>
+              </button>
+            ))}
+          </nav>
 
-        <div className="p-4">
-          <button
-            onClick={handleLogout}
-            disabled={!logoutActive}
-            className="flex items-center justify-center w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors  bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
-          >
-            <LogOut className="w-5 h-5 mr-3" />
-            <span className="font-medium ">Logout</span>
-          </button>
+          <div className="p-4">
+            <button
+              onClick={handleLogout}
+              disabled={!logoutActive}
+              className="flex items-center justify-center w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors  bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
+            >
+              <LogOut className="w-5 h-5 mr-3" />
+              <span className="font-medium ">Logout</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* Main Content */}
-    <div className="flex-1 ml-64 p-8">
-      {tabs.find(tab => tab.name === activeTab)?.component}
+      {/* Main Content */}
+      <div className="flex-1 ml-64 p-8">
+        {tabs.find((tab) => tab.name === activeTab)?.component}
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 interface InfoCardProps {
-title: string;
-value: string | number;
-icon: React.ReactNode;
-// trend: string;
-gradientFrom: string;
-gradientTo: string;
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  // trend: string;
+  gradientFrom: string;
+  gradientTo: string;
 }

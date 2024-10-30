@@ -259,6 +259,18 @@ const StudentContent = () => {
             >
               <span className="mr-2">+</span> Add Student
             </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 py-2 transition-all duration-200 transform hover:scale-105"
+              onClick={() =>
+                window.open(
+                  "http://localhost:3000/admin/add/students",
+                  "_blank"
+                )
+              }
+              disabled={isLoading}
+            >
+              <span className="mr-2">+</span> Add Via Excel
+            </Button>
           </div>
         </div>
 

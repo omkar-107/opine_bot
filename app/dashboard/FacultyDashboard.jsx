@@ -530,7 +530,7 @@ const FacultyDashboard = () => {
               }
             })()
           ) : (
-            <div className="w-full h-full flex flex-col justify-center items-center gap-2">
+            <div className="w-[80%] h-full flex flex-col justify-center items-center gap-2">
               <FallingLines
                 color="#7b61ff"
                 width="100"
@@ -542,7 +542,7 @@ const FacultyDashboard = () => {
           )}
         </div>
       ) : (
-        <div className="w-full h-full flex flex-col justify-center items-center gap-2">
+        <div className="w-[80%] h-full flex flex-col justify-center items-center gap-2">
           <FallingLines
             color="#7b61ff"
             width="100"
