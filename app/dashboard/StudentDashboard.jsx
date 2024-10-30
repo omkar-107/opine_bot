@@ -380,6 +380,50 @@ const ProfileContent = ({ userobj }) => {
 };
 
 const FeedbackHistoryContent = (userobj) => {
+  const [feedbackHistory, setFeedbackHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeedbackHistory = async () => {
+      console.log("called");
+      try {
+        const response = await fetch(
+          `/api/student/completedfeedbacks/${userobj.username}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch feedback history");
+        }
+
+        const data = await response.json();
+        console.log("this is called", data.feedbacks);
+        setFeedbackHistory(data.feedbacks);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching feedback history:", error);
+      }
+    };
+    fetchFeedbackHistory();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full h-full flex flex-col justify-center items-center gap-2">
+        <Bars
+          height="80"
+          width="80"
+          color="#7b61ff"
+          ariaLabel="bars-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+        <p>Hold on tight, loading your dashboard...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
@@ -387,16 +431,56 @@ const FeedbackHistoryContent = (userobj) => {
         View all your past feedback and comments here. You can also track your
         feedback progress.
       </p>
-      <div className="w-full flex flex-col min-h-[500px] justify-center items-center gap-2">
-        <Image
-          src={FeedbackHistory}
-          alt="Feedback History"
-          width={200}
-          height={200}
-          className=""
-        />
-        <p>No feedback history available</p>
-      </div>
+
+      {feedbackHistory && feedbackHistory.length > 0 ? (
+        <div className="mt-4 overflow-y-auto max-h-[30rem]">
+          <ul className="mt-4">
+            {feedbackHistory.map((task, index) => (
+              <li
+                key={index}
+                className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
+              >
+                <div className="flex items-center gap-4">
+                  <Image
+                    src={Emoji}
+                    alt="Emoji"
+                    width={100}
+                    height={100}
+                    className="mr-2"
+                  />
+                  <div>
+                    <h4 className="font-bold text-lg">{task.task_title}</h4>
+                    <p>Course ID: {task.for_course}</p>
+                    <p>Created by: {task.faculty}</p>
+                    <p>
+                      Completed At:{" "}
+                      {new Date(task.completedAt).toLocaleString()}
+                    </p>
+                    <div
+                      className={`px-2 py-1 ${
+                        task.active ? "bg-green-500" : "bg-red-500"
+                      } text-white inline-block rounded-md mt-2`}
+                    >
+                      {task.completed ? "Completed" : "Error"}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div className="w-full flex flex-col min-h-[500px] justify-center items-center gap-2">
+          <Image
+            src={FeedbackHistory}
+            alt="Feedback History"
+            width={200}
+            height={200}
+            className=""
+          />
+          <p>No feedback history available</p>
+        </div>
+      )}
     </div>
   );
 };

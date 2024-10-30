@@ -2,6 +2,7 @@
 
 import connectToDatabase from "@/utils/db";
 import FeedbackTask from "@/models/FeedbackTask";
+import Feedback from "@/models/Feedback";
 import Student from "@/models/Student";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -42,8 +43,23 @@ export async function GET(req: NextRequest, res: NextResponse) {
     ]);
 
     const data = result[0].courseDetails;
-    console.log(data);
-    return NextResponse.json(data);
+    // console.log(data);
+
+    //for each task loop through the feedbacks and check if it is already completed or not by student
+    const notCompletedTasks = [];
+    for (const task of data) {
+      const feedback = await Feedback.findOne({
+        for_task: task._id,
+        given_by: uname,
+      });
+
+      // Add task to the array if feedback is not found or not completed
+      if (!feedback || !feedback.completed) {
+        notCompletedTasks.push(task);
+      }
+    }
+    console.log(notCompletedTasks);
+    return NextResponse.json(notCompletedTasks, { status: 200 });
   } catch (error) {
     console.error("Error fetching student:", error);
     return NextResponse.json(
