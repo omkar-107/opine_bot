@@ -3,6 +3,7 @@
 import connectToDatabase from "@/utils/db";
 import Faculty from "@/models/Faculty";
 import { NextRequest, NextResponse } from "next/server";
+import {authorizeUsername} from "@/utils/auth";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const username = req.nextUrl.pathname.split("/").pop();
@@ -11,6 +12,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
       { message: "Please provide username" },
       { status: 400 }
     );
+  }
+
+  const isAuthorized = await authorizeUsername(
+    req.cookies.get("auth")?.value,
+    username
+  );
+  if (!isAuthorized) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   await connectToDatabase();

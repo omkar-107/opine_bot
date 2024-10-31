@@ -1,6 +1,7 @@
 import connectToDatabase from "@/utils/db";
 import Feedback from "@/models/Feedback";
 import { NextRequest, NextResponse } from "next/server";
+import { authorizeTaskId } from "@/utils/auth";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const taskid = req.nextUrl.pathname.split("/").pop();
@@ -9,6 +10,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
       { message: "Please provide taskid" },
       { status: 400 }
     );
+  }
+
+  const isAuthorized = await authorizeTaskId(
+    req.cookies.get("auth")?.value,
+    taskid
+  );
+  if (!isAuthorized) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   await connectToDatabase();

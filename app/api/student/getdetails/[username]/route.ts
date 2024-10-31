@@ -1,6 +1,7 @@
 import connectToDatabase from "@/utils/db";
 import Student from "@/models/Student";
 import { NextRequest, NextResponse } from "next/server";
+import {authorizeUsername} from "@/utils/auth";
 
 //e.g==> http://localhost:3000/api/student/getdetails/21510046
 
@@ -9,6 +10,18 @@ export async function GET(req: NextRequest) {
 
   // Access dynamic parameters using `req.nextUrl`
   const username = req.nextUrl.pathname.split("/").pop(); // Get the username from the URL
+
+  if (!username) {
+    return NextResponse.json({ message: "Invalid username" });
+  }
+
+  const isAuthorized = await authorizeUsername(
+    req.cookies.get("auth")?.value,
+    username
+  );
+  if (!isAuthorized) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const student = await Student.findOne({ username });
