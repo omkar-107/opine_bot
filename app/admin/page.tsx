@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import CourseContent from "./course_page.jsx";
 import StudentContent from "./student_page.jsx";
 import FacultyContent from "./faculty_page.jsx";
+import FeedBackContent from "./feedback_page.jsx";
 import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -28,7 +29,12 @@ import {
   Bell,
   Search,
   User,
+<<<<<<< Updated upstream
 } from "lucide-react";
+=======
+  MessageCircle
+} from 'lucide-react';
+>>>>>>> Stashed changes
 
 ChartJS.register(
   CategoryScale,
@@ -39,6 +45,7 @@ ChartJS.register(
   Legend,
   ArcElement
 );
+
 
 // Define interfaces for the dashboard data structure
 interface DashboardData {
@@ -432,6 +439,11 @@ export default function Page() {
       icon: <GraduationCap className="w-5 h-5 mr-3" />,
       component: <StudentContent />,
     },
+    {
+      name: "Feedback",
+      icon: <MessageCircle className="w-5 h-5 mr-3" />,
+      component: <FeedBackContent avgRating={4.7} positiveCount={124} negativeCount={32} totalStudents={175} />
+    }
   ];
 
   return (
