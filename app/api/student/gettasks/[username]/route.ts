@@ -5,6 +5,7 @@ import FeedbackTask from "@/models/FeedbackTask";
 import Feedback from "@/models/Feedback";
 import Student from "@/models/Student";
 import { NextRequest, NextResponse } from "next/server";
+import { authorizeUsername } from "@/utils/auth";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const uname = req.nextUrl.pathname.split("/").pop();
@@ -13,6 +14,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
       { message: "Please provide username" },
       { status: 400 }
     );
+  }
+
+  const isAuthorized = await authorizeUsername(
+    req.cookies.get("auth")?.value,
+    uname
+  );
+  if (!isAuthorized) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   await connectToDatabase();

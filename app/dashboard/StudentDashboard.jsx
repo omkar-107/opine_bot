@@ -421,27 +421,29 @@ const FeedbackHistoryContent = (userobj) => {
   const itemsPerPage = 6;
 
 
-  useEffect(() => {
-    const fetchFeedbackHistory = async () => {
-      console.log("called");
-      try {
-        const response = await fetch(
-          `/api/student/completedfeedbacks/${userobj.username}`
-        );
+  const fetchFeedbackHistory = async () => {
+    console.log("called");
+    try {
+      const user = await getUser();
+      console.log("user in history is", user.user.user.username);
+      const response = await fetch(
+        `/api/student/completedfeedbacks/${user.user.user.username}`
+      );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch feedback history");
-        }
-
-        const data = await response.json();
-        console.log("this is called", data.feedbacks);
-        setFeedbackHistory(data.feedbacks);
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching feedback history:", error);
+      if (!response.ok) {
+        throw new Error("Failed to fetch feedback history");
       }
-    };
+
+      const data = await response.json();
+      console.log("this is called", data.feedbacks);
+      setFeedbackHistory(data.feedbacks);
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching feedback history:", error);
+    }
+  };
+  useEffect(() => {
     fetchFeedbackHistory();
   }, []);
 

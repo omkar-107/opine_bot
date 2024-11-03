@@ -4,6 +4,7 @@ import Student from "@/models/Student";
 import Feedback from "@/models/Feedback";
 import Course from "@/models/Course";
 import { NextRequest, NextResponse } from "next/server";
+import { authorizeFeedbackId } from "@/utils/auth";
 
 export async function GET(req: NextRequest) {
   const feedbackId = req.nextUrl.pathname.split("/").pop();
@@ -12,6 +13,14 @@ export async function GET(req: NextRequest) {
       { message: "Please provide feedbackId" },
       { status: 400 }
     );
+  }
+
+  const isAuthorized = await authorizeFeedbackId(
+    req.cookies.get("auth")?.value,
+    feedbackId
+  );
+  if (!isAuthorized) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   await connectToDatabase();

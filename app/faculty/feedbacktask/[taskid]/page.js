@@ -175,21 +175,13 @@ const FeedbackTaskPage = () => {
                 </CardHeader>
                 <CardContent>
                     {summaries.length > 0 ? (
-                        <div className="space-y-4">
-                            {summaries.map((item, index) => (
-                                <Card key={item._id} className="hover:shadow-lg transition-shadow">
-                                    <CardContent className="p-4">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Badge variant="outline">Feedback #{index + 1}</Badge>
-                                        </div>
-                                        <div
-                                            className="prose prose-sm max-w-none"
-                                            dangerouslySetInnerHTML={{
-                                                __html: item.summary.replace(/\n/g, "<br />"),
-                                            }}
-                                        />
-                                    </CardContent>
-                                </Card>
+                        <ul className="list-none list-inside">
+                            {summaries.map((item) => (
+                                <li key={item._id}
+                                    className="mt-4 bg-gray-100 shadow-lg p-4 rounded-md flex flex-col gap-2">
+                                    <h4 className="text-lg font-semibold">Rating: {item.summary.rating}</h4>
+                                    <p className="text-gray-600">Summary: {item.summary.message}</p>
+                                </li>
                             ))}
                         </div>
                     ) : (
