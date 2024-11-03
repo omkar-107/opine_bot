@@ -29,12 +29,9 @@ import {
   Bell,
   Search,
   User,
-<<<<<<< Updated upstream
-} from "lucide-react";
-=======
   MessageCircle
 } from 'lucide-react';
->>>>>>> Stashed changes
+
 
 ChartJS.register(
   CategoryScale,

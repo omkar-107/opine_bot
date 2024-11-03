@@ -2,13 +2,38 @@ import React, { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Logout from "@/public/assets/Logout.svg";
 import { useRouter } from "next/navigation";
-import Edit from "@/public/assets/Edit.svg";
-import Student from "@/public/assets/Student.svg";
-import PasswordImg from "@/public/assets/Password.svg";
+
 import { Button } from "@/components/ui/button";
 import Emoji from "@/public/assets/Reaction.png";
 import { Bars, FallingLines, BallTriangle } from "react-loader-spinner";
-import FeedbackHistory from "@/public/assets/FeedbackHistory.png";
+
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+
+
+import {
+  Search,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Send,
+  Briefcase,
+  GraduationCap,
+  Languages,
+  Award,
+  Heart,
+  Music,
+  Camera,
+  User,
+  BookOpen,X
+} from "lucide-react";
+
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
 
 async function getUser() {
   try {
@@ -167,6 +192,8 @@ const ProfileContent = ({ userobj }) => {
   const [courses, setCourses] = useState([]);
   const [userDetailsObj, setUserDetailsObj] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [email, setEmail] = useState(userobj?.email);
 
   useEffect(() => {
     (async () => {
@@ -193,6 +220,7 @@ const ProfileContent = ({ userobj }) => {
 
   const handlePasswordSubmit = async (event) => {
     event.preventDefault();
+    setIsEditing(false);
     const password = event.target.password.value;
     console.log("to be implemented later");
   };
@@ -216,172 +244,182 @@ const ProfileContent = ({ userobj }) => {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">My Profile</h2>
-      <div className="flex flex-col gap-4 text-[#14171f]">
-        {/* Profile */}
-        <div className="w-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex p-4 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Image
-              src={Student}
-              alt="Student"
-              width={100}
-              height={100}
-              className="mx-auto"
-            />
-            <div>
-              <h1 className="font-semibold text-xl">
-                {userobj ? userobj.username : USERNAME}
-              </h1>
-              <h3>Student</h3>
-            </div>
-          </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
           <Button
             variant="outline"
-            className="text-[#14171f] flex items-center gap-2 rounded-xl"
+            className="border-purple-200 hover:bg-purple-50 text-purple-700"
+            onClick={() => setIsEditing(!isEditing)}
           >
-            <p>Edit</p>
-            <Image
-              src={Edit}
-              alt="Edit"
-              width={20}
-              height={20}
-              className="mx-auto"
-            />
+            {isEditing ? "Cancel" : "Edit Profile"}
           </Button>
         </div>
 
-        <div className="w-full flex items-center justify-between h-[300px]">
-          {/* Personal Details */}
-          <div className="w-[45%] h-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex p-4 items-center justify-between">
-            <div className="flex flex-col gap-2 h-full items-center">
-              <h2 className="text-lg font-bold mb-2">Personal Details</h2>
-              <div className="flex w-full items-start">
-                <div className="grid grid-cols-2 gap-8 mb-8">
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500">
-                      Branch
-                    </h3>
-                    <p className="text-md text-[#14171f]">
-                      {userDetailsObj.branch || "Dept"}
-                    </p>
+        <Card className="mb-6 p-6 shadow-lg border-purple-100">
+          {/* Student Header Section */}
+          <div className="relative mb-8 pb-6 border-b border-purple-100">
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <div className="w-24 h-24  rounded-xl flex items-center justify-center shadow-lg">
+                  <GraduationCap className="w-12 h-12 text-black" />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm text-purple-600 font-medium bg-purple-100 px-2 py-1 rounded">
+                    Student ID
+                  </span>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {userobj ? userobj.username : USERNAME}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-4 text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <User className="w-4 h-4" />
+                    <span> {userDetailsObj.branch || "Dept"}</span>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500">
-                      Email
-                    </h3>
-                    <p className="text-md text-[#14171f]">
-                      {userDetailsObj.email || "Email_"}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500">
-                      Year
-                    </h3>
-                    <p className="text-md text-[#14171f]">
-                      {userDetailsObj.year || "Year"}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500">
-                      Semester
-                    </h3>
-                    <p className="text-md text-[#14171f]">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      Year {userDetailsObj.year || "Year"} • Semester{" "}
                       {userDetailsObj.semester || "Sem"}
-                    </p>
+                    </span>
                   </div>
                 </div>
               </div>
-              <p className="text-gray-500">
-                Note: Please contact your department admin for any queries
-                related to your details
-              </p>
             </div>
           </div>
 
-          {/* Password Change Window */}
-          <div className="w-[50%] h-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex p-4 items-center justify-between">
-            <div className="flex flex-col gap-4 items-center w-full">
-              <h2 className="text-lg font-bold">Password Change</h2>
-              <div className="flex justify-start gap-10 items-center">
-                <Image
-                  src={PasswordImg}
-                  alt="Password"
-                  width={100}
-                  height={100}
-                  className=""
-                />
-                <div className="grid grid-cols-1 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Current Password *
-                    </label>
-                    <input
-                      type="password"
-                      className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      placeholder="Enter current password"
-                      required
+          {/* Course Details Section */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800">
+              <BookOpen className="w-5 h-5 text-purple-600" />
+              Current Courses
+            </h3>
+            <div className="flex gap-3">
+              {courses && courses.length > 0 ? (
+                courses.map((course) => (
+                  <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                  <span className="text-sm font-semibold text-blue-700">{course}</span>
+                  {/* <p className="text-xs text-blue-600 mt-1">Information Technology</p> */}
+                </div>
+  
+                ))
+              ) : (
+                <div>No courses found</div>
+              )}
+            </div>
+          </div>
+
+          {isEditing ? (
+            <form
+              onSubmit={handlePasswordSubmit}
+              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            >
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Personal Details
+                </h3>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Email Address
+                  </label>
+                  <div className="mt-1 relative">
+                    <Input
+                      type="email"
+                      value={userDetailsObj.email || "Email_"}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
                     />
+                    <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                   </div>
-                  <div className="flex gap-2">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        New Password *
-                      </label>
-                      <input
-                        type="password"
-                        className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        placeholder="Enter new password"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password *
-                      </label>
-                      <input
-                        type="password"
-                        className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        placeholder="Confirm new password"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={true}
-                    onClick={handlePasswordSubmit}
-                    className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-sm"
-                  >
-                    Save
-                  </button>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Course Details */}
-        <div className="w-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex flex-col justify-start gap-2 p-4 items-start">
-          <h2 className="text-lg font-bold">Course Details</h2>
-          <div className="flex flex-wrap gap-2">
-            {courses && courses.length > 0 ? (
-              courses.map((course) => (
-                <div className="bg-slate-200 p-2 rounded-full">{course}</div>
-              ))
-            ) : (
-              <div>No courses found</div>
-            )}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Security
+                </h3>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Current Password *
+                  </label>
+                  <Input
+                    type="password"
+                    required
+                    className="mt-1"
+                    placeholder="Enter current password"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    New Password *
+                  </label>
+                  <Input
+                    type="password"
+                    required
+                    className="mt-1"
+                    placeholder="Enter new password"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Confirm Password *
+                  </label>
+                  <Input
+                    type="password"
+                    required
+                    className="mt-1"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white mt-4"
+
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
+                <Mail className="w-5 h-5 text-purple-600" />
+                Contact Information
+              </h3>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <label className="text-sm font-medium text-gray-600">
+                  Email Address
+                </label>
+                <p className="text-gray-800 font-medium mt-1">{email}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-black-100">
+            <p className="text-sm text-red-700">
+              <span className="font-medium">Note:</span> Please contact your
+              department admin for any queries related to your details
+            </p>
           </div>
-        </div>
+        </Card>
       </div>
-    </div>
+    
   );
 };
 
 const FeedbackHistoryContent = (userobj) => {
   const [feedbackHistory, setFeedbackHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filterType, setFilterType] = useState('range');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const itemsPerPage = 6;
+
 
   useEffect(() => {
     const fetchFeedbackHistory = async () => {
@@ -407,6 +445,36 @@ const FeedbackHistoryContent = (userobj) => {
     fetchFeedbackHistory();
   }, []);
 
+ 
+  const clearDateFilters = () => {
+    setDateRange({ from: null, to: null });
+    setSelectedDate(null);
+  };
+
+  const filteredFeedback = feedbackHistory.filter(item => {
+    const matchesSearch = item.task_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.for_course.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const itemDate = new Date(item.completedAt);
+    
+    let matchesDate = true;
+    if (filterType === 'range' && (dateRange.from || dateRange.to)) {
+      matchesDate = (!dateRange.from || itemDate >= dateRange.from) &&
+                   (!dateRange.to || itemDate <= dateRange.to);
+    } else if (filterType === 'single' && selectedDate) {
+      matchesDate = itemDate.toDateString() === selectedDate.toDateString();
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const totalPages = Math.ceil(filteredFeedback.length / itemsPerPage);
+  const paginatedFeedback = filteredFeedback.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+
   if (loading) {
     return (
       <div className="w-full h-full flex flex-col justify-center items-center gap-2">
@@ -425,64 +493,202 @@ const FeedbackHistoryContent = (userobj) => {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
-      <p>
-        View all your past feedback and comments here. You can also track your
-        feedback progress.
-      </p>
+  //   <div>
+  //     <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
+  //     <p>
+  //       View all your past feedback and comments here. You can also track your
+  //       feedback progress.
+  //     </p>
 
-      {feedbackHistory && feedbackHistory.length > 0 ? (
-        <div className="mt-4 overflow-y-auto max-h-[30rem]">
-          <ul className="mt-4">
-            {feedbackHistory.map((task, index) => (
-              <li
-                key={index}
-                className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
-              >
-                <div className="flex items-center gap-4">
-                  <Image
-                    src={Emoji}
-                    alt="Emoji"
-                    width={100}
-                    height={100}
-                    className="mr-2"
+  //     {feedbackHistory && feedbackHistory.length > 0 ? (
+  //       <div className="mt-4 overflow-y-auto max-h-[30rem]">
+  //         <ul className="mt-4">
+  //           {feedbackHistory.map((task, index) => (
+  //             <li
+  //               key={index}
+  //               className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
+  //             >
+  //               <div className="flex items-center gap-4">
+  //                 <Image
+  //                   src={Emoji}
+  //                   alt="Emoji"
+  //                   width={100}
+  //                   height={100}
+  //                   className="mr-2"
+  //                 />
+  //                 <div>
+  //                   <h4 className="font-bold text-lg">{task.task_title}</h4>
+  //                   <p>Course ID: {task.for_course}</p>
+  //                   <p>Created by: {task.faculty}</p>
+  //                   <p>
+  //                     Completed At:{" "}
+  //                     {new Date(task.completedAt).toLocaleString()}
+  //                   </p>
+  //                   <div
+  //                     className={`px-2 py-1 ${
+  //                       task.active ? "bg-green-500" : "bg-red-500"
+  //                     } text-white inline-block rounded-md mt-2`}
+  //                   >
+  //                     {task.completed ? "Completed" : "Error"}
+  //                   </div>
+  //                 </div>
+  //               </div>
+  //             </li>
+  //           ))}
+  //         </ul>
+  //       </div>
+  //     ) : (
+  //       <div className="w-full flex flex-col min-h-[500px] justify-center items-center gap-2">
+  //         <Image
+  //           src={FeedbackHistory}
+  //           alt="Feedback History"
+  //           width={200}
+  //           height={200}
+  //           className=""
+  //         />
+  //         <p>No feedback history available</p>
+  //       </div>
+  //     )}
+  //   </div>
+  // );
+
+  <div className="w-full px-4 py-6">
+      <h1 className="text-2xl font-bold mb-2">Feedback History</h1>
+      <p className="text-gray-600 mb-6">View all your past feedback and comments here. You can also track your feedback progress.</p>
+      
+      <Card className="w-full p-4">
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex justify-between items-center">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Input
+                placeholder="Search feedbacks"
+                className="pl-10 pr-4 py-2 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <Select value={filterType} onValueChange={value => {
+                setFilterType(value);
+                clearDateFilters();
+              }}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select date filter type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="single">Single Date</SelectItem>
+                  <SelectItem value="range">Date Range</SelectItem>
+                </SelectContent>
+              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Calendar size={20} />
+                    {filterType === 'range' ? 
+                      (dateRange.from ? dateRange.from.toLocaleDateString() : 'Select date range') :
+                      (selectedDate ? selectedDate.toLocaleDateString() : 'Select date')}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <CalendarComponent
+                    mode={filterType === 'range' ? "range" : "single"}
+                    selected={filterType === 'range' ? dateRange : selectedDate}
+                    onSelect={filterType === 'range' ? 
+                      (range) => setDateRange(range || { from: null, to: null }) :
+                      (date) => setSelectedDate(date)}
+                    initialFocus
                   />
-                  <div>
-                    <h4 className="font-bold text-lg">{task.task_title}</h4>
-                    <p>Course ID: {task.for_course}</p>
-                    <p>Created by: {task.faculty}</p>
-                    <p>
-                      Completed At:{" "}
-                      {new Date(task.completedAt).toLocaleString()}
-                    </p>
-                    <div
-                      className={`px-2 py-1 ${
-                        task.active ? "bg-green-500" : "bg-red-500"
-                      } text-white inline-block rounded-md mt-2`}
-                    >
-                      {task.completed ? "Completed" : "Error"}
+                </PopoverContent>
+              </Popover>
+              {(dateRange.from || selectedDate) && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={clearDateFilters}
+                  className="h-9 w-9"
+                >
+                  <X size={20} />
+                </Button>
+              )}
+            </div>
+          </div>
+          {(dateRange.from || selectedDate) && (
+            <div className="text-sm text-gray-500">
+              {filterType === 'range' ? 
+                `Showing results from ${dateRange.from?.toLocaleDateString()} to ${dateRange.to?.toLocaleDateString() || 'present'}` :
+                `Showing results for ${selectedDate.toLocaleDateString()}`}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          {paginatedFeedback.length > 0 ? (
+            paginatedFeedback.map((item, index) => (
+              <div key={index} className="flex items-start gap-4 p-6 border rounded-lg bg-white shadow-sm">
+                <div className="w-12 h-12 flex-shrink-0">
+                  <img src={feedbackHistory} alt="Feedback" className="w-full h-full" />
+                </div>
+                <div className="flex-grow">
+                  <h3 className="text-xl font-semibold mb-1">{item.task_title}</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                    {/* console.log(item); */}
+                    <div>
+                      <p>Course ID: {item.for_course}</p>
+                      <p>Created by: {item.faculty}</p>
+                    </div>
+                    <div>
+                      <p>Completed At: {new Date(item.completedAt).toLocaleString()}</p>
+                      <div className="mt-2">
+                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                          {item.completed ? 'Completed' : 'Processing'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </li>
-            ))}
-          </ul>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              No feedback found for the selected filters
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="w-full flex flex-col min-h-[500px] justify-center items-center gap-2">
-          <Image
-            src={FeedbackHistory}
-            alt="Feedback History"
-            width={200}
-            height={200}
-            className=""
-          />
-          <p>No feedback history available</p>
-        </div>
-      )}
+
+        {paginatedFeedback.length > 0 && (
+          <div className="flex items-center justify-between mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, i) => (
+                <Button
+                  key={i}
+                  variant={currentPage === i + 1 ? "default" : "outline"}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className="w-8 h-8 p-0"
+                >
+                  {i + 1}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
+      </Card>
     </div>
-  );
+  )
 };
 
 // Array of tabs with names, components, and icon paths
@@ -500,7 +706,7 @@ const tabs = [
   {
     name: "Feedback History",
     component: <FeedbackHistoryContent />,
-    icon: "/assets/Feedback History.svg",
+    icon: "/assets/FeedbackHistory.svg",
   },
 ];
 

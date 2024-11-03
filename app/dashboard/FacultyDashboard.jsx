@@ -1,9 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import Logout from "@/public/assets/Logout.svg";
+// import { useRouter } from "next/navigation";
+// import Logout from "@/public/assets/Logout.svg";
 import Image from "next/image";
 import { Bars, FallingLines, BallTriangle } from "react-loader-spinner";
 import Emoji from "@/public/assets/Reaction.png";
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';  
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  UserCircle2, 
+  LogOut, 
+  BookOpen, 
+  ChevronRight,
+  Bell,
+  Settings
+} from 'lucide-react';
 
 async function getUser() {
   try {
@@ -408,7 +422,7 @@ const tabs = [
   {
     name: "Dashboard",
     component: <DashboardContent />,
-    icon: "/assets/Dashboard.svg",
+    icon: "./assets/Dashboard.svg",
   },
   {
     name: "Create Feedback",
@@ -430,14 +444,13 @@ const tabs = [
 const FacultyDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [userobj, setUserObj] = useState({});
-  const router = useRouter();
   const [logoutActive, setLogoutActive] = useState(true);
+  const [isMenuExpanded, setIsMenuExpanded] = useState(false);
 
   useEffect(() => {
     (async () => {
       const { user, error } = await getUser();
       user ? setUserObj(user.user) : router.push("/login");
-      console.log("userfetched", user);
     })();
   }, []);
 
@@ -453,107 +466,168 @@ const FacultyDashboard = () => {
     }
   }
 
-  return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <div className="w-64 bg-[#14171f] text-white flex flex-col justify-between items-center">
-        <div className="flex flex-col justify-center gap-2">
-          <h2 className="text-2xl font-bold p-4">Faculty Dashboard</h2>
-          <div className="flex flex-col justify-center items-center mt-2 mb-8">
-            <div className="h-[1px] w-[90%] bg-white mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-            <h3>{userobj ? userobj.username : USERNAME}</h3>
-            <h5>Faculty</h5>
-            <div className="h-[0.5px] w-[90%] bg-white mt-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-          </div>
-          <nav className="flex flex-col justify-center items-center">
-            {tabs.map((tab) => (
-              <button
-                key={tab.name}
-                onClick={() => setActiveTab(tab.name)}
-                className={`flex items-center w-[80%] text-left px-2 py-2 my-2 ${
-                  activeTab === tab.name
-                    ? "border-2 border-[#7b61ff] rounded-2xl"
-                    : ""
-                }`}
-              >
-                <Image
-                  src={tab.icon}
-                  alt={`${tab.name} icon`}
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                {tab.name}
-              </button>
-            ))}
-          </nav>
-        </div>
-        <button
-          onClick={handleLogout}
-          disabled={!logoutActive}
-          className={`flex items-center w-[70%] justify-center rounded-md bg-[#7b61ff] text-left px-2 py-2 my-2`}
-        >
-          <Image
-            src={Logout}
-            alt={`logout icon`}
-            width={20}
-            height={20}
-            className="mr-2"
-          />
-          <p className="mr-2">Logout</p>
-        </button>
-      </div>
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "Dashboard":
+        return <DashboardContent 
+          userobj={userobj} 
+          loadingParent={userobj.username === undefined} 
+        />;
+      case "Create Feedback":
+        return <NewFeedbackContent userobj={userobj} />;
+      case "View Feedbacks":
+        return <FeedbackDashboardContent userobj={userobj} />;
+      case "Profile":
+        return <ProfileContent userobj={userobj} />;
+      default:
+        return <DashboardContent userobj={userobj} />;
+    }
+  };
 
-      {/* Content Area */}
-      {logoutActive === true ? (
-        <div className="flex-1 p-8">
-          {logoutActive === true ? (
-            (() => {
-              switch (activeTab) {
-                case "Dashboard":
-                  return (
-                    <DashboardContent
-                      userobj={userobj}
-                      loadingParent={
-                        userobj.username !== undefined ? false : true
-                      }
-                    />
-                  );
-                case "Create Feedback":
-                  return <NewFeedbackContent userobj={userobj} />;
-                case "View Feedbacks":
-                  return <FeedbackDashboardContent userobj={userobj} />;
-                case "Profile":
-                  return <ProfileContent userobj={userobj} />;
-                default:
-                  return <DashboardContent userobj={userobj} />;
-              }
-            })()
-          ) : (
-            <div className="w-[80%] h-full flex flex-col justify-center items-center gap-2">
-              <FallingLines
-                color="#7b61ff"
-                width="100"
-                visible={true}
-                ariaLabel="logout label"
-              />
-              <p>Logging out ...</p>
-            </div>
-          )}
+  return (
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
+      {/* Sidebar */}
+      <motion.div 
+        initial={{ width: '80px' }}
+        animate={{ width: isMenuExpanded ? '280px' : '80px' }}
+        transition={{ type: 'tween', duration: 0.3 }}
+        className="bg-white shadow-xl z-10 relative"
+      >
+        <div className="p-4 flex items-center justify-between">
+          <AnimatePresence>
+            {isMenuExpanded && (
+              <motion.h2 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-xl font-bold text-gray-800"
+              >
+                Faculty Hub
+              </motion.h2>
+            )}
+          </AnimatePresence>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+          >
+            <ChevronRight 
+              className={`transform transition-transform ${
+                isMenuExpanded ? 'rotate-180' : ''
+              }`} 
+            />
+          </Button>
         </div>
-      ) : (
-        <div className="w-[80%] h-full flex flex-col justify-center items-center gap-2">
-          <FallingLines
-            color="#7b61ff"
-            width="100"
-            visible={true}
-            ariaLabel="logout label"
-          />
-          <p>Logging out ...</p>
+
+        <div className="flex flex-col items-center px-3 mt-4">
+          <Avatar className="mb-4">
+            <AvatarImage src={userobj?.avatar} />
+            <AvatarFallback>
+              {userobj?.username?.[0]?.toUpperCase() || 'F'}
+            </AvatarFallback>
+          </Avatar>
+          <AnimatePresence>
+            {isMenuExpanded && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center"
+              >
+                <h3 className="font-semibold">{userobj?.username || 'Faculty Member'}</h3>
+                <p className="text-sm text-gray-500">Faculty</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      )}
+
+        <Separator className="my-4" />
+
+        <nav className="space-y-2 px-3">
+          {tabs.map((tab) => (
+            <motion.button
+              key={tab.name}
+              onClick={() => setActiveTab(tab.name)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`
+                flex items-center w-full p-2 rounded-lg 
+                transition-colors duration-200
+                ${activeTab === tab.name 
+                  ? 'bg-purple-100 text-purple-700' 
+                  : 'hover:bg-gray-100'}
+              `}
+            >
+              <tab.icon className="mr-3" size={20} />
+              {isMenuExpanded && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <p className="text-sm">{tab.name}</p>
+                  <p className="text-xs text-gray-500">{tab.description}</p>
+                </motion.div>
+              )}
+            </motion.button>
+          ))}
+        </nav>
+
+        <div className="absolute bottom-0 w-full p-4">
+          <Button 
+            onClick={handleLogout} 
+            disabled={!logoutActive} 
+            className="w-full"
+            variant="destructive"
+          >
+            <LogOut className="mr-2" size={18} /> 
+            {isMenuExpanded ? 'Logout' : null}
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        <header className="flex justify-between items-center mb-6">
+          <motion.h1 
+            className="text-3xl font-bold text-gray-800"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            {activeTab}
+          </motion.h1>
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" size="icon">
+              <Settings size={20} />
+            </Button>
+            <Button variant="outline" size="icon" className="relative">
+              <Bell size={20} />
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1.5 py-0.5 text-xs">
+                3
+              </span>
+            </Button>
+            <Avatar>
+              <AvatarImage src={userobj?.avatar} />
+              <AvatarFallback>
+                {userobj?.username?.[0]?.toUpperCase() || 'F'}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </header>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {renderTabContent()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
-
 export default FacultyDashboard;

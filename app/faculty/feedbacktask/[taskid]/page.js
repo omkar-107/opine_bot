@@ -1,7 +1,12 @@
 "use client";
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { InfinitySpin } from 'react-loader-spinner'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Switch, Skeleton } from "@/components/ui/body";
+import { Clock, User, BookOpen, MessageSquare } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/components/ui/use-toast"; 
 
 const FeedbackTaskPage = () => {
     const { taskid } = useParams();
@@ -9,9 +14,9 @@ const FeedbackTaskPage = () => {
     const [summaries, setSummaries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isActive, setIsActive] = useState(false);
+    const [isStatusChanging, setIsStatusChanging] = useState(false);
 
     useEffect(() => {
-        // Fetch task details from backend using taskid
         const fetchTaskDetails = async () => {
             try {
                 const response = await fetch(`/api/faculty/gettaskdetails/${taskid}`);
@@ -23,10 +28,15 @@ const FeedbackTaskPage = () => {
                     const summariesData = await summaries.json();
                     setSummaries(summariesData);
                 } else {
-                    console.error("Error fetching task details:", response.statusText);
+                    throw new Error("Failed to fetch task details");
                 }
             } catch (error) {
                 console.error("Error:", error);
+                toast({
+                    title: "Error",
+                    description: "Failed to load task details",
+                    variant: "destructive"
+                });
             } finally {
                 setLoading(false);
             }
@@ -36,10 +46,11 @@ const FeedbackTaskPage = () => {
     }, [taskid]);
 
     const handleActiveChange = async () => {
-        // Toggle active status and update backend if needed
+        if (isStatusChanging) return;
+
+        setIsStatusChanging(true);
         try {
             const newActiveStatus = !isActive;
-            // Update on the server
             const response = await fetch(`/api/faculty/updatetaskstatus/`, {
                 method: 'POST',
                 headers: {
@@ -49,74 +60,146 @@ const FeedbackTaskPage = () => {
             });
 
             if (response.ok) {
-                setIsActive(newActiveStatus); // Update local state if successful
+                setIsActive(newActiveStatus);
+                
+                toast({
+                    title: "Task Status Updated",
+                    description: `Task is now ${newActiveStatus ? 'Active' : 'Inactive'}`,
+                    variant: "success"
+                });
             } else {
-                console.error("Error updating active status:", response.statusText);
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to update task status");
             }
         } catch (error) {
-            console.error("Error:", error);
+            console.error("Error updating task status:", error);
+            
+            toast({
+                title: "Error",
+                description: error.message || "Failed to update task status",
+                variant: "destructive"
+            });
+
+            setIsActive(isActive);
+        } finally {
+            setIsStatusChanging(false);
         }
     };
 
     if (loading) {
-        return <div className='w-full h-lvh flex flex-col justify-center items-center gap-4'>
-            <InfinitySpin
-                visible={true}
-                width="200"
-                color="#4fa94d"
-                ariaLabel="infinity-spin-loading"
-            />
-            <p>Loading task details...</p>
-        </div>;
+        return (
+            <div className="container mx-auto p-6 space-y-4">
+                <Skeleton className="h-12 w-3/4" />
+                <Card>
+                    <CardContent className="p-6 space-y-4">
+                        <Skeleton className="h-6 w-1/2" />
+                        <Skeleton className="h-4 w-1/3" />
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-32 w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        );
     }
 
     if (!taskDetails) {
-        return <div>Task not found</div>;
+        return (
+            <Alert variant="destructive" className="m-6">
+                <AlertDescription>
+                    Task not found. Please check the task ID and try again.
+                </AlertDescription>
+            </Alert>
+        );
     }
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Feedback Task Details</h1>
-            <div className="bg-white rounded-lg shadow p-4 mb-4">
-                <h2 className="text-xl font-semibold mb-2">{taskDetails.title}</h2>
-                <div className="mb-2">
-                    <strong>Course ID:</strong> {taskDetails.course_id}
-                </div>
-                <div className="mb-2">
-                    <strong>Created By:</strong> {taskDetails.created_by}
-                </div>
-                <div className="mb-2 flex items-center">
-                    <strong className="mr-2">Active:</strong>
-                    <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={() => { handleActiveChange(); alert('state changed') }}
-                        className="h-4 w-4"
-                    />
-                </div>
-                <div className="mb-2">
-                    <strong>Created At:</strong> {new Date(taskDetails.createdAt).toLocaleString()}
-                </div>
-                <div className="mt-4">
-                    <h3 className="text-lg font-semibold">Feedbacks</h3>
-                    {summaries.length > 0 ? (
-                        <ul className="list-none list-inside">
-                            {summaries.map((item) => (
-                                <li
-                                    key={item._id}
-                                    className="mt-4 bg-gray-100 shadow-lg p-4 rounded-md"
-                                    dangerouslySetInnerHTML={{
-                                        __html: item.summary.replace(/\n/g, "<br />"),
-                                    }}
-                                />
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No feedbacks available</p>
-                    )}
-                </div>
-
+        <div className="container mx-auto p-6 max-w-4xl">
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold tracking-tight">Feedback Task Details</h1>
+                <p className="text-gray-500 mt-2">View and manage feedback task information</p>
             </div>
+
+            <Card className="mb-6">
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-2xl">{taskDetails.title}</CardTitle>
+                        <Badge variant={isActive ? "success" : "secondary"}>
+                            {isActive ? "Active" : "Inactive"}
+                        </Badge>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center gap-2">
+                            <BookOpen className="h-4 w-4 text-gray-500" />
+                            <span className="font-medium">Course ID:</span>
+                            <span>{taskDetails.course_id}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-500" />
+                            <span className="font-medium">Created By:</span>
+                            <span>{taskDetails.created_by}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-gray-500" />
+                            <span className="font-medium">Created At:</span>
+                            <span>{new Date(taskDetails.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="font-medium">Task Status:</span>
+                            <Switch
+                                checked={isActive}
+                                onCheckedChange={handleActiveChange}
+                                disabled={isStatusChanging}
+                                aria-label="Toggle task status"
+                                className={`
+                                    ${isActive 
+                                        ? 'bg-green-500 data-[state=checked]:bg-green-500' 
+                                        : 'bg-red-500 data-[state=unchecked]:bg-red-500'}
+                                `}
+                            />
+                            {isStatusChanging && (
+                                <Skeleton className="h-4 w-12 ml-2" />
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <MessageSquare className="h-5 w-5" />
+                        <CardTitle>Feedback Summaries</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {summaries.length > 0 ? (
+                        <div className="space-y-4">
+                            {summaries.map((item, index) => (
+                                <Card key={item._id} className="hover:shadow-lg transition-shadow">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Badge variant="outline">Feedback #{index + 1}</Badge>
+                                        </div>
+                                        <div
+                                            className="prose prose-sm max-w-none"
+                                            dangerouslySetInnerHTML={{
+                                                __html: item.summary.replace(/\n/g, "<br />"),
+                                            }}
+                                        />
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                            <p>No feedback summaries available yet</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 };
