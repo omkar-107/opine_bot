@@ -11,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator";
 
 
 import {
@@ -27,9 +29,10 @@ import {
   Heart,
   Music,
   Camera,
-  User,
-  BookOpen,X
+  BookOpen,X,
+  ChevronLeft, ChevronRight, LayoutDashboard, FileEdit, FileSearch, User, LogOut, History, UserCircle
 } from "lucide-react";
+
 
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -51,6 +54,39 @@ async function getUser() {
     };
   }
 }
+
+const LoadingSpinner = ({ type = 'bars', message = 'Loading...' }) => {
+  return (
+    <div className="h-[calc(100vh-theme(spacing.16))] flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center space-y-4">
+        {type === 'bars' ? (
+          <Bars
+            height="80"
+            width="80"
+            color="#7b61ff"
+            ariaLabel="loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        ) : (
+          <BallTriangle
+            height={100}
+            width={100}
+            radius={5}
+            color="#7b61ff"
+            ariaLabel="loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        )}
+        <p className="text-gray-600">{message}</p>
+      </div>
+    </div>
+  );
+};
+
 
 const DashboardContent = ({ userobj }) => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
@@ -79,20 +115,7 @@ const DashboardContent = ({ userobj }) => {
   }, [userobj.username]);
 
   if (loading) {
-    return (
-      <div className="w-full h-full flex flex-col justify-center items-center gap-2">
-        <Bars
-          height="80"
-          width="80"
-          color="#7b61ff"
-          ariaLabel="bars-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-        <p>Hold on tight, loading your dashboard...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Hold on tight, loading your dashboard..." />;
   }
 
   const handleFeedbackButton = async ({ _id, course_id, created_by }) => {
@@ -225,24 +248,9 @@ const ProfileContent = ({ userobj }) => {
     console.log("to be implemented later");
   };
 
-  if (loading) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center gap-4">
-        <BallTriangle
-          height={100}
-          width={100}
-          radius={5}
-          color="#7b61ff"
-          ariaLabel="ball-triangle-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-        <p>Loading profile...</p>
-      </div>
-    );
-  }
-
+if (loading) {
+  return <LoadingSpinner type="ballTriangle" message="Loading profile..." />;
+}
   return (
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
@@ -478,20 +486,7 @@ const FeedbackHistoryContent = (userobj) => {
 
 
   if (loading) {
-    return (
-      <div className="w-full h-full flex flex-col justify-center items-center gap-2">
-        <Bars
-          height="80"
-          width="80"
-          color="#7b61ff"
-          ariaLabel="bars-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-        <p>Hold on tight, loading your dashboard...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Hold on tight, loading your dashboard..." />;
   }
 
   return (
@@ -693,40 +688,22 @@ const FeedbackHistoryContent = (userobj) => {
   )
 };
 
-// Array of tabs with names, components, and icon paths
-const tabs = [
-  {
-    name: "Dashboard",
-    component: <DashboardContent />,
-    icon: "/assets/Dashboard.svg",
-  },
-  {
-    name: "Profile",
-    component: <ProfileContent />,
-    icon: "/assets/Profile.svg",
-  },
-  {
-    name: "Feedback History",
-    component: <FeedbackHistoryContent />,
-    icon: "/assets/FeedbackHistory.svg",
-  },
-];
+
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [userobj, setUserObj] = useState({});
   const router = useRouter();
   const [logoutActive, setLogoutActive] = useState(true);
-
+  const [isMenuExpanded, setIsMenuExpanded] = useState(false);
+  
   useEffect(() => {
     (async () => {
       const { user, error } = await getUser();
       user ? setUserObj(user.user) : router.push("/login");
-
-      console.log(userobj);
     })();
   }, []);
-
+  
   async function handleLogout() {
     setLogoutActive(false);
     const response = await fetch("/api/auth/logout", {
@@ -738,80 +715,168 @@ const StudentDashboard = () => {
       console.error("Failed to logout");
     }
   }
+  
+  const tabs = [
+    {
+      name: "Dashboard",
+      component: <DashboardContent userobj={userobj} />,
+      icon: LayoutDashboard,
+      active: activeTab === "Dashboard"
+    },
+    {
+      name: "Profile",
+      component: <ProfileContent userobj={userobj} />,
+      icon: UserCircle,
+      active: activeTab === "Profile"
+    },
+    {
+      name: "Feedback History",
+      component: <FeedbackHistoryContent userobj={userobj} />,
+      icon: History,
+      active: activeTab === "Feedback History"
+    },
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "Dashboard":
+        return <DashboardContent userobj={userobj} />;
+      case "Profile":
+        return <ProfileContent userobj={userobj} />;
+      case "Feedback History":
+        return <FeedbackHistoryContent userobj={userobj} />;
+      default:
+        return <DashboardContent userobj={userobj} />;
+    }
+  };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
-      <div className="w-64 bg-[#14171f] text-white flex flex-col justify-between items-center">
-        <div className="flex flex-col justify-center gap-2">
-          <h2 className="text-2xl font-bold p-4">Student Dashboard</h2>
-          <div className="flex flex-col justify-center items-center mt-2 mb-8">
-            <div className="h-[1px] w-[90%] bg-white mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-            <h3>{userobj ? userobj.username : USERNAME}</h3>
-            <h5>Student</h5>
-            <div className="h-[0.5px] w-[90%] bg-white mt-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+      <motion.div
+        initial={{ width: "80px" }}
+        animate={{ width: isMenuExpanded ? "280px" : "80px" }}
+        transition={{ type: "tween", duration: 0.3 }}
+        className="bg-white shadow-xl z-10 relative"
+      >
+        <div className="p-4 flex items-center justify-between">
+          <AnimatePresence>
+            {isMenuExpanded && (
+              <motion.h2
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-xl font-bold text-gray-800"
+              >
+                Student Dashboard
+              </motion.h2>
+            )}
+          </AnimatePresence>
+          <div className="absolute top-1/2 -translate-y-1/2 -right-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center shadow-md"
+            >
+              <ChevronRight
+                className={`transform transition-transform ${
+                  isMenuExpanded ? "rotate-180" : ""
+                }`}
+                size={16}
+              />
+            </Button>
           </div>
-          <nav className="flex flex-col justify-center items-center">
-            {tabs.map((tab) => (
-              <button
+        </div>
+
+        <div className="flex flex-col items-center px-3 mt-4">
+         
+          <AnimatePresence>
+            {isMenuExpanded && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center"
+              >
+                <h3 className="font-semibold">
+                  {userobj?.username || "Student"}
+                </h3>
+                <h3 className="font-semibold">
+                  {userobj?.email || "Student"}
+                </h3>
+                <p className="text-sm text-gray-500">Student</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <Separator className="my-4" />
+
+        <nav className="space-y-2 px-3">
+          {tabs.map((tab) => {
+            const IconComponent = tab.icon;
+            return (
+              <motion.button
                 key={tab.name}
                 onClick={() => setActiveTab(tab.name)}
-                className={`flex items-center w-[80%] text-left px-2 py-2 my-2 ${
-                  activeTab === tab.name
-                    ? "border-2 border-[#7b61ff] rounded-2xl"
-                    : ""
-                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`
+                  flex items-center w-full p-2 rounded-lg 
+                  transition-colors duration-200
+                  ${
+                    activeTab === tab.name
+                      ? "bg-purple-100 text-purple-700"
+                      : "hover:bg-gray-100"
+                  }
+                `}
               >
-                <Image
-                  src={tab.icon}
-                  alt={`${tab.name} icon`}
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                {tab.name}
-              </button>
-            ))}
-          </nav>
-        </div>
-        <button
-          onClick={handleLogout}
-          disabled={!logoutActive}
-          className={`flex items-center w-[70%] justify-center rounded-md bg-[#7b61ff] text-left px-2 py-2 my-2`}
-        >
-          <Image
-            src={Logout}
-            alt={`logout icon`}
-            width={20}
-            height={20}
-            className="mr-2"
-          />
-          <p className="mr-2">Logout</p>
-        </button>
-      </div>
+                <IconComponent className="mr-3" size={20} />
+                {isMenuExpanded && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-sm"
+                  >
+                    {tab.name}
+                  </motion.span>
+                )}
+              </motion.button>
+            );
+          })}
+        </nav>
 
-      {/* Content Area */}
-      {logoutActive === true ? (
-        <div className="flex-1 p-8">
-          {activeTab === "Profile" ? (
-            <ProfileContent userobj={userobj} />
-          ) : activeTab === "Feedback History" ? (
-            <FeedbackHistoryContent userobj={userobj} />
-          ) : (
-            <DashboardContent userobj={userobj} />
-          )}
+        <div className="absolute bottom-0 w-full p-4">
+          <Button
+            onClick={handleLogout}
+            disabled={!logoutActive}
+            className="w-full"
+            variant="destructive"
+          >
+            <LogOut className="mr-2" size={18} />
+            {isMenuExpanded && "Logout"}
+          </Button>
         </div>
-      ) : (
-        <div className="w-[80%] h-full flex flex-col justify-center items-center gap-2">
-          <FallingLines
-            color="#7b61ff"
-            width="100"
-            visible={true}
-            ariaLabel="logout label"
-          />
-          <p>Logging out ...</p>
-        </div>
-      )}
+      </motion.div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {renderTabContent()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
