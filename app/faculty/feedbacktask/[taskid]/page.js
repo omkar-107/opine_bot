@@ -3,38 +3,77 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch, Skeleton } from "@/components/ui/body";
+import { Switch } from "@/components/ui/body"; // Fixed import path
+import { Skeleton } from "@/components/ui/body"; // Separate skeleton import
 import { Clock, User, BookOpen, MessageSquare } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "@/components/ui/use-toast"; 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Toaster } from "@/components/ui/toaster"; // Added Toaster import
+import { toast } from "@/components/ui/use-toast";
 
 const FeedbackTaskPage = () => {
     const { taskid } = useParams();
     const [taskDetails, setTaskDetails] = useState(null);
     const [summaries, setSummaries] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isActive, setIsActive] = useState(false);
     const [isStatusChanging, setIsStatusChanging] = useState(false);
 
     useEffect(() => {
         const fetchTaskDetails = async () => {
+            if (!taskid) {
+                setError("No task ID provided");
+                setLoading(false);
+                return;
+            }
+
+            setLoading(true);
+            setError(null);
+            
             try {
+                // Fetch task details with error handling
                 const response = await fetch(`/api/faculty/gettaskdetails/${taskid}`);
-                const summaries = await fetch(`/api/faculty/getsummary/${taskid}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setTaskDetails(data);
-                    setIsActive(data.active);
-                    const summariesData = await summaries.json();
-                    setSummaries(summariesData);
-                } else {
-                    throw new Error("Failed to fetch task details");
+                const contentType = response.headers.get("content-type");
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
                 }
+
+                // Check if response is JSON
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Invalid response format from server");
+                }
+
+                const responseData = await response.json();
+
+                if (!responseData) {
+                    throw new Error("No task data received");
+                }
+
+                setTaskDetails(responseData);
+                setIsActive(responseData.active);
+
+                // Fetch summaries with error handling
+                try {
+                    const summariesResponse = await fetch(`/api/faculty/getsummary/${taskid}`);
+                    if (summariesResponse.ok) {
+                        const summariesData = await summariesResponse.json();
+                        setSummaries(Array.isArray(summariesData) ? summariesData : []);
+                    } else {
+                        console.warn('Failed to fetch summaries:', summariesResponse.status);
+                        setSummaries([]);
+                    }
+                } catch (summaryError) {
+                    console.error('Error fetching summaries:', summaryError);
+                    setSummaries([]);
+                }
+
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error in fetchTaskDetails:", error);
+                setError(error.message || "An unexpected error occurred");
                 toast({
                     title: "Error",
-                    description: "Failed to load task details",
+                    description: error.message || "Failed to load task details",
                     variant: "destructive"
                 });
             } finally {
@@ -51,7 +90,7 @@ const FeedbackTaskPage = () => {
         setIsStatusChanging(true);
         try {
             const newActiveStatus = !isActive;
-            const response = await fetch(`/api/faculty/updatetaskstatus/`, {
+            const response = await fetch('/api/faculty/updatetaskstatus', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -59,65 +98,65 @@ const FeedbackTaskPage = () => {
                 body: JSON.stringify({ taskid, status: newActiveStatus })
             });
 
-            if (response.ok) {
-                setIsActive(newActiveStatus);
-                
-                toast({
-                    title: "Task Status Updated",
-                    description: `Task is now ${newActiveStatus ? 'Active' : 'Inactive'}`,
-                    variant: "success"
-                });
-            } else {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to update task status");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Failed to update task status: ${response.status}`);
             }
+
+            setIsActive(newActiveStatus);
+            toast({
+                title: "Success",
+                description: `Task is now ${newActiveStatus ? 'Active' : 'Inactive'}`,
+                variant: "success"
+            });
         } catch (error) {
             console.error("Error updating task status:", error);
-            
             toast({
                 title: "Error",
                 description: error.message || "Failed to update task status",
                 variant: "destructive"
             });
-
+            // Revert the switch state
             setIsActive(isActive);
         } finally {
             setIsStatusChanging(false);
         }
     };
 
-    if (loading) {
-        return (
-            <div className="container mx-auto p-6 space-y-4">
-                <Skeleton className="h-12 w-3/4" />
-                <Card>
-                    <CardContent className="p-6 space-y-4">
-                        <Skeleton className="h-6 w-1/2" />
-                        <Skeleton className="h-4 w-1/3" />
-                        <Skeleton className="h-4 w-1/4" />
-                        <Skeleton className="h-32 w-full" />
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
-
-    if (!taskDetails) {
-        return (
-            <Alert variant="destructive" className="m-6">
-                <AlertDescription>
-                    Task not found. Please check the task ID and try again.
-                </AlertDescription>
-            </Alert>
-        );
-    }
-
     return (
-        <div className="container mx-auto p-6 max-w-4xl">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold tracking-tight">Feedback Task Details</h1>
-                <p className="text-gray-500 mt-2">View and manage feedback task information</p>
-            </div>
+        <>
+            <Toaster /> {/* Added Toast provider */}
+            <div className="container mx-auto p-6 max-w-4xl">
+                {loading ? (
+                    <div className="space-y-4">
+                        <Skeleton className="h-12 w-3/4" />
+                        <Card>
+                            <CardContent className="p-6 space-y-4">
+                                <Skeleton className="h-6 w-1/2" />
+                                <Skeleton className="h-4 w-1/3" />
+                                <Skeleton className="h-4 w-1/4" />
+                                <Skeleton className="h-32 w-full" />
+                            </CardContent>
+                        </Card>
+                    </div>
+                ) : error ? (
+                    <Alert variant="destructive">
+                        <AlertTitle>Error Loading Task</AlertTitle>
+                        <AlertDescription>
+                            {error}
+                            <div className="mt-2 text-sm">
+                                <strong>Debug Info:</strong>
+                                <br />
+                                Task ID: {taskid || 'Not provided'}
+                            </div>
+                        </AlertDescription>
+                    </Alert>
+                ) : taskDetails ? (
+                    <>
+                        <div className="mb-6">
+                            <h1 className="text-3xl font-bold tracking-tight">Feedback Task Details</h1>
+                            <p className="text-gray-500 mt-2">View and manage feedback task information</p>
+                        </div>
 
             <Card className="mb-6">
                 <CardHeader>
@@ -183,7 +222,7 @@ const FeedbackTaskPage = () => {
                                     <p className="text-gray-600">Summary: {item.summary.message}</p>
                                 </li>
                             ))}
-                        </div>
+                        </ul>
                     ) : (
                         <div className="text-center py-8 text-gray-500">
                             <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -192,7 +231,17 @@ const FeedbackTaskPage = () => {
                     )}
                 </CardContent>
             </Card>
-        </div>
+            </>
+                ) : (
+                    <Alert>
+                        <AlertTitle>No Data Available</AlertTitle>
+                        <AlertDescription>
+                            No task details were found for the provided ID.
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </div>
+        </>
     );
 };
 

@@ -29,7 +29,9 @@ import {
   Bell,
   Search,
   User,
-  MessageCircle
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 
@@ -307,6 +309,7 @@ export default function Page() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
   useEffect(() => {
     fetchDashboardData();
@@ -325,6 +328,10 @@ export default function Page() {
 
     fetchUserData();
   }, []);
+
+  const toggleSidebar = (): void => {
+    setSidebarOpen(!isSidebarOpen);
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -444,51 +451,122 @@ export default function Page() {
   ];
 
   return (
+    // <div className="flex min-h-screen bg-gray-50">
+    //   {/* Sidebar */}
+    //   <div className="w-64 bg-white border-r border-gray-200 fixed h-full">
+    //     <div className="flex flex-col h-full">
+    //       <div className="p-6">
+    //         <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+    //           Admin Portal
+    //         </h2>
+    //       </div>
+
+    //       <nav className="flex-1 px-4 space-y-2">
+    //         {tabs.map((tab) => (
+    //           <button
+    //             key={tab.name}
+    //             onClick={() => setActiveTab(tab.name)}
+    //             className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 ${
+    //               activeTab === tab.name
+    //                 ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
+    //                 : "text-gray-600 hover:bg-gray-50"
+    //             }`}
+    //           >
+    //             {tab.icon}
+    //             <span className="font-medium">{tab.name}</span>
+    //           </button>
+    //         ))}
+    //       </nav>
+
+    //       <div className="p-4">
+    //         <button
+    //           onClick={handleLogout}
+    //           disabled={!logoutActive}
+    //           className="flex items-center justify-center w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors  bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
+    //         >
+    //           <LogOut className="w-5 h-5 mr-3" />
+    //           <span className="font-medium ">Logout</span>
+    //         </button>
+    //       </div>
+    //     </div>
+    //   </div>
+
+    //   {/* Main Content */}
+    //   <div className="flex-1 ml-64 p-8">
+    //     {tabs.find((tab) => tab.name === activeTab)?.component}
+    //   </div>
+    // </div>
+
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 fixed h-full">
-        <div className="flex flex-col h-full">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Admin Portal
-            </h2>
-          </div>
+    {/* Sidebar */}
+    <div 
+      className={`bg-white border-r border-gray-200 fixed h-full transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'w-64' : 'w-20'
+      }`}
+    >
+      <button
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-1/2 transform -translate-y-1/2 bg-white border border-gray-200 rounded-full p-1.5 shadow-md hover:shadow-lg transition-all duration-200"
+      >
+        {isSidebarOpen ? (
+          <ChevronLeft className="w-4 h-4 text-gray-600" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-gray-600" />
+        )}
+      </button>
 
-          <nav className="flex-1 px-4 space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.name}
-                onClick={() => setActiveTab(tab.name)}
-                className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 ${
-                  activeTab === tab.name
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {tab.icon}
-                <span className="font-medium">{tab.name}</span>
-              </button>
-            ))}
-          </nav>
+      <div className="flex flex-col h-full">
+        <div className={`p-6 ${isSidebarOpen ? '' : 'p-4'}`}>
+          <h2 className={`text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent transition-all duration-300 ${
+            isSidebarOpen ? '' : 'text-center text-xl'
+          }`}>
+            {isSidebarOpen ? 'Admin Portal' : 'AP'}
+          </h2>
+        </div>
 
-          <div className="p-4">
+        <nav className={`flex-1 ${isSidebarOpen ? 'px-4' : 'px-2'} space-y-2`}>
+          {tabs.map((tab) => (
             <button
-              onClick={handleLogout}
-              disabled={!logoutActive}
-              className="flex items-center justify-center w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors  bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
+              key={tab.name}
+              onClick={() => setActiveTab(tab.name)}
+              className={`flex items-center w-full ${
+                isSidebarOpen ? 'px-4' : 'px-2'
+              } py-3 rounded-xl transition-all duration-200 ${
+                activeTab === tab.name
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
+                  : "text-gray-600 hover:bg-gray-50"
+              } ${!isSidebarOpen ? 'justify-center' : ''}`}
+              title={!isSidebarOpen ? tab.name : ''}
             >
-              <LogOut className="w-5 h-5 mr-3" />
-              <span className="font-medium ">Logout</span>
+              <div className={isSidebarOpen ? 'mr-3' : ''}>{tab.icon}</div>
+              {isSidebarOpen && <span className="font-medium">{tab.name}</span>}
             </button>
-          </div>
+          ))}
+        </nav>
+
+        <div className={`p-4 ${isSidebarOpen ? '' : 'px-2'}`}>
+          <button
+            onClick={handleLogout}
+            disabled={!logoutActive}
+            className={`flex items-center ${
+              isSidebarOpen ? 'justify-start px-4' : 'justify-center px-2'
+            } w-full py-3 text-white rounded-xl transition-colors bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg shadow-indigo-200`}
+            title={!isSidebarOpen ? 'Logout' : ''}
+          >
+            <LogOut className={`w-5 h-5 ${isSidebarOpen ? 'mr-3' : ''}`} />
+            {isSidebarOpen && <span className="font-medium">Logout</span>}
+          </button>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="flex-1 ml-64 p-8">
-        {tabs.find((tab) => tab.name === activeTab)?.component}
-      </div>
     </div>
+
+    {/* Main Content */}
+    <div className={`flex-1 transition-all duration-300 ${
+      isSidebarOpen ? 'ml-64' : 'ml-20'
+    } p-8`}>
+      {tabs.find((tab) => tab.name === activeTab)?.component}
+    </div>
+  </div>
   );
 }
 

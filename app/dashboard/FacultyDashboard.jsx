@@ -1,23 +1,40 @@
 import React, { useState, useEffect, useRef } from "react";
-// import { useRouter } from "next/navigation";
-// import Logout from "@/public/assets/Logout.svg";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Bars, FallingLines, BallTriangle } from "react-loader-spinner";
+import { Bars, BallTriangle } from "react-loader-spinner";
 import Emoji from "@/public/assets/Reaction.png";
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';  
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  UserCircle2, 
-  LogOut, 
-  BookOpen, 
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import {
+  LayoutDashboard,
+  FileText,
+  UserCircle2,
+  LogOut,
   ChevronRight,
   Bell,
-  Settings
-} from 'lucide-react';
+  Settings,
+  ClipboardList,
+} from "lucide-react";
+
+const LoadingSpinner = ({ message = "Loading..." }) => {
+  return (
+    <div className="h-screen w-full flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center gap-4 p-8 rounded-lg">
+        <Bars
+          height="80"
+          width="80"
+          color="#7b61ff"
+          ariaLabel="loading-indicator"
+          wrapperClass="flex justify-center"
+          visible={true}
+        />
+        <p className="text-gray-600 font-medium text-lg">{message}</p>
+      </div>
+    </div>
+  );
+};
 
 async function getUser() {
   try {
@@ -71,26 +88,32 @@ const DashboardContent = ({ userobj, loadingParent }) => {
     fetchFeedbackTasks();
   }, [loadingParent]);
 
+  // if (loading) {
+  //   return (
+  //     <div className="w-full h-full flex flex-col justify-center items-center gap-2">
+  //       <Bars
+  //         height="80"
+  //         width="80"
+  //         color="#7b61ff"
+  //         ariaLabel="bars-loading"
+  //         wrapperStyle={{}}
+  //         wrapperClass=""
+  //         visible={true}
+  //       />
+  //       <p>Hold on tight, loading your dashboard...</p>
+  //     </div>
+  //   );
+  // }
+
   if (loading) {
     return (
-      <div className="w-full h-full flex flex-col justify-center items-center gap-2">
-        <Bars
-          height="80"
-          width="80"
-          color="#7b61ff"
-          ariaLabel="bars-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-        <p>Hold on tight, loading your dashboard...</p>
-      </div>
+      <LoadingSpinner message="Hold on tight, loading your dashboard..." />
     );
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+      {/* <h2 className="text-2xl font-bold mb-4">Dashboard</h2> */}
       <p>
         Welcome to your dashboard! Here, you will see an overview of your
         activities and updates.
@@ -215,7 +238,7 @@ const NewFeedbackContent = ({ userobj }) => {
 
   return (
     <div className="w-full mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold mb-6">Create New Feedback Task</h2>
+      {/* <h2 className="text-2xl font-bold mb-6">Create New Feedback Task</h2> */}
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
           <label htmlFor="title" className="block font-medium text-gray-700">
@@ -295,7 +318,7 @@ const NewFeedbackContent = ({ userobj }) => {
 const FeedbackDashboardContent = () => {
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Feedback Analysis Dashboard</h2>
+      {/* <h2 className="text-2xl font-bold mb-4">Feedback Analysis Dashboard</h2> */}
       <p>Coming soon!</p>
     </div>
   );
@@ -341,34 +364,37 @@ const ProfileContent = ({ userobj }) => {
       }
     };
 
-    // Fetch both details and courses
     fetchUserDetails();
     fetchCoursesDetails();
   }, [userobj.username]);
 
   if (loading) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center gap-4">
-        <BallTriangle
-          height={100}
-          width={100}
-          radius={5}
-          color="#7b61ff"
-          ariaLabel="ball-triangle-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-        <p>Loading profile...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Loading profile..." />;
   }
+
+  // if (loading) {
+  //   return (
+  //     <div className="w-full h-full flex flex-col items-center justify-center gap-4">
+  //       <BallTriangle
+  //         height={100}
+  //         width={100}
+  //         radius={5}
+  //         color="#7b61ff"
+  //         ariaLabel="ball-triangle-loading"
+  //         wrapperStyle={{}}
+  //         wrapperClass=""
+  //         visible={true}
+  //       />
+  //       <p>Loading profile...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="w-full flex flex-col justify-center items-center gap-4">
       {/* Profile Information Section */}
       <div className="w-full mx-auto p-4 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Faculty Profile</h2>
+        {/* <h2 className="text-2xl font-bold mb-4">Faculty Profile</h2> */}
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Username</h3>
           <p className="text-gray-700">{userDetailsObj.username}</p>
@@ -417,40 +443,44 @@ const ProfileContent = ({ userobj }) => {
     </div>
   );
 };
-
 const tabs = [
   {
     name: "Dashboard",
-    component: <DashboardContent />,
-    icon: "./assets/Dashboard.svg",
+    component: DashboardContent,
+    icon: LayoutDashboard,
   },
   {
     name: "Create Feedback",
-    component: <NewFeedbackContent />,
-    icon: "/assets/NewFeedback.svg",
+    component: NewFeedbackContent,
+    icon: FileText,
   },
   {
     name: "View Feedbacks",
-    component: <FeedbackDashboardContent />,
-    icon: "/assets/FeedbackDashboard.svg",
+    component: FeedbackDashboardContent,
+    icon: ClipboardList,
   },
   {
     name: "Profile",
-    component: <ProfileContent />,
-    icon: "/assets/Profile.svg",
+    component: ProfileContent,
+    icon: UserCircle2,
   },
 ];
-
 const FacultyDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [userobj, setUserObj] = useState({});
   const [logoutActive, setLogoutActive] = useState(true);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
   useEffect(() => {
     (async () => {
       const { user, error } = await getUser();
-      user ? setUserObj(user.user) : router.push("/login");
+      if (user) {
+        setUserObj(user.user);
+      } else {
+        router.push("/login");
+      }
+      setLoading(false);
     })();
   }, []);
 
@@ -465,14 +495,19 @@ const FacultyDashboard = () => {
       console.error("Failed to logout");
     }
   }
+  if (loading) {
+    return <LoadingSpinner message="Loading dashboard..." />;
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "Dashboard":
-        return <DashboardContent 
-          userobj={userobj} 
-          loadingParent={userobj.username === undefined} 
-        />;
+        return (
+          <DashboardContent
+            userobj={userobj}
+            loadingParent={userobj.username === undefined}
+          />
+        );
       case "Create Feedback":
         return <NewFeedbackContent userobj={userobj} />;
       case "View Feedbacks":
@@ -487,43 +522,47 @@ const FacultyDashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
-      <motion.div 
-        initial={{ width: '80px' }}
-        animate={{ width: isMenuExpanded ? '280px' : '80px' }}
-        transition={{ type: 'tween', duration: 0.3 }}
+      <motion.div
+        initial={{ width: "80px" }}
+        animate={{ width: isMenuExpanded ? "280px" : "80px" }}
+        transition={{ type: "tween", duration: 0.3 }}
         className="bg-white shadow-xl z-10 relative"
       >
         <div className="p-4 flex items-center justify-between">
           <AnimatePresence>
             {isMenuExpanded && (
-              <motion.h2 
+              <motion.h2
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="text-xl font-bold text-gray-800"
               >
-                Faculty Hub
+                {/* Faculty Hub */}
               </motion.h2>
             )}
           </AnimatePresence>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsMenuExpanded(!isMenuExpanded)}
-          >
-            <ChevronRight 
-              className={`transform transition-transform ${
-                isMenuExpanded ? 'rotate-180' : ''
-              }`} 
-            />
-          </Button>
+          <div className="absolute top-1/2 -translate-y-1/2 -right-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center items-center shadow-md"
+            >
+              <ChevronRight
+                className={`transform transition-transform ${
+                  isMenuExpanded ? "rotate-180" : ""
+                }`}
+                size={16}
+              />
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-col items-center px-3 mt-4">
           <Avatar className="mb-4">
-            <AvatarImage src={userobj?.avatar} />
+            {/* <AvatarImage src={userobj?.avatar} /> */}
             <AvatarFallback>
-              {userobj?.username?.[0]?.toUpperCase() || 'F'}
+              {/* {userobj?.username?.[0]?.toUpperCase() || 'U'} */}
             </AvatarFallback>
           </Avatar>
           <AnimatePresence>
@@ -534,7 +573,9 @@ const FacultyDashboard = () => {
                 exit={{ opacity: 0 }}
                 className="text-center"
               >
-                <h3 className="font-semibold">{userobj?.username || 'Faculty Member'}</h3>
+                <h3 className="font-semibold">
+                  {userobj?.username || "Faculty Member"}
+                </h3>
                 <p className="text-sm text-gray-500">Faculty</p>
               </motion.div>
             )}
@@ -553,14 +594,16 @@ const FacultyDashboard = () => {
               className={`
                 flex items-center w-full p-2 rounded-lg 
                 transition-colors duration-200
-                ${activeTab === tab.name 
-                  ? 'bg-purple-100 text-purple-700' 
-                  : 'hover:bg-gray-100'}
+                ${
+                  activeTab === tab.name
+                    ? "bg-purple-100 text-purple-700"
+                    : "hover:bg-gray-100"
+                }
               `}
             >
               <tab.icon className="mr-3" size={20} />
               {isMenuExpanded && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -574,14 +617,14 @@ const FacultyDashboard = () => {
         </nav>
 
         <div className="absolute bottom-0 w-full p-4">
-          <Button 
-            onClick={handleLogout} 
-            disabled={!logoutActive} 
+          <Button
+            onClick={handleLogout}
+            disabled={!logoutActive}
             className="w-full"
             variant="destructive"
           >
-            <LogOut className="mr-2" size={18} /> 
-            {isMenuExpanded ? 'Logout' : null}
+            <LogOut className="mr-2" size={18} />
+            {isMenuExpanded ? "Logout" : null}
           </Button>
         </div>
       </motion.div>
@@ -589,14 +632,14 @@ const FacultyDashboard = () => {
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
         <header className="flex justify-between items-center mb-6">
-          <motion.h1 
+          <motion.h1
             className="text-3xl font-bold text-gray-800"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
             {activeTab}
           </motion.h1>
-          <div className="flex items-center space-x-4">
+          {/* <div className="flex items-center space-x-4">
             <Button variant="outline" size="icon">
               <Settings size={20} />
             </Button>
@@ -612,7 +655,7 @@ const FacultyDashboard = () => {
                 {userobj?.username?.[0]?.toUpperCase() || 'F'}
               </AvatarFallback>
             </Avatar>
-          </div>
+          </div> */}
         </header>
 
         <AnimatePresence mode="wait">
