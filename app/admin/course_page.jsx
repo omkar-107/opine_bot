@@ -1,11 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Plus, X, Search, BookOpen, FileText, Hash, Upload, GraduationCap, ClipboardList, Sparkles } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert_dialog';
+import React, { useState, useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Plus,
+  X,
+  Search,
+  BookOpen,
+  FileText,
+  Hash,
+  Upload,
+  GraduationCap,
+  ClipboardList,
+  Sparkles,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Course Card Component with enhanced animations and styling
 const CourseCard = ({ course, onDelete }) => (
@@ -14,7 +25,7 @@ const CourseCard = ({ course, onDelete }) => (
       <div className="w-28 h-28 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center transform group-hover:rotate-3 transition-transform duration-500">
         <span className="text-3xl font-bold text-white">{course.id_}</span>
       </div>
-      
+
       <div className="flex-1">
         <div className="flex justify-between items-start">
           <div className="space-y-3">
@@ -30,7 +41,9 @@ const CourseCard = ({ course, onDelete }) => (
               <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300 mt-1">
                 <FileText className="w-4 h-4 text-gray-600" />
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">{course.syllabus}</p>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {course.syllabus}
+              </p>
             </div>
           </div>
           {onDelete && (
@@ -51,26 +64,26 @@ const CourseCard = ({ course, onDelete }) => (
 // Enhanced Add Course Form Component
 const AddCourseForm = ({ onSubmit, onClose, error }) => {
   const [formData, setFormData] = useState({
-    id_: '',
-    title: '',
-    syllabus: '',
-    file: null
+    id_: "",
+    title: "",
+    syllabus: "",
+    file: null,
   });
 
   const [loading, setLoading] = useState(false);
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
 
   const validateForm = () => {
     if (!formData.id_.trim()) {
-      setFormError('Course ID is required');
+      setFormError("Course ID is required");
       return false;
     }
     if (!formData.title.trim()) {
-      setFormError('Course title is required');
+      setFormError("Course title is required");
       return false;
     }
     if (!formData.syllabus.trim()) {
-      setFormError('Syllabus is required');
+      setFormError("Syllabus is required");
       return false;
     }
     return true;
@@ -78,8 +91,8 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError('');
-    
+    setFormError("");
+
     if (!validateForm()) {
       return;
     }
@@ -100,9 +113,9 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
       <Card className="w-2/3 max-w-2xl transform transition-all duration-500 shadow-2xl animate-in slide-in-from-bottom-4">
         <form onSubmit={handleSubmit}>
           <CardHeader className="relative border-b">
-            <Button 
+            <Button
               type="button"
-              variant="ghost" 
+              variant="ghost"
               className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
               onClick={onClose}
             >
@@ -118,16 +131,20 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
 
           <CardContent className="pt-6">
             {(error || formError) && (
-              <Alert variant="destructive" className="mb-6 animate-in slide-in-from-top duration-300">
-                <AlertDescription>
-                  {error || formError}
-                </AlertDescription>
+              <Alert
+                variant="destructive"
+                className="mb-6 animate-in slide-in-from-top duration-300"
+              >
+                <AlertDescription>{error || formError}</AlertDescription>
               </Alert>
             )}
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="courseId" className="flex items-center gap-2 text-sm font-medium">
+                <Label
+                  htmlFor="courseId"
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
                   <Hash className="w-4 h-4 text-blue-600" />
                   Course ID
                 </Label>
@@ -135,14 +152,19 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   id="courseId"
                   placeholder="e.g., CS101"
                   value={formData.id_}
-                  onChange={(e) => setFormData({ ...formData, id_: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, id_: e.target.value })
+                  }
                   className="w-full focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="courseTitle" className="flex items-center gap-2 text-sm font-medium">
+                <Label
+                  htmlFor="courseTitle"
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
                   <BookOpen className="w-4 h-4 text-blue-600" />
                   Course Title
                 </Label>
@@ -150,14 +172,19 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   id="courseTitle"
                   placeholder="e.g., Introduction to Computer Science"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   className="w-full focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="courseSyllabus" className="flex items-center gap-2 text-sm font-medium">
+                <Label
+                  htmlFor="courseSyllabus"
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
                   <ClipboardList className="w-4 h-4 text-blue-600" />
                   Syllabus
                 </Label>
@@ -165,14 +192,19 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   id="courseSyllabus"
                   placeholder="Enter detailed course syllabus..."
                   value={formData.syllabus}
-                  onChange={(e) => setFormData({ ...formData, syllabus: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, syllabus: e.target.value })
+                  }
                   className="w-full min-h-[120px] focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="courseFile" className="flex items-center gap-2 text-sm font-medium">
+                <Label
+                  htmlFor="courseFile"
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
                   <Upload className="w-4 h-4 text-blue-600" />
                   Course Materials (Optional)
                 </Label>
@@ -180,13 +212,21 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   <div className="space-y-1 text-center">
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
                     <div className="flex text-sm text-gray-600">
-                      <label htmlFor="courseFile" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
+                      <label
+                        htmlFor="courseFile"
+                        className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500"
+                      >
                         <span>Upload a file</span>
                         <Input
                           id="courseFile"
                           type="file"
                           className="sr-only"
-                          onChange={(e) => setFormData({ ...formData, file: e.target.files[0] })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              file: e.target.files[0],
+                            })
+                          }
                         />
                       </label>
                       <p className="pl-1">or drag and drop</p>
@@ -195,7 +235,7 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
                   </div>
                 </div>
               </div>
-              
+
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 py-6 text-lg font-semibold"
@@ -223,7 +263,7 @@ const AddCourseForm = ({ onSubmit, onClose, error }) => {
 
 // Enhanced Main Course Content Component
 const CourseContent = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -234,13 +274,13 @@ const CourseContent = () => {
       setLoading(true);
       const response = await fetch("/api/admin/course/get");
       if (!response.ok) {
-        throw new Error('Failed to fetch courses');
+        throw new Error("Failed to fetch courses");
       }
       const data = await response.json();
       setCourses(data);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
-      setError('Failed to load courses. Please try again later.');
+      setError("Failed to load courses. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -266,13 +306,13 @@ const CourseContent = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || 'Failed to add course');
+        throw new Error(errorText || "Failed to add course");
       }
 
       if (courseData.file) {
         const formData = new FormData();
-        formData.append('file', courseData.file);
-        formData.append('courseId', courseData.id_);
+        formData.append("file", courseData.file);
+        formData.append("courseId", courseData.id_);
 
         const fileResponse = await fetch("/api/admin/course/upload-file", {
           method: "POST",
@@ -298,20 +338,21 @@ const CourseContent = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete course');
+        throw new Error("Failed to delete course");
       }
 
       await fetchCourses();
     } catch (error) {
       console.error("Error deleting course:", error);
-      setError('Failed to delete course. Please try again later.');
+      setError("Failed to delete course. Please try again later.");
     }
   };
 
-  const filteredCourses = courses.filter(course =>
-    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    course.id_.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    course.syllabus.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCourses = courses.filter(
+    (course) =>
+      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.id_.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.syllabus.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -323,9 +364,12 @@ const CourseContent = () => {
           </div>
           <h2 className="text-4xl font-bold text-gray-800">Course Dashboard</h2>
         </div>
-        
+
         {error && (
-          <Alert variant="destructive" className="mb-6 animate-in slide-in-from-top duration-300">
+          <Alert
+            variant="destructive"
+            className="mb-6 animate-in slide-in-from-top duration-300"
+          >
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -350,7 +394,7 @@ const CourseContent = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button 
+                <Button
                   className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 gap-2"
                   onClick={() => setShowAddForm(true)}
                 >
@@ -378,7 +422,9 @@ const CourseContent = () => {
                   <div className="text-center py-12">
                     <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500 text-lg">No courses found</p>
-                    <p className="text-gray-400 text-sm">Try adjusting your search criteria</p>
+                    <p className="text-gray-400 text-sm">
+                      Try adjusting your search criteria
+                    </p>
                   </div>
                 )}
               </div>
@@ -388,7 +434,7 @@ const CourseContent = () => {
       </div>
 
       {showAddForm && (
-        <AddCourseForm 
+        <AddCourseForm
           onSubmit={addCourse}
           onClose={() => setShowAddForm(false)}
           error={error}
