@@ -401,6 +401,18 @@ const CourseContent = () => {
                   <Plus className="w-5 h-5" />
                   Add Course
                 </Button>
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 gap-2"
+                  onClick={() => {
+                    window.open(
+                      "http://localhost:3000/admin/courses/assign",
+                      "_blank"
+                    );
+                  }}
+                >
+                  <Plus className="w-5 h-5" />
+                  Assign Courses
+                </Button>
               </div>
             </div>
           </CardHeader>
