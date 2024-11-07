@@ -26,8 +26,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   try {
     // Check if the student already exists
-    const studentExists = await Student.findOne({ username });
-    if (studentExists) {
+    const studentExists = await Student.findOne({ username, email });
+    const userExists = await User.findOne({ username, email });
+    if (studentExists || userExists) {
       return NextResponse.json(
         { message: "Student already exists" },
         { status: 400 }

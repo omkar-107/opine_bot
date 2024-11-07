@@ -50,6 +50,13 @@ export async function POST(req: NextRequest) {
       { new: true, upsert: true }
     );
 
+    const feedbackTask = await FeedbackTask.findOne({
+      _id: feedbackData.feedbackData.forTask,
+    });
+
+    feedbackTask.feedbacks.push(feedbackId);
+    await feedbackTask.save();
+
     console.log("feedback is", feedback);
     if (!feedback) {
       console.error("Feedback not found or not updated");
