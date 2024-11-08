@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import CourseContent from "./course_page.jsx";
 import StudentContent from "./student_page.jsx";
 import FacultyContent from "./faculty_page.jsx";
-import FeedBackContent from "./feedback_page.jsx";
+import FeedBackContent from "./details/feedbacks/page.js";
+import FeedBackRatings from "./feedback_page.jsx";
 import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -197,7 +198,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
             <Pie data={pieData} options={{ maintainAspectRatio: false }} />
           </div>
         </div>
-
+{/* 
         <div className="bg-white p-6 rounded-2xl shadow-lg">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
@@ -235,8 +236,13 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
               </table>
             </div>
           )}
-        </div>
+        </div> */}
 
+
+          {/* <div className="bg-white p-6 rounded-2xl shadow-lg">
+          <FeedBackRatings avgRating={4.7} positiveCount={124} negativeCount={32} totalStudents={175}/>
+          </div> */}
+          
         <div className="bg-white p-6 rounded-2xl shadow-lg col-span-2">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
@@ -446,56 +452,11 @@ export default function Page() {
     {
       name: "Feedback",
       icon: <MessageCircle className="w-5 h-5 mr-3" />,
-      component: <FeedBackContent avgRating={4.7} positiveCount={124} negativeCount={32} totalStudents={175} />
+      component: <FeedBackContent />
     }
   ];
 
   return (
-    // <div className="flex min-h-screen bg-gray-50">
-    //   {/* Sidebar */}
-    //   <div className="w-64 bg-white border-r border-gray-200 fixed h-full">
-    //     <div className="flex flex-col h-full">
-    //       <div className="p-6">
-    //         <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-    //           Admin Portal
-    //         </h2>
-    //       </div>
-
-    //       <nav className="flex-1 px-4 space-y-2">
-    //         {tabs.map((tab) => (
-    //           <button
-    //             key={tab.name}
-    //             onClick={() => setActiveTab(tab.name)}
-    //             className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 ${
-    //               activeTab === tab.name
-    //                 ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
-    //                 : "text-gray-600 hover:bg-gray-50"
-    //             }`}
-    //           >
-    //             {tab.icon}
-    //             <span className="font-medium">{tab.name}</span>
-    //           </button>
-    //         ))}
-    //       </nav>
-
-    //       <div className="p-4">
-    //         <button
-    //           onClick={handleLogout}
-    //           disabled={!logoutActive}
-    //           className="flex items-center justify-center w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors  bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
-    //         >
-    //           <LogOut className="w-5 h-5 mr-3" />
-    //           <span className="font-medium ">Logout</span>
-    //         </button>
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   {/* Main Content */}
-    //   <div className="flex-1 ml-64 p-8">
-    //     {tabs.find((tab) => tab.name === activeTab)?.component}
-    //   </div>
-    // </div>
 
     <div className="flex min-h-screen bg-gray-50">
     {/* Sidebar */}
