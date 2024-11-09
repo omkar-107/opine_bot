@@ -32,7 +32,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   await connectToDatabase();
 
   try {
-    const summaries = await Feedback.find({ for_task: feedbacktaskId }, { summary: 1 });
+    let summaries = await Feedback.find({ for_task: feedbacktaskId, completed: true }, { summary: 1 });
     let avg = 0;
     for (let i = 0; i < summaries.length; i++) {
       avg += summaries[i].summary.rating;

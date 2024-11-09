@@ -23,9 +23,14 @@ const FeedbackDashboard = () => {
   const [feedbackSummary, setFeedbackSummary] = useState([]);
   const [error, setError] = useState(null);
 
+  // New state variables for filtering
+  const [threshold, setThreshold] = useState(0);
+  const [filterType, setFilterType] = useState("above"); // "above" or "below"
+
   useEffect(() => {
     fetchFeedbackTasks();
     if (selectedTask) {
+      fetchFeedbackDetails();
       fetchFeedbackSummary();
     }
   }, [selectedTask]);
@@ -39,7 +44,7 @@ const FeedbackDashboard = () => {
       const data = await response.json();
       setFeedbackTasks(data);
     } catch (error) {
-      console.error("Failed to fetch courses:", error);
+      console.error("Failed to fetch tasks:", error);
     }
   };
 
@@ -87,7 +92,7 @@ const FeedbackDashboard = () => {
       }
 
       const data = await response.json();
-      console.log("Feedback summary:", data);
+      
       setFeedbackSummary(data);
     } catch (error) {
       console.error("Failed to fetch feedback summary:", error);
@@ -105,6 +110,18 @@ const FeedbackDashboard = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
+
+  // Safely handle feedbackSummary.summaries
+  const summaries = feedbackSummary?.summaries || [];
+
+  // Filtered feedback summaries based on threshold and filter type
+  const filteredSummaries = summaries.filter((summary) => {
+    if (filterType === "above") {
+      return summary.summary.rating >= threshold;
+    } else {
+      return summary.summary.rating <= threshold;
+    }
+  });
 
   if (!feedbackData) {
     return (
@@ -256,8 +273,8 @@ const FeedbackDashboard = () => {
               <TabsContent value="Ratings">
                 <FeedbackSummaryCard
                   feedbackSummary={feedbackSummary}
-                  positiveCount={feedbackData.studentsWhoGaveFeedback.length}
-                  negativeCount={feedbackData.studentsWhoDidNotGiveFeedback.length}
+          
+
                   totalStudents={
                     feedbackData.studentsWhoGaveFeedback.length +
                     feedbackData.studentsWhoDidNotGiveFeedback.length
@@ -265,59 +282,46 @@ const FeedbackDashboard = () => {
                 />
               </TabsContent>
               <TabsContent value="Summary">
-                <div className="p-4 bg-gray-100 rounded-md">
-                  {/* <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium">Feedback Summary</h3>
-                    {feedbackSummary.summaries[0].sentiment === "positive" ? (
-                      <div className="flex items-center text-green-500">
-                        <ArrowUpRight size={16} className="mr-1" />
-                        Positive
+                <div className="p-4">
+                  {/* Filter Controls */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <input
+                      type="number"
+                      value={threshold}
+                      onChange={(e) =>
+                        setThreshold(parseInt(e.target.value) || 0)
+                      }
+                      className="p-2 border rounded-md"
+                      placeholder="Enter rating threshold"
+                    />
+                    <select
+                      value={filterType}
+                      onChange={(e) => setFilterType(e.target.value)}
+                      className="p-2 border rounded-md"
+                    >
+                      <option value="above">Above Threshold</option>
+                      <option value="below">Below Threshold</option>
+                    </select>
+                  </div>
+
+                  {/* Display Feedback Summaries */}
+                  {filteredSummaries.length >= 1 ? (
+                    filteredSummaries.map((summary) => (
+                      <div
+                        key={summary._id}
+                        className="p-4 bg-gray-100 rounded-md text-black m-4"
+                      >
+                        <div className="font-bold">
+                          Rating : {summary.summary.rating}
+                        </div>
+                        {summary.summary.message}
                       </div>
-                    ) : (
-                      <div className="flex items-center text-red-500">
-                        <ArrowDownRight size={16} className="mr-1" />
-                        Negative
-                      </div>
-                    )}
-                  </div> */}
-                  <p>{feedbackSummary.summaries[0].summary.message}</p>
-                  {/* <div className="mt-4">
-                    <h4 className="text-md font-medium mb-2">Feedback Breakdown</h4>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-                        <span>Positive Feedback</span>
-                      </div>
-                      <Progress
-                        value={(feedbackData.studentsWhoGaveFeedback.length /
-                          (feedbackData.studentsWhoGaveFeedback.length +
-                            feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                          100}
-                        className="w-32"
-                      />
-                      <span>{((feedbackData.studentsWhoGaveFeedback.length /
-                        (feedbackData.studentsWhoGaveFeedback.length +
-                          feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                        100).toFixed(2)}%</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center">
-                        <div className="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-                        <span>Negative Feedback</span>
-                      </div>
-                      <Progress
-                        value={(feedbackData.studentsWhoDidNotGiveFeedback.length /
-                          (feedbackData.studentsWhoGaveFeedback.length +
-                            feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                          100}
-                        className="w-32"
-                      />
-                      <span>{((feedbackData.studentsWhoDidNotGiveFeedback.length /
-                        (feedbackData.studentsWhoGaveFeedback.length +
-                          feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                        100).toFixed(2)}%</span>
-                    </div>
-                  </div> */}
+                    ))
+                  ) : (
+                    <p className="p-4 bg-gray-100 rounded-md text-black m-4">
+                      No feedbacks available for the selected threshold
+                    </p>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>

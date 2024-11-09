@@ -3,11 +3,23 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Smile, Meh, Frown } from 'lucide-react';
 
-const FeedbackSummaryCard = ({ feedbackSummary, positiveCount, negativeCount, totalStudents }) => {
+const FeedbackSummaryCard = ({ feedbackSummary,  totalStudents }) => {
   const avgRating = feedbackSummary.avg;
-  // console.log(feedbackSummary);
-  // console.log("hello");
-  console.log('FeedbackSummaryCard props:', { avgRating, positiveCount, negativeCount, totalStudents });
+  console.log(feedbackSummary);
+ 
+  // console.log('FeedbackSummaryCard props:', { avgRating, positiveCount, negativeCount, totalStudents });
+  
+  let positiveCount= 0;
+  let negativeCount = 0;
+
+    for(let i = 0; i < feedbackSummary.summaries.length; i++) {
+      if(feedbackSummary.summaries[i].summary.rating >= 6) {
+        positiveCount++;
+      } else {
+        negativeCount++;
+      }
+    }
+  
   const totalFeedback = positiveCount + negativeCount;
   const positivePercentage = (positiveCount / totalFeedback) * 100;
   const negativePercentage = (negativeCount / totalFeedback) * 100;
