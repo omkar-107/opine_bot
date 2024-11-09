@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Logout from "@/public/assets/Logout.svg";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-
 import {
   Shield,
   Search,
@@ -51,11 +50,14 @@ import {
   User,
   LogOut,
   History,
-  UserCircle,Loader2, CheckCircle, AlertCircle,
+  UserCircle,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { Card, CardContent} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
 async function getUser() {
@@ -157,7 +159,10 @@ const DashboardContent = ({ userobj }) => {
     console.log(data.feedbackId);
 
     if (response.ok) {
-      window.open("http://localhost:3000/chat/" + data.feedbackId, "_blank");
+      window.open(
+        `${window.location.origin}/chat/` + data.feedbackId,
+        "_blank"
+      );
     } else {
       alert("Error opening feedback page. Please try again.");
     }
@@ -171,7 +176,8 @@ const DashboardContent = ({ userobj }) => {
             Dashboard
           </h2>
           <p className="mt-4 text-gray-600 text-lg">
-            Welcome to your dashboard! Here, you will see an overview of your activities and updates.
+            Welcome to your dashboard! Here, you will see an overview of your
+            activities and updates.
           </p>
         </div>
 
@@ -179,14 +185,14 @@ const DashboardContent = ({ userobj }) => {
           <h3 className="text-2xl font-semibold text-gray-800 mb-6">
             Outstanding Feedbacks
           </h3>
-          
+
           {feedbackTasks.length > 0 ? (
             <div className="space-y-4 overflow-y-auto max-h-[30rem] pr-2">
               {feedbackTasks.map((task, index) => (
                 <Card
                   key={index}
                   className={`transform transition-all duration-300 ease-in-out ${
-                    hoveredCard === index ? 'scale-[1.02]' : ''
+                    hoveredCard === index ? "scale-[1.02]" : ""
                   }`}
                   onMouseEnter={() => setHoveredCard(index)}
                   onMouseLeave={() => setHoveredCard(null)}
@@ -204,25 +210,31 @@ const DashboardContent = ({ userobj }) => {
                             <AlertCircle className="w-5 h-5 text-red-500" />
                           )}
                         </div>
-                        
+
                         <div className="mt-2 space-y-1">
                           <p className="text-gray-600">
-                            Course ID: <span className="font-semibold">{task.course_id}</span>
+                            Course ID:{" "}
+                            <span className="font-semibold">
+                              {task.course_id}
+                            </span>
                           </p>
                           <p className="text-gray-600">
-                            Created by: <span className="font-semibold">{task.created_by}</span>
+                            Created by:{" "}
+                            <span className="font-semibold">
+                              {task.created_by}
+                            </span>
                           </p>
                         </div>
-                        
+
                         <div className="mt-3">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-medium ${
                               task.active
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
                             }`}
                           >
-                            {task.active ? 'Active' : 'Closed'}
+                            {task.active ? "Active" : "Closed"}
                           </span>
                         </div>
                       </div>
@@ -239,11 +251,13 @@ const DashboardContent = ({ userobj }) => {
                         }}
                         className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                           task.active
-                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl'
-                            : 'bg-gray-100 text-gray-600 cursor-not-allowed'
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl"
+                            : "bg-gray-100 text-gray-600 cursor-not-allowed"
                         }`}
                       >
-                        {task.active ? 'Complete feedback now' : 'View feedback'}
+                        {task.active
+                          ? "Complete feedback now"
+                          : "View feedback"}
                       </button>
                     </div>
                   </CardContent>
@@ -252,7 +266,9 @@ const DashboardContent = ({ userobj }) => {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No outstanding feedback tasks available.</p>
+              <p className="text-gray-500 text-lg">
+                No outstanding feedback tasks available.
+              </p>
             </div>
           )}
         </div>
@@ -260,7 +276,6 @@ const DashboardContent = ({ userobj }) => {
     </div>
   );
 };
-
 
 const ProfileContent = ({ userobj }) => {
   const [courses, setCourses] = useState([]);
@@ -273,7 +288,9 @@ const ProfileContent = ({ userobj }) => {
 
   useEffect(() => {
     (async () => {
-      const response = await fetch("/api/student/getcourses/" + userobj.username);
+      const response = await fetch(
+        "/api/student/getcourses/" + userobj.username
+      );
       const courses_backend = await response.json();
       setCourses(courses_backend.student_courses);
     })();
@@ -281,7 +298,9 @@ const ProfileContent = ({ userobj }) => {
 
   useEffect(() => {
     (async () => {
-      const response = await fetch("/api/student/getdetails/" + userobj.username);
+      const response = await fetch(
+        "/api/student/getdetails/" + userobj.username
+      );
       const userdetails_backend = await response.json();
       setUserDetailsObj(userdetails_backend);
       setLoading(false);
@@ -292,29 +311,27 @@ const ProfileContent = ({ userobj }) => {
     event.preventDefault();
     const newPassword = event.target.newPassword.value;
     const confirmPassword = event.target.confirmPassword.value;
-    
+
     if (newPassword !== confirmPassword) {
       setPasswordMatch(false);
       return;
     }
-    
+
     setPasswordMatch(true);
     setIsEditing(false);
     // API call would go here
   };
 
   if (loading) {
-    return (
-      <LoadingSpinner message="loading your profile..." />
-    );
+    return <LoadingSpinner message="loading your profile..." />;
   }
 
   return (
     <div className="min-h-screen  p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-           My Profile
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            My Profile
           </h2>
           <Button
             variant="outline"
@@ -330,7 +347,7 @@ const ProfileContent = ({ userobj }) => {
 
         <Card className="relative overflow-hidden bg-white rounded-2xl shadow-xl">
           <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-purple-100 to-transparent opacity-50" />
-          
+
           <div className="relative p-8">
             {/* Student Header Section */}
             <div className="relative mb-8 pb-6 border-b border-purple-100">
@@ -379,8 +396,8 @@ const ProfileContent = ({ userobj }) => {
                       key={index}
                       className={`px-4 py-3 rounded-lg transform transition-all duration-300 cursor-pointer ${
                         hoveredCourse === index
-                          ? 'scale-105 bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
-                          : 'bg-gradient-to-r from-purple-50 to-blue-50 text-gray-800'
+                          ? "scale-105 bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                          : "bg-gradient-to-r from-purple-50 to-blue-50 text-gray-800"
                       }`}
                       onMouseEnter={() => setHoveredCourse(index)}
                       onMouseLeave={() => setHoveredCourse(null)}
@@ -498,9 +515,9 @@ const ProfileContent = ({ userobj }) => {
           </div>
         </Card>
       </div>
-      </div>
+    </div>
   );
-}
+};
 const FeedbackHistoryContent = (userobj) => {
   const [feedbackHistory, setFeedbackHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -587,7 +604,10 @@ const FeedbackHistoryContent = (userobj) => {
           <div className="flex flex-col gap-4 mb-8">
             <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
               <div className="relative flex-1 max-w-md w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <Input
                   placeholder="Search feedbacks or courses..."
                   className="pl-10 pr-4 py-2 w-full border-2 focus:ring-2 focus:ring-blue-500 transition-all"
@@ -613,8 +633,10 @@ const FeedbackHistoryContent = (userobj) => {
                 </Select>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" 
-                      className="flex items-center gap-2 border-2 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 border-2 hover:border-blue-400 hover:bg-blue-50 transition-all"
+                    >
                       <Calendar size={20} className="text-blue-600" />
                       {filterType === "range"
                         ? dateRange.from
@@ -628,10 +650,13 @@ const FeedbackHistoryContent = (userobj) => {
                   <PopoverContent className="w-auto p-0" align="end">
                     <CalendarComponent
                       mode={filterType === "range" ? "range" : "single"}
-                      selected={filterType === "range" ? dateRange : selectedDate}
+                      selected={
+                        filterType === "range" ? dateRange : selectedDate
+                      }
                       onSelect={
                         filterType === "range"
-                          ? (range) => setDateRange(range || { from: null, to: null })
+                          ? (range) =>
+                              setDateRange(range || { from: null, to: null })
                           : (date) => setSelectedDate(date)
                       }
                       initialFocus
@@ -679,17 +704,23 @@ const FeedbackHistoryContent = (userobj) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div className="space-y-2">
                         <p className="text-gray-600">
-                          <span className="font-medium text-gray-700">Course ID:</span>{" "}
+                          <span className="font-medium text-gray-700">
+                            Course ID:
+                          </span>{" "}
                           {item.for_course}
                         </p>
                         <p className="text-gray-600">
-                          <span className="font-medium text-gray-700">Created by:</span>{" "}
+                          <span className="font-medium text-gray-700">
+                            Created by:
+                          </span>{" "}
                           {item.faculty}
                         </p>
                       </div>
                       <div className="space-y-2">
                         <p className="text-gray-600">
-                          <span className="font-medium text-gray-700">Completed:</span>{" "}
+                          <span className="font-medium text-gray-700">
+                            Completed:
+                          </span>{" "}
                           {new Date(item.completedAt).toLocaleString()}
                         </p>
                         <div className="mt-2">
@@ -706,8 +737,12 @@ const FeedbackHistoryContent = (userobj) => {
               <div className="text-center py-12 bg-gray-50 rounded-lg">
                 <div className="text-gray-500 space-y-2">
                   <Search size={48} className="mx-auto text-gray-400" />
-                  <p className="text-lg">No feedback found for the selected filters</p>
-                  <p className="text-sm">Try adjusting your search or date filters</p>
+                  <p className="text-lg">
+                    No feedback found for the selected filters
+                  </p>
+                  <p className="text-sm">
+                    Try adjusting your search or date filters
+                  </p>
                 </div>
               </div>
             )}
@@ -741,7 +776,9 @@ const FeedbackHistoryContent = (userobj) => {
               </div>
               <Button
                 variant="outline"
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="border-2 hover:border-blue-400 hover:bg-blue-50 transition-all disabled:opacity-50"
               >

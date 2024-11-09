@@ -7,11 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardContent,CardHeader} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   LayoutDashboard,
   FileText,
@@ -20,7 +20,16 @@ import {
   Bell,
   Settings,
   ClipboardList,
-  ChevronRight, Calendar, Users, Book,PlusCircle,User,CheckCircle, Building2,BookOpen,AlertCircle
+  ChevronRight,
+  Calendar,
+  Users,
+  Book,
+  PlusCircle,
+  User,
+  CheckCircle,
+  Building2,
+  BookOpen,
+  AlertCircle,
 } from "lucide-react";
 
 const LoadingSpinner = ({ message = "Loading..." }) => {
@@ -58,7 +67,6 @@ async function getUser() {
   }
 }
 
-
 const DashboardContent = ({ userobj, loadingParent }) => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +79,9 @@ const DashboardContent = ({ userobj, loadingParent }) => {
         return;
       }
       try {
-        const response = await fetch(`/api/faculty/gettasks/${userobj.username}`);
+        const response = await fetch(
+          `/api/faculty/gettasks/${userobj.username}`
+        );
         if (response.ok) {
           const data = await response.json();
           setFeedbackTasks(data);
@@ -108,7 +118,7 @@ const DashboardContent = ({ userobj, loadingParent }) => {
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
           <Users className="w-6 h-6 text-blue-500" />
-          Outstanding Feedbacks
+          Feedback Tasks
         </h2>
 
         {feedbackTasks.length > 0 ? (
@@ -154,9 +164,14 @@ const DashboardContent = ({ userobj, loadingParent }) => {
                           {task.active ? "Active" : "Closed"}
                         </Badge>
                       </div>
-                      
+
                       <Button
-                        onClick={() => window.open(`http://localhost:3000/faculty/feedbacktask/${task._id}`, "_blank")}
+                        onClick={() =>
+                          window.open(
+                            `${window.location.origin}/faculty/feedbacktask/${task._id}`,
+                            "_blank"
+                          )
+                        }
                         className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-2 rounded-lg transition-all duration-300 flex items-center gap-2"
                       >
                         View Feedback
@@ -179,7 +194,6 @@ const DashboardContent = ({ userobj, loadingParent }) => {
     </div>
   );
 };
-
 
 const NewFeedbackContent = ({ userobj }) => {
   const [title, setTitle] = useState("");
@@ -267,7 +281,10 @@ const NewFeedbackContent = ({ userobj }) => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="title"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Title
                 </Label>
                 <Input
@@ -281,7 +298,10 @@ const NewFeedbackContent = ({ userobj }) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="courseId" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="courseId"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Course
                 </Label>
                 <select
@@ -291,7 +311,9 @@ const NewFeedbackContent = ({ userobj }) => {
                   required
                   className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
                 >
-                  <option value="" disabled>Select a course</option>
+                  <option value="" disabled>
+                    Select a course
+                  </option>
                   {courses.map((course) => (
                     <option key={course.id_} value={course.id_}>
                       {`${course.id_} - ${course.title}`}
@@ -304,7 +326,9 @@ const NewFeedbackContent = ({ userobj }) => {
                 <User className="w-5 h-5 text-blue-500" />
                 <div>
                   <p className="text-sm text-gray-600">Faculty</p>
-                  <p className="font-medium text-gray-900">{userobj.username}</p>
+                  <p className="font-medium text-gray-900">
+                    {userobj.username}
+                  </p>
                 </div>
               </div>
 
@@ -316,12 +340,17 @@ const NewFeedbackContent = ({ userobj }) => {
                     onCheckedChange={(checked) => setActive(checked)}
                     className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
                   />
-                  <Label htmlFor="active" className="text-sm font-medium text-gray-700">
+                  <Label
+                    htmlFor="active"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Active Status
                   </Label>
                 </div>
                 <p className="text-sm text-gray-500">
-                  {active ? "Task will be visible to students" : "Task will be hidden from students"}
+                  {active
+                    ? "Task will be visible to students"
+                    : "Task will be hidden from students"}
                 </p>
               </div>
 
@@ -366,7 +395,6 @@ const ProfileContent = ({ userobj }) => {
   const [coursesDetails, setCoursesDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState(null);
-
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -431,88 +459,102 @@ const ProfileContent = ({ userobj }) => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
-    {/* Profile Card */}
-    <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-white">
-      <CardHeader className="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
-            <User size={32} className="text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold">{userDetailsObj.username}</h2>
-            <div className="flex items-center gap-2 mt-2">
-              <Building2 size={16} />
-              <span className="text-sm opacity-90">{userDetailsObj.department}</span>
+      {/* Profile Card */}
+      <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+        <CardHeader className="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+              <User size={32} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">{userDetailsObj.username}</h2>
+              <div className="flex items-center gap-2 mt-2">
+                <Building2 size={16} />
+                <span className="text-sm opacity-90">
+                  {userDetailsObj.department}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </CardHeader>
-    </Card>
+        </CardHeader>
+      </Card>
 
-    {/* Courses Section */}
-    <Card className="bg-white">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-blue-100 pb-4">
-        <div className="flex items-center gap-2">
-          <BookOpen className="text-blue-700" />
-          <h2 className="text-xl font-semibold text-blue-900">Courses</h2>
-        </div>
-        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-          {coursesDetails.length} Courses
-        </Badge>
-      </CardHeader>
-      <CardContent className="pt-4">
-        {coursesDetails.length > 0 ? (
-          <div className="grid gap-4">
-            {coursesDetails.map((course) => (
-              <div
-                key={course.id_}
-                className="group p-4 rounded-lg transition-all duration-200 hover:bg-blue-50 cursor-pointer border border-blue-100 hover:border-blue-300"
-                onClick={() => setSelectedCourse(selectedCourse?.id_ === course.id_ ? null : course)}
-              >
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <h3 className="font-mono text-lg font-bold tracking-wider text-gray-900">
-                      {course.id_}
-                    </h3>
-                    <p className="text-blue-700 group-hover:text-blue-800 transition-colors">
-                      {course.title}
-                    </p>
-                  </div>
-                  <div className={`transform transition-transform duration-200 ${
-                    selectedCourse?.id_ === course.id_ ? 'rotate-180' : ''
-                  }`}>
-                    <AlertCircle size={20} className="text-blue-400 group-hover:text-blue-600" />
-                  </div>
-                </div>
-                
-                {/* Expanded Course Details */}
-                {selectedCourse?.id_ === course.id_ && (
-                  <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg animate-fadeIn">
-                    <div className="flex items-start gap-3">
-                      <Badge className="bg-blue-700 text-white mt-1">Details</Badge>
-                      <div>
-                        <p className="text-sm text-blue-800 font-medium">
-                          Course ID: <span className="font-mono">{course.id_}</span>
-                        </p>
-                        <p className="text-sm text-blue-700 mt-1">
-                          Click to view more details about this course.
-                        </p>
-                      </div>
+      {/* Courses Section */}
+      <Card className="bg-white">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-blue-100 pb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="text-blue-700" />
+            <h2 className="text-xl font-semibold text-blue-900">Courses</h2>
+          </div>
+          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+            {coursesDetails.length} Courses
+          </Badge>
+        </CardHeader>
+        <CardContent className="pt-4">
+          {coursesDetails.length > 0 ? (
+            <div className="grid gap-4">
+              {coursesDetails.map((course) => (
+                <div
+                  key={course.id_}
+                  className="group p-4 rounded-lg transition-all duration-200 hover:bg-blue-50 cursor-pointer border border-blue-100 hover:border-blue-300"
+                  onClick={() =>
+                    setSelectedCourse(
+                      selectedCourse?.id_ === course.id_ ? null : course
+                    )
+                  }
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-1">
+                      <h3 className="font-mono text-lg font-bold tracking-wider text-gray-900">
+                        {course.id_}
+                      </h3>
+                      <p className="text-blue-700 group-hover:text-blue-800 transition-colors">
+                        {course.title}
+                      </p>
+                    </div>
+                    <div
+                      className={`transform transition-transform duration-200 ${
+                        selectedCourse?.id_ === course.id_ ? "rotate-180" : ""
+                      }`}
+                    >
+                      <AlertCircle
+                        size={20}
+                        className="text-blue-400 group-hover:text-blue-600"
+                      />
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-gray-500">
-            <BookOpen size={48} className="mx-auto mb-4 text-blue-300" />
-            <p>No courses found</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  </div>
+
+                  {/* Expanded Course Details */}
+                  {selectedCourse?.id_ === course.id_ && (
+                    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg animate-fadeIn">
+                      <div className="flex items-start gap-3">
+                        <Badge className="bg-blue-700 text-white mt-1">
+                          Details
+                        </Badge>
+                        <div>
+                          <p className="text-sm text-blue-800 font-medium">
+                            Course ID:{" "}
+                            <span className="font-mono">{course.id_}</span>
+                          </p>
+                          <p className="text-sm text-blue-700 mt-1">
+                            Click to view more details about this course.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <BookOpen size={48} className="mx-auto mb-4 text-blue-300" />
+              <p>No courses found</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 const tabs = [
@@ -691,25 +733,29 @@ const FacultyDashboard = () => {
         </nav>
 
         <div className="absolute bottom-0 w-full p-4">
-       <button
-  onClick={handleLogout}
-  disabled={isLoggingOut}
-  className={`flex items-center justify-center w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-200 relative overflow-hidden ${
-    isLoggingOut ? 'cursor-not-allowed opacity-75' : 'hover:shadow-xl'
-  }`}
-  title={!isMenuExpanded ? 'Logout' : ''}
->
-  <div className={`flex items-center justify-center gap-3 ${isLoggingOut ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>
-    <LogOut className="w-5 h-5" />
-    {isMenuExpanded && <span className="font-medium">Logout</span>}
-  </div>
-  
-  {isLoggingOut && (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  )}
-</button>
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className={`flex items-center justify-center w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-200 relative overflow-hidden ${
+              isLoggingOut ? "cursor-not-allowed opacity-75" : "hover:shadow-xl"
+            }`}
+            title={!isMenuExpanded ? "Logout" : ""}
+          >
+            <div
+              className={`flex items-center justify-center gap-3 ${
+                isLoggingOut ? "opacity-0" : "opacity-100"
+              } transition-opacity duration-200`}
+            >
+              <LogOut className="w-5 h-5" />
+              {isMenuExpanded && <span className="font-medium">Logout</span>}
+            </div>
+
+            {isLoggingOut && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+          </button>
         </div>
       </motion.div>
 
