@@ -6,26 +6,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowDownRight, ArrowUpRight, XCircle } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import FeedbackSummaryCard from "../../feedback_page.jsx";
 
 const FeedbackDashboard = () => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
   const [feedbackData, setFeedbackData] = useState(null);
   const [activeTab, setActiveTab] = useState("completed");
   const [isLoading, setIsLoading] = useState(false);
-  const [feedbackSummary, setFeedbackSummary] = useState([]);
+  const [feedbackSummary, setFeedbackSummary] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchFeedbackTasks();
+  }, []);
+
+  useEffect(() => {
     if (selectedTask) {
+      fetchFeedbackDetails();
       fetchFeedbackSummary();
     }
   }, [selectedTask]);
@@ -40,15 +42,18 @@ const FeedbackDashboard = () => {
       setFeedbackTasks(data);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
+      setError("Failed to fetch feedback tasks");
     }
   };
 
   const fetchFeedbackDetails = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const courseId = feedbackTasks.find(
-        (task) => task._id === selectedTask
-      ).course_id;
+      const task = feedbackTasks.find((task) => task._id === selectedTask);
+      if (!task) {
+        throw new Error("Selected task not found");
+      }
       const response = await fetch("/api/admin/feedbacktask/getdetails", {
         method: "POST",
         headers: {
@@ -56,7 +61,7 @@ const FeedbackDashboard = () => {
         },
         body: JSON.stringify({
           feedbacktaskId: selectedTask,
-          courseId: courseId,
+          courseId: task.course_id,
         }),
       });
       if (!response.ok) {
@@ -66,6 +71,8 @@ const FeedbackDashboard = () => {
       setFeedbackData(data);
     } catch (error) {
       console.error("Failed to fetch feedback details:", error);
+      setError(error.message);
+      setFeedbackData(null);
     } finally {
       setIsLoading(false);
     }
@@ -87,18 +94,10 @@ const FeedbackDashboard = () => {
       }
 
       const data = await response.json();
-      console.log("Feedback summary:", data);
       setFeedbackSummary(data);
     } catch (error) {
       console.error("Failed to fetch feedback summary:", error);
-      setError(error.message);
-    }
-  };
-
-  const handleViewDetails = () => {
-    setShowDetails(!showDetails);
-    if (!showDetails) {
-      fetchFeedbackDetails();
+      setFeedbackSummary(null);
     }
   };
 
@@ -106,9 +105,101 @@ const FeedbackDashboard = () => {
     setActiveTab(tab);
   };
 
-  if (!feedbackData) {
+  const NoFeedbackMessage = () => (
+    <Alert className="mt-4">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription>
+        No feedback data is available for this task yet. The dashboard will be available once feedback is submitted.
+      </AlertDescription>
+    </Alert>
+  );
+
+  const getFeedbackCounts = () => {
+    if (!feedbackData || !feedbackData.studentsWhoGaveFeedback || !feedbackData.studentsWhoDidNotGiveFeedback) {
+      return { completed: 0, notCompleted: 0, total: 0, hasFeedback: false };
+    }
+    
+    const completed = feedbackData.studentsWhoGaveFeedback.length;
+    const notCompleted = feedbackData.studentsWhoDidNotGiveFeedback.length;
+    
+    return {
+      completed,
+      notCompleted,
+      total: completed + notCompleted,
+      hasFeedback: completed > 0
+    };
+  };
+
+  const renderTabsList = () => {
+    const { completed, notCompleted } = getFeedbackCounts();
+
     return (
-      <div className="flex flex-col items-center justify-start h-screen w-full gap-4 bg-slate-100">
+      <TabsList className="border-b">
+        <TabsTrigger value="completed">
+          Completed <span className="text-sm text-gray-500">({completed})</span>
+        </TabsTrigger>
+        <TabsTrigger value="notCompleted">
+          Not Completed <span className="text-sm text-gray-500">({notCompleted})</span>
+        </TabsTrigger>
+        <TabsTrigger value="Ratings">Ratings</TabsTrigger>
+        <TabsTrigger value="Summary">Summary</TabsTrigger>
+      </TabsList>
+    );
+  };
+
+  const renderSummaryContent = () => {
+    if (!feedbackSummary?.summaries?.length) {
+      return (
+        <Alert className="mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            The feedback summary is not available yet. It will be generated once sufficient feedback is collected.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    return (
+      <div className="p-4 bg-gray-100 rounded-md">
+        <p>{feedbackSummary.summaries[0].summary.message}</p>
+      </div>
+    );
+  };
+
+  const renderTableContent = (students) => {
+    if (!students || students.length === 0) {
+      return (
+        <tr>
+          <td colSpan="5" className="p-2 border text-center">
+            No data available
+          </td>
+        </tr>
+      );
+    }
+
+    return students.map((student) => (
+      <tr key={student._id}>
+        <td className="p-2 border">{student.username}</td>
+        <td className="p-2 border">{student.email}</td>
+        <td className="p-2 border">{student.branch}</td>
+        <td className="p-2 border">{student.year}</td>
+        <td className="p-2 border">{student.semester}</td>
+      </tr>
+    ));
+  };
+
+  const renderContent = () => {
+    if (error) {
+      return (
+        <Alert className="mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      );
+    }
+
+    if (!selectedTask) {
+      return (
         <Card className="w-[80%] border bg-white p-4 shadow-lg rounded-xl mt-4">
           <CardHeader>
             <CardTitle className="text-center text-2xl">
@@ -130,48 +221,38 @@ const FeedbackDashboard = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Button
-                disabled={!selectedTask}
-                onClick={handleViewDetails}
-                variant={showDetails ? "destructive" : "primary"}
-              >
-                {showDetails ? "Hide Details" : "View Details"}
-              </Button>
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
-    <div className="flex flex-col items-center justify-start h-screen w-full gap-4 bg-slate-100">
-      <div className="flex flex-col items-center justify-center gap-4 w-[80%] border bg-white p-2 shadow-lg mt-4 rounded-xl">
-        <h1 className="text-3xl font-bold">Feedback Dashboard</h1>
-      </div>
-      <div className="flex items-center justify-evenly gap-4 w-[80%] border bg-white p-4 shadow-lg rounded-xl">
-        <label>Select Feedback Task to view details</label>
-        <Select value={selectedTask} onValueChange={setSelectedTask}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Feedback Task" />
-          </SelectTrigger>
-          <SelectContent>
-            {feedbackTasks.map((task) => (
-              <SelectItem key={task._id} value={task._id}>
-                {task.course_id} - {task.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button
-          disabled={!selectedTask}
-          onClick={handleViewDetails}
-          variant={showDetails ? "destructive" : "primary"}
-        >
-          {showDetails ? "Hide Details" : "View Details"}
-        </Button>
-      </div>
-      {showDetails && (
+    const { hasFeedback } = getFeedbackCounts();
+
+    if (!hasFeedback && !feedbackData) {
+      return <NoFeedbackMessage />;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-start h-screen w-full gap-4 bg-slate-100">
+        <div className="flex flex-col items-center justify-center gap-4 w-[80%] border bg-white p-2 shadow-lg mt-4 rounded-xl">
+          <h1 className="text-3xl font-bold">Feedback Dashboard</h1>
+        </div>
+        <div className="flex items-center justify-evenly gap-4 w-[80%] border bg-white p-4 shadow-lg rounded-xl">
+          <label>Select Feedback Task to view details</label>
+          <Select value={selectedTask} onValueChange={setSelectedTask}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Feedback Task" />
+            </SelectTrigger>
+            <SelectContent>
+              {feedbackTasks.map((task) => (
+                <SelectItem key={task._id} value={task._id}>
+                  {task.course_id} - {task.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-col items-center justify-start gap-4 w-[80%] border bg-white p-4 shadow-lg rounded-xl">
           {isLoading ? (
             <div className="flex items-center justify-center h-64 text-gray-500 font-medium">
@@ -183,22 +264,7 @@ const FeedbackDashboard = () => {
               onValueChange={handleTabChange}
               className="w-full"
             >
-              <TabsList className="border-b">
-                <TabsTrigger value="completed">
-                  Completed{" "}
-                  <span className="text-sm text-gray-500">
-                    ({feedbackData.studentsWhoGaveFeedback.length})
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="notCompleted">
-                  Not Completed{" "}
-                  <span className="text-sm text-gray-500">
-                    ({feedbackData.studentsWhoDidNotGiveFeedback.length})
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="Ratings">Ratings</TabsTrigger>
-                <TabsTrigger value="Summary">Summary</TabsTrigger>
-              </TabsList>
+              {renderTabsList()}
               <TabsContent value="completed">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -212,15 +278,7 @@ const FeedbackDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {feedbackData.studentsWhoGaveFeedback.map((student) => (
-                        <tr key={student._id}>
-                          <td className="p-2 border">{student.username}</td>
-                          <td className="p-2 border">{student.email}</td>
-                          <td className="p-2 border">{student.branch}</td>
-                          <td className="p-2 border">{student.year}</td>
-                          <td className="p-2 border">{student.semester}</td>
-                        </tr>
-                      ))}
+                      {renderTableContent(feedbackData?.studentsWhoGaveFeedback)}
                     </tbody>
                   </table>
                 </div>
@@ -238,17 +296,7 @@ const FeedbackDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {feedbackData.studentsWhoDidNotGiveFeedback.map(
-                        (student) => (
-                          <tr key={student._id}>
-                            <td className="p-2 border">{student.username}</td>
-                            <td className="p-2 border">{student.email}</td>
-                            <td className="p-2 border">{student.branch}</td>
-                            <td className="p-2 border">{student.year}</td>
-                            <td className="p-2 border">{student.semester}</td>
-                          </tr>
-                        )
-                      )}
+                      {renderTableContent(feedbackData?.studentsWhoDidNotGiveFeedback)}
                     </tbody>
                   </table>
                 </div>
@@ -256,76 +304,25 @@ const FeedbackDashboard = () => {
               <TabsContent value="Ratings">
                 <FeedbackSummaryCard
                   feedbackSummary={feedbackSummary}
-                  positiveCount={feedbackData.studentsWhoGaveFeedback.length}
-                  negativeCount={feedbackData.studentsWhoDidNotGiveFeedback.length}
+                  positiveCount={feedbackData?.studentsWhoGaveFeedback?.length || 0}
+                  negativeCount={feedbackData?.studentsWhoDidNotGiveFeedback?.length || 0}
                   totalStudents={
-                    feedbackData.studentsWhoGaveFeedback.length +
-                    feedbackData.studentsWhoDidNotGiveFeedback.length
+                    (feedbackData?.studentsWhoGaveFeedback?.length || 0) +
+                    (feedbackData?.studentsWhoDidNotGiveFeedback?.length || 0)
                   }
                 />
               </TabsContent>
               <TabsContent value="Summary">
-                <div className="p-4 bg-gray-100 rounded-md">
-                  {/* <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium">Feedback Summary</h3>
-                    {feedbackSummary.summaries[0].sentiment === "positive" ? (
-                      <div className="flex items-center text-green-500">
-                        <ArrowUpRight size={16} className="mr-1" />
-                        Positive
-                      </div>
-                    ) : (
-                      <div className="flex items-center text-red-500">
-                        <ArrowDownRight size={16} className="mr-1" />
-                        Negative
-                      </div>
-                    )}
-                  </div> */}
-                  <p>{feedbackSummary.summaries[0].summary.message}</p>
-                  {/* <div className="mt-4">
-                    <h4 className="text-md font-medium mb-2">Feedback Breakdown</h4>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-                        <span>Positive Feedback</span>
-                      </div>
-                      <Progress
-                        value={(feedbackData.studentsWhoGaveFeedback.length /
-                          (feedbackData.studentsWhoGaveFeedback.length +
-                            feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                          100}
-                        className="w-32"
-                      />
-                      <span>{((feedbackData.studentsWhoGaveFeedback.length /
-                        (feedbackData.studentsWhoGaveFeedback.length +
-                          feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                        100).toFixed(2)}%</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center">
-                        <div className="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-                        <span>Negative Feedback</span>
-                      </div>
-                      <Progress
-                        value={(feedbackData.studentsWhoDidNotGiveFeedback.length /
-                          (feedbackData.studentsWhoGaveFeedback.length +
-                            feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                          100}
-                        className="w-32"
-                      />
-                      <span>{((feedbackData.studentsWhoDidNotGiveFeedback.length /
-                        (feedbackData.studentsWhoGaveFeedback.length +
-                          feedbackData.studentsWhoDidNotGiveFeedback.length)) *
-                        100).toFixed(2)}%</span>
-                    </div>
-                  </div> */}
-                </div>
+                {renderSummaryContent()}
               </TabsContent>
             </Tabs>
           )}
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  };
+
+  return renderContent();
 };
 
 export default FeedbackDashboard;

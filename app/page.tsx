@@ -123,16 +123,33 @@ import { Button } from "@/components/ui/button";
 
 const projects = [
   {
+<<<<<<< HEAD
     description:
       "An interactive feedback system that enables real-time, adaptive conversations with students, such as questions based on individual responses, fostering a more personalized experience",
   },
   {
     description:
       "An automated feedback system based on a particular course syllabus",
+=======
+   
+    description:
+      "A interactive feedback system that enables real-time, adaptive conversations with students, such as questions based on individual responses, fostering a more personalized experience",
+ 
+  },
+  {
+ 
+    description:
+      "An automated feedback system based on a particular course syllabus",
+   
+>>>>>>> 3ca5020f56c52e3a54107032f46df501240c06a9
   },
   {
     description:
       "Insights for making student feedback more productive in terms of revising syllabus, teaching styles, redesign of curriculum, or changing the way courses are taught",
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 3ca5020f56c52e3a54107032f46df501240c06a9
   },
 ];
 
@@ -168,6 +185,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-slate-100 to-gray-300">
+<<<<<<< HEAD
       {/* Navbar */}
       <div className={cn("fixed top-10 inset-x-0 max-w-2xl mx-auto z-50")}>
       <Menu setActive={setActive}>
@@ -193,6 +211,35 @@ export default function LandingPage() {
              <HoveredLink href="/enterprise">Enterprise</HoveredLink> 
            </div>
          </MenuItem>
+=======
+
+    <div
+      className={cn("fixed top-10 inset-x-0 max-w-2xl mx-auto z-50 ", )}
+    >
+      <Menu setActive={setActive}>
+        <a href="">
+        <MenuItem setActive={setActive} active={active} item="Services">
+          <div className="flex flex-col space-y-4 text-sm">
+           
+          </div>
+        </MenuItem>
+        </a>
+       
+        <a href="/login">
+        <MenuItem setActive={setActive} active={active} item="Login">
+          <div className="flex flex-col space-y-4 text-sm">
+        
+          </div>
+        </MenuItem>
+            </a>
+
+            <a href="/signup">
+        <MenuItem setActive={setActive} active={active} item="Signup">
+          <div className="flex flex-col space-y-4 text-sm">
+          
+          </div>
+        </MenuItem>
+>>>>>>> 3ca5020f56c52e3a54107032f46df501240c06a9
         </a>
 
 
@@ -202,6 +249,10 @@ export default function LandingPage() {
       {/* Hero Section with LampDemo */}
       <section className="flex flex-col items-center justify-center flex-grow w-full">
         <LampDemo />
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 3ca5020f56c52e3a54107032f46df501240c06a9
       </section>
 
       {/* What to Expect Section */}
@@ -293,6 +344,7 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
+<<<<<<< HEAD
       </section>
 
       {/* Benefits Grid */}
@@ -345,6 +397,11 @@ export default function LandingPage() {
             </Button>
           </div>
         </div>
+=======
+      
+    </BackgroundBeamsWithCollision>
+    
+>>>>>>> 3ca5020f56c52e3a54107032f46df501240c06a9
       </section>
 
       {/* Footer */}
