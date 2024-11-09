@@ -2,20 +2,25 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Bars, BallTriangle } from "react-loader-spinner";
-import Emoji from "@/public/assets/Reaction.png";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent,CardHeader} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   LayoutDashboard,
   FileText,
   UserCircle2,
   LogOut,
-  ChevronRight,
   Bell,
   Settings,
   ClipboardList,
+  ChevronRight, Calendar, Users, Book,PlusCircle,User,CheckCircle, Building2,BookOpen,AlertCircle
 } from "lucide-react";
 
 const LoadingSpinner = ({ message = "Loading..." }) => {
@@ -53,14 +58,10 @@ async function getUser() {
   }
 }
 
+
 const DashboardContent = ({ userobj, loadingParent }) => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const openFeedbackPage = (_id) => {
-    window.open("http://localhost:3000/faculty/feedbacktask/" + _id, "_blank");
-  };
-
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -70,12 +71,11 @@ const DashboardContent = ({ userobj, loadingParent }) => {
         return;
       }
       try {
-        const response = await fetch(
-          `/api/faculty/gettasks/${userobj.username}`
-        );
+        const response = await fetch(`/api/faculty/gettasks/${userobj.username}`);
         if (response.ok) {
           const data = await response.json();
           setFeedbackTasks(data);
+          console.log("Fetched feedback tasks:", data);
         } else {
           console.error("Error fetching feedback tasks:", response.statusText);
         }
@@ -88,23 +88,6 @@ const DashboardContent = ({ userobj, loadingParent }) => {
     fetchFeedbackTasks();
   }, [loadingParent]);
 
-  // if (loading) {
-  //   return (
-  //     <div className="w-full h-full flex flex-col justify-center items-center gap-2">
-  //       <Bars
-  //         height="80"
-  //         width="80"
-  //         color="#7b61ff"
-  //         ariaLabel="bars-loading"
-  //         wrapperStyle={{}}
-  //         wrapperClass=""
-  //         visible={true}
-  //       />
-  //       <p>Hold on tight, loading your dashboard...</p>
-  //     </div>
-  //   );
-  // }
-
   if (loading) {
     return (
       <LoadingSpinner message="Hold on tight, loading your dashboard..." />
@@ -112,64 +95,91 @@ const DashboardContent = ({ userobj, loadingParent }) => {
   }
 
   return (
-    <div>
-      {/* <h2 className="text-2xl font-bold mb-4">Dashboard</h2> */}
-      <p>
-        Welcome to your dashboard! Here, you will see an overview of your
-        activities and updates.
-      </p>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8 shadow-sm">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Welcome to your Dashboard
+        </h1>
+        <p className="mt-2 text-gray-600">
+          Here's an overview of your activities and updates
+        </p>
+      </div>
 
-      <h3 className="text-xl font-semibold mt-6">Outstanding Feedbacks</h3>
-      {feedbackTasks.length > 0 ? (
-        <div className="mt-4 overflow-y-auto max-h-[30rem]">
-          <ul className="mt-4">
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+          <Users className="w-6 h-6 text-blue-500" />
+          Outstanding Feedbacks
+        </h2>
+
+        {feedbackTasks.length > 0 ? (
+          <div className="space-y-4 overflow-y-auto max-h-[600px] pr-2">
             {feedbackTasks.map((task, index) => (
-              <li
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
                 key={index}
-                className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
               >
-                <div className="flex items-center gap-4">
-                  <Image
-                    src={Emoji}
-                    alt="Emoji"
-                    width={100}
-                    height={100}
-                    className="mr-2"
-                  />
-                  <div>
-                    <h4 className="font-bold text-lg">{task.title}</h4>
-                    <p>Course ID: {task.course_id}</p>
-                    <p>Created by: {task.created_by}</p>
-                    {/* <p>Status: {task.active ? "Active" : "Inactive"}</p> */}
-                    <div
-                      className={`px-2 py-1 ${
-                        task.active ? "bg-green-500" : "bg-red-500"
-                      } text-white inline-block rounded-md mt-2`}
-                    >
-                      {task.active ? "Active" : "Closed"}
+                <Card className="hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-800">
+                            {task.title}
+                          </h3>
+                          <div className="mt-2 space-y-2">
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Book className="w-4 h-4" />
+                              <span>Course ID: {task.course_id}</span>
+                            </div>
+                            {/* <div className="flex items-center gap-2 text-gray-600">
+                              <Book className="w-4 h-4" />
+                              <span>Course ID: {task.course_id}</span>
+                            </div> */}
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Calendar className="w-4 h-4" />
+                              <span>Created by: {task.created_by}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Badge
+                          variant={task.active ? "success" : "destructive"}
+                          className={`px-3 py-1 ${
+                            task.active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {task.active ? "Active" : "Closed"}
+                        </Badge>
+                      </div>
+                      
+                      <Button
+                        onClick={() => window.open(`http://localhost:3000/faculty/feedbacktask/${task._id}`, "_blank")}
+                        className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-2 rounded-lg transition-all duration-300 flex items-center gap-2"
+                      >
+                        View Feedback
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
                     </div>
-                  </div>
-                </div>
-                <div>
-                  <button
-                    onClick={() => {
-                      openFeedbackPage(task._id);
-                    }}
-                    className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-                  >
-                    Go to Feedback Page
-                  </button>
-                </div>
-              </li>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
-          </ul>
-        </div>
-      ) : (
-        <p>No outstanding feedback tasks available.</p>
-      )}
+          </div>
+        ) : (
+          <Card className="bg-gray-50">
+            <CardContent className="p-12 text-center text-gray-500">
+              <p>No outstanding feedback tasks available at the moment.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
+
 
 const NewFeedbackContent = ({ userobj }) => {
   const [title, setTitle] = useState("");
@@ -237,80 +247,107 @@ const NewFeedbackContent = ({ userobj }) => {
   };
 
   return (
-    <div className="w-full mx-auto p-6 bg-white shadow-lg rounded-lg">
-      {/* <h2 className="text-2xl font-bold mb-6">Create New Feedback Task</h2> */}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-6">
-          <label htmlFor="title" className="block font-medium text-gray-700">
-            Title *
-          </label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="courseId" className="block font-medium text-gray-700">
-            Course *
-          </label>
-          <select
-            id="courseId"
-            value={courseId}
-            onChange={(e) => {
-              const selectedCourse = courses.find(
-                (course) => course.id_ === e.target.value
-              );
-              setCourseId(selectedCourse?.id_);
-            }}
-            required
-            className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="" disabled>
-              Select a course
-            </option>
-            {courses.map((course) => (
-              <option key={course.id_} value={course.id_}>
-                {`${course.id_} - ${course.title}`}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="max-w-2xl mx-auto shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardContent className="p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
+                <PlusCircle className="w-6 h-6" />
+                Create New Feedback Task
+              </h2>
+              <p className="text-gray-500 mt-2">
+                Fill in the details below to create a new feedback task
+              </p>
+            </div>
 
-        <div className="mb-6">
-          <label className="block font-medium text-gray-700">
-            Faculty: <span className="font-semibold">{userobj.username}</span>
-          </label>
-        </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-medium text-gray-700">
+                  Title
+                </Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  placeholder="Enter feedback title"
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                />
+              </div>
 
-        <div className="mb-6 flex items-center justify-items-start">
-          <label htmlFor="active" className="block font-medium text-gray-700">
-            Active
-          </label>
-          <input
-            type="checkbox"
-            id="active"
-            checked={active}
-            onChange={(e) => setActive(e.target.checked)}
-            className="ml-2 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          />
-        </div>
+              <div className="space-y-2">
+                <Label htmlFor="courseId" className="text-sm font-medium text-gray-700">
+                  Course
+                </Label>
+                <select
+                  id="courseId"
+                  value={courseId}
+                  onChange={(e) => setCourseId(e.target.value)}
+                  required
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                >
+                  <option value="" disabled>Select a course</option>
+                  {courses.map((course) => (
+                    <option key={course.id_} value={course.id_}>
+                      {`${course.id_} - ${course.title}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        <div className="w-full flex justify-center">
-          <button
-            type="submit"
-            disabled={loading || !title || !courseId} // Only disable if required fields are empty
-            className={`w-[50%] py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 ease-in-out ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {loading ? "Creating..." : "Create Feedback Task"}
-          </button>
-        </div>
-      </form>
+              <div className="bg-blue-50 p-4 rounded-lg flex items-center gap-3">
+                <User className="w-5 h-5 text-blue-500" />
+                <div>
+                  <p className="text-sm text-gray-600">Faculty</p>
+                  <p className="font-medium text-gray-900">{userobj.username}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="active"
+                    checked={active}
+                    onCheckedChange={(checked) => setActive(checked)}
+                    className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <Label htmlFor="active" className="text-sm font-medium text-gray-700">
+                    Active Status
+                  </Label>
+                </div>
+                <p className="text-sm text-gray-500">
+                  {active ? "Task will be visible to students" : "Task will be hidden from students"}
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading || !title || !courseId}
+                className={`w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    Create Feedback Task
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };
@@ -328,6 +365,8 @@ const ProfileContent = ({ userobj }) => {
   const [userDetailsObj, setUserDetailsObj] = useState({});
   const [coursesDetails, setCoursesDetails] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -391,56 +430,89 @@ const ProfileContent = ({ userobj }) => {
   // }
 
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-4">
-      {/* Profile Information Section */}
-      <div className="w-full mx-auto p-4 bg-white rounded-lg shadow-md">
-        {/* <h2 className="text-2xl font-bold mb-4">Faculty Profile</h2> */}
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">Username</h3>
-          <p className="text-gray-700">{userDetailsObj.username}</p>
+    <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
+    {/* Profile Card */}
+    <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+      <CardHeader className="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-6">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+            <User size={32} className="text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">{userDetailsObj.username}</h2>
+            <div className="flex items-center gap-2 mt-2">
+              <Building2 size={16} />
+              <span className="text-sm opacity-90">{userDetailsObj.department}</span>
+            </div>
+          </div>
         </div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">Department</h3>
-          <p className="text-gray-700">{userDetailsObj.department}</p>
-        </div>
-      </div>
+      </CardHeader>
+    </Card>
 
-      {/* Courses Details Section */}
-      <div className="w-full border-[#f7f7f7] border-2 rounded-2xl shadow-md flex flex-col justify-start gap-2 p-4 items-start">
-        <h2 className="text-lg font-bold">Course Details</h2>
+    {/* Courses Section */}
+    <Card className="bg-white">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-blue-100 pb-4">
+        <div className="flex items-center gap-2">
+          <BookOpen className="text-blue-700" />
+          <h2 className="text-xl font-semibold text-blue-900">Courses</h2>
+        </div>
+        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+          {coursesDetails.length} Courses
+        </Badge>
+      </CardHeader>
+      <CardContent className="pt-4">
         {coursesDetails.length > 0 ? (
-          <table className="min-w-full border-collapse block md:table">
-            <thead className="block md:table-header-group">
-              <tr className="border border-gray-300 md:border-none block md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative">
-                <th className="bg-[#9c89ff] text-white p-2 font-bold md:border md:border-gray-300 block md:table-cell">
-                  Course Code
-                </th>
-                <th className="bg-[#9c89ff] text-white font-bold md:border md:border-gray-300 block md:table-cell">
-                  Course Title
-                </th>
-              </tr>
-            </thead>
-            <tbody className="block md:table-row-group overflow-y-auto max-h-96">
-              {coursesDetails.map((course) => (
-                <tr
-                  key={course.code}
-                  className="bg-gray-100 border border-gray-300 md:border-none block md:table-row"
-                >
-                  <td className="p-2 md:border md:border-gray-300 text-center block md:table-cell">
-                    {course.id_}
-                  </td>
-                  <td className="p-2 md:border md:border-gray-300 text-left block md:table-cell">
-                    {course.title}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="grid gap-4">
+            {coursesDetails.map((course) => (
+              <div
+                key={course.id_}
+                className="group p-4 rounded-lg transition-all duration-200 hover:bg-blue-50 cursor-pointer border border-blue-100 hover:border-blue-300"
+                onClick={() => setSelectedCourse(selectedCourse?.id_ === course.id_ ? null : course)}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <h3 className="font-mono text-lg font-bold tracking-wider text-gray-900">
+                      {course.id_}
+                    </h3>
+                    <p className="text-blue-700 group-hover:text-blue-800 transition-colors">
+                      {course.title}
+                    </p>
+                  </div>
+                  <div className={`transform transition-transform duration-200 ${
+                    selectedCourse?.id_ === course.id_ ? 'rotate-180' : ''
+                  }`}>
+                    <AlertCircle size={20} className="text-blue-400 group-hover:text-blue-600" />
+                  </div>
+                </div>
+                
+                {/* Expanded Course Details */}
+                {selectedCourse?.id_ === course.id_ && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg animate-fadeIn">
+                    <div className="flex items-start gap-3">
+                      <Badge className="bg-blue-700 text-white mt-1">Details</Badge>
+                      <div>
+                        <p className="text-sm text-blue-800 font-medium">
+                          Course ID: <span className="font-mono">{course.id_}</span>
+                        </p>
+                        <p className="text-sm text-blue-700 mt-1">
+                          Click to view more details about this course.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         ) : (
-          <div>No courses found</div>
+          <div className="text-center py-8 text-gray-500">
+            <BookOpen size={48} className="mx-auto mb-4 text-blue-300" />
+            <p>No courses found</p>
+          </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
+  </div>
   );
 };
 const tabs = [
@@ -471,6 +543,7 @@ const FacultyDashboard = () => {
   const [logoutActive, setLogoutActive] = useState(true);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   useEffect(() => {
     (async () => {
@@ -486,6 +559,7 @@ const FacultyDashboard = () => {
 
   async function handleLogout() {
     setLogoutActive(false);
+    setIsLoggingOut(true);
     const response = await fetch("/api/auth/logout", {
       method: "POST",
     });
@@ -617,15 +691,25 @@ const FacultyDashboard = () => {
         </nav>
 
         <div className="absolute bottom-0 w-full p-4">
-          <Button
-            onClick={handleLogout}
-            disabled={!logoutActive}
-            className="w-full"
-            variant="destructive"
-          >
-            <LogOut className="mr-2" size={18} />
-            {isMenuExpanded ? "Logout" : null}
-          </Button>
+       <button
+  onClick={handleLogout}
+  disabled={isLoggingOut}
+  className={`flex items-center justify-center w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-200 relative overflow-hidden ${
+    isLoggingOut ? 'cursor-not-allowed opacity-75' : 'hover:shadow-xl'
+  }`}
+  title={!isMenuExpanded ? 'Logout' : ''}
+>
+  <div className={`flex items-center justify-center gap-3 ${isLoggingOut ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>
+    <LogOut className="w-5 h-5" />
+    {isMenuExpanded && <span className="font-medium">Logout</span>}
+  </div>
+  
+  {isLoggingOut && (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  )}
+</button>
         </div>
       </motion.div>
 
@@ -637,7 +721,7 @@ const FacultyDashboard = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            {activeTab}
+            {/* {activeTab} */}
           </motion.h1>
           {/* <div className="flex items-center space-x-4">
             <Button variant="outline" size="icon">

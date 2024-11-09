@@ -316,6 +316,7 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState<boolean>(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -347,6 +348,7 @@ export default function Page() {
         throw new Error("Failed to fetch dashboard data");
       }
       const data = await response.json();
+      console.log(data);
 
       setDashboardStats({
         courseCount: data.courseCount,
@@ -409,6 +411,7 @@ export default function Page() {
 
   const handleLogout = async () => {
     setLogoutActive(false);
+    setIsLoggingOut(true);
     const response = await fetch("/api/auth/logout", {
       method: "POST",
     });
@@ -506,17 +509,27 @@ export default function Page() {
         </nav>
 
         <div className={`p-4 ${isSidebarOpen ? '' : 'px-2'}`}>
-          <button
-            onClick={handleLogout}
-            disabled={!logoutActive}
-            className={`flex items-center ${
-              isSidebarOpen ? 'justify-start px-4' : 'justify-center px-2'
-            } w-full py-3 text-white rounded-xl transition-colors bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg shadow-indigo-200`}
-            title={!isSidebarOpen ? 'Logout' : ''}
-          >
-            <LogOut className={`w-5 h-5 ${isSidebarOpen ? 'mr-3' : ''}`} />
-            {isSidebarOpen && <span className="font-medium">Logout</span>}
-          </button>
+        <button
+      onClick={handleLogout}
+      disabled={isLoggingOut}
+      className={`flex items-center ${
+        isSidebarOpen ? 'justify-start px-4' : 'justify-center px-2'
+      } w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg shadow-indigo-200 relative overflow-hidden ${
+        isLoggingOut ? 'cursor-not-allowed opacity-75' : 'hover:shadow-xl'
+      }`}
+      title={!isSidebarOpen ? 'Logout' : ''}
+    >
+      <div className={`flex items-center ${isLoggingOut ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>
+        <LogOut className={`w-5 h-5 ${isSidebarOpen ? 'mr-3' : ''}`} />
+        {isSidebarOpen && <span className="font-medium">Logout</span>}
+      </div>
+      
+      {isLoggingOut && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+    </button>
         </div>
       </div>
     </div>
