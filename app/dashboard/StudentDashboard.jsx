@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Logout from "@/public/assets/Logout.svg";
 import { useRouter } from "next/navigation";
@@ -7,15 +7,26 @@ import { Button } from "@/components/ui/button";
 import Emoji from "@/public/assets/Reaction.png";
 import { Bars, FallingLines, BallTriangle } from "react-loader-spinner";
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import {
+  Shield,
   Search,
   Mail,
   Phone,
@@ -29,13 +40,24 @@ import {
   Heart,
   Music,
   Camera,
-  BookOpen,X,
-  ChevronLeft, ChevronRight, LayoutDashboard, FileEdit, FileSearch, User, LogOut, History, UserCircle
+  BookOpen,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  LayoutDashboard,
+  FileEdit,
+  FileSearch,
+  User,
+  LogOut,
+  History,
+  UserCircle,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 
-
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
 async function getUser() {
@@ -55,11 +77,11 @@ async function getUser() {
   }
 }
 
-const LoadingSpinner = ({ type = 'bars', message = 'Loading...' }) => {
+const LoadingSpinner = ({ type = "bars", message = "Loading..." }) => {
   return (
     <div className="h-[calc(100vh-theme(spacing.16))] flex flex-col items-center justify-center">
       <div className="flex flex-col items-center space-y-4">
-        {type === 'bars' ? (
+        {type === "bars" ? (
           <Bars
             height="80"
             width="80"
@@ -87,10 +109,10 @@ const LoadingSpinner = ({ type = 'bars', message = 'Loading...' }) => {
   );
 };
 
-
 const DashboardContent = ({ userobj }) => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredCard, setHoveredCard] = useState(null);
 
   useEffect(() => {
     const fetchFeedbackTasks = async () => {
@@ -115,7 +137,9 @@ const DashboardContent = ({ userobj }) => {
   }, [userobj.username]);
 
   if (loading) {
-    return <LoadingSpinner message="Hold on tight, loading your dashboard..." />;
+    return (
+      <LoadingSpinner message="Hold on tight, loading your dashboard..." />
+    );
   }
 
   const handleFeedbackButton = async ({ _id, course_id, created_by }) => {
@@ -135,78 +159,120 @@ const DashboardContent = ({ userobj }) => {
     console.log(data.feedbackId);
 
     if (response.ok) {
-      window.open("http://localhost:3000/chat/" + data.feedbackId, "_blank");
+      window.open(
+        `${window.location.origin}/chat/` + data.feedbackId,
+        "_blank"
+      );
     } else {
       alert("Error opening feedback page. Please try again.");
     }
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-      <p>
-        Welcome to your dashboard! Here, you will see an overview of your
-        activities and updates.
-      </p>
-
-      <h3 className="text-xl font-semibold mt-6">Outstanding Feedbacks</h3>
-      {feedbackTasks.length > 0 ? (
-        <div className="mt-4 overflow-y-auto max-h-[30rem]">
-          <ul className="mt-4">
-            {feedbackTasks.map((task, index) => (
-              <li
-                key={index}
-                className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
-              >
-                <div className="flex items-center gap-4">
-                  <Image
-                    src={Emoji}
-                    alt="Emoji"
-                    width={100}
-                    height={100}
-                    className="mr-2"
-                  />
-                  <div>
-                    <h4 className="font-bold text-lg">{task.title}</h4>
-                    <p>Course ID: {task.course_id}</p>
-                    <p>Created by: {task.created_by}</p>
-                    {/* <p>Status: {task.active ? "Active" : "Inactive"}</p> */}
-                    <div
-                      className={`px-2 py-1 ${
-                        task.active ? "bg-green-500" : "bg-red-500"
-                      } text-white inline-block rounded-md mt-2`}
-                    >
-                      {task.active ? "Active" : "Closed"}
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  {task.active ? (
-                    <button
-                      onClick={() => {
-                        handleFeedbackButton({
-                          _id: task._id,
-                          course_id: task.course_id,
-                          created_by: task.created_by,
-                        });
-                      }}
-                      className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-                    >
-                      Complete feedback now
-                    </button>
-                  ) : (
-                    <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
-                      View feedback
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+    <div className="min-h-screen bg-gradient-to-br p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Dashboard
+          </h2>
+          <p className="mt-4 text-gray-600 text-lg">
+            Welcome to your dashboard! Here, you will see an overview of your
+            activities and updates.
+          </p>
         </div>
-      ) : (
-        <p>No outstanding feedback tasks available.</p>
-      )}
+
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-6">
+            Outstanding Feedbacks
+          </h3>
+
+          {feedbackTasks.length > 0 ? (
+            <div className="space-y-4 overflow-y-auto max-h-[30rem] pr-2">
+              {feedbackTasks.map((task, index) => (
+                <Card
+                  key={index}
+                  className={`transform transition-all duration-300 ease-in-out ${
+                    hoveredCard === index ? "scale-[1.02]" : ""
+                  }`}
+                  onMouseEnter={() => setHoveredCard(index)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-center gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xl font-bold text-gray-800">
+                            {task.title}
+                          </h4>
+                          {task.active ? (
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          ) : (
+                            <AlertCircle className="w-5 h-5 text-red-500" />
+                          )}
+                        </div>
+
+                        <div className="mt-2 space-y-1">
+                          <p className="text-gray-600">
+                            Course ID:{" "}
+                            <span className="font-semibold">
+                              {task.course_id}
+                            </span>
+                          </p>
+                          <p className="text-gray-600">
+                            Created by:{" "}
+                            <span className="font-semibold">
+                              {task.created_by}
+                            </span>
+                          </p>
+                        </div>
+
+                        <div className="mt-3">
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              task.active
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {task.active ? "Active" : "Closed"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (task.active) {
+                            handleFeedbackButton({
+                              _id: task._id,
+                              course_id: task.course_id,
+                              created_by: task.created_by,
+                            });
+                          }
+                        }}
+                        className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                          task.active
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl"
+                            : "bg-gray-100 text-gray-600 cursor-not-allowed"
+                        }`}
+                      >
+                        {task.active
+                          ? "Complete feedback now"
+                          : "View feedback"}
+                      </button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">
+                No outstanding feedback tasks available.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -217,6 +283,8 @@ const ProfileContent = ({ userobj }) => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [email, setEmail] = useState(userobj?.email);
+  const [hoveredCourse, setHoveredCourse] = useState(null);
+  const [passwordMatch, setPasswordMatch] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -225,9 +293,8 @@ const ProfileContent = ({ userobj }) => {
       );
       const courses_backend = await response.json();
       setCourses(courses_backend.student_courses);
-      console.log(courses_backend.student_courses);
     })();
-  }, []);
+  }, [userobj.username]);
 
   useEffect(() => {
     (async () => {
@@ -236,198 +303,230 @@ const ProfileContent = ({ userobj }) => {
       );
       const userdetails_backend = await response.json();
       setUserDetailsObj(userdetails_backend);
-      console.log(userdetails_backend.user_details);
       setLoading(false);
     })();
-  }, []);
+  }, [userobj.username]);
 
   const handlePasswordSubmit = async (event) => {
     event.preventDefault();
+    const newPassword = event.target.newPassword.value;
+    const confirmPassword = event.target.confirmPassword.value;
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMatch(false);
+      return;
+    }
+
+    setPasswordMatch(true);
     setIsEditing(false);
-    const password = event.target.password.value;
-    console.log("to be implemented later");
+    // API call would go here
   };
 
-if (loading) {
-  return <LoadingSpinner type="ballTriangle" message="Loading profile..." />;
-}
+  if (loading) {
+    return <LoadingSpinner message="loading your profile..." />;
+  }
+
   return (
+    <div className="min-h-screen  p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            My Profile
+          </h2>
           <Button
             variant="outline"
-            className="border-purple-200 hover:bg-purple-50 text-purple-700"
+            className="relative overflow-hidden group bg-white border-2 border-purple-500 hover:border-purple-600 text-purple-600 hover:text-purple-700 px-6 py-2 rounded-lg transition-all duration-300"
             onClick={() => setIsEditing(!isEditing)}
           >
-            {isEditing ? "Cancel" : "Edit Profile"}
+            <span className="relative z-10">
+              {isEditing ? "Cancel" : "Edit Profile"}
+            </span>
+            <div className="absolute inset-0 bg-purple-100 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
           </Button>
         </div>
 
-        <Card className="mb-6 p-6 shadow-lg border-purple-100">
-          {/* Student Header Section */}
-          <div className="relative mb-8 pb-6 border-b border-purple-100">
-            <div className="flex items-center gap-6">
-              <div className="relative">
-                <div className="w-24 h-24  rounded-xl flex items-center justify-center shadow-lg">
-                  <GraduationCap className="w-12 h-12 text-black" />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm text-purple-600 font-medium bg-purple-100 px-2 py-1 rounded">
-                    Student ID
-                  </span>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {userobj ? userobj.username : USERNAME}
-                  </h2>
-                </div>
-                <div className="flex items-center gap-4 text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <User className="w-4 h-4" />
-                    <span> {userDetailsObj.branch || "Dept"}</span>
+        <Card className="relative overflow-hidden bg-white rounded-2xl shadow-xl">
+          <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-purple-100 to-transparent opacity-50" />
+
+          <div className="relative p-8">
+            {/* Student Header Section */}
+            <div className="relative mb-8 pb-6 border-b border-purple-100">
+              <div className="flex items-center gap-6">
+                <div className="relative group">
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform duration-300">
+                    <GraduationCap className="w-12 h-12 text-white" />
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      Year {userDetailsObj.year || "Year"} • Semester{" "}
-                      {userDetailsObj.semester || "Sem"}
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="px-3 py-1 text-sm font-medium text-purple-700 bg-purple-100 rounded-full">
+                      Student ID
                     </span>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {userobj?.username}
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-6 text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-purple-500" />
+                      <span>{userDetailsObj.branch || "Dept"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-purple-500" />
+                      <span>
+                        Year {userDetailsObj.year || "Year"} • Semester{" "}
+                        {userDetailsObj.semester || "Sem"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Course Details Section */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800">
-              <BookOpen className="w-5 h-5 text-purple-600" />
-              Current Courses
-            </h3>
-            <div className="flex gap-3">
-              {courses && courses.length > 0 ? (
-                courses.map((course) => (
-                  <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                  <span className="text-sm font-semibold text-blue-700">{course}</span>
-                  {/* <p className="text-xs text-blue-600 mt-1">Information Technology</p> */}
-                </div>
-  
-                ))
-              ) : (
-                <div>No courses found</div>
-              )}
+            {/* Course Details Section */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800">
+                <BookOpen className="w-5 h-5 text-purple-600" />
+                Current Courses
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {courses && courses.length > 0 ? (
+                  courses.map((course, index) => (
+                    <div
+                      key={index}
+                      className={`px-4 py-3 rounded-lg transform transition-all duration-300 cursor-pointer ${
+                        hoveredCourse === index
+                          ? "scale-105 bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                          : "bg-gradient-to-r from-purple-50 to-blue-50 text-gray-800"
+                      }`}
+                      onMouseEnter={() => setHoveredCourse(index)}
+                      onMouseLeave={() => setHoveredCourse(null)}
+                    >
+                      <span className="text-sm font-semibold">{course}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-500">No courses found</div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {isEditing ? (
-            <form
-              onSubmit={handlePasswordSubmit}
-              className="grid grid-cols-1 md:grid-cols-2 gap-8"
-            >
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Personal Details
-                </h3>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Email Address
-                  </label>
-                  <div className="mt-1 relative">
-                    <Input
-                      type="email"
-                      value={userDetailsObj.email || "Email_"}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
-                    />
-                    <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+            {isEditing ? (
+              <form onSubmit={handlePasswordSubmit} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-purple-600" />
+                      Personal Details
+                    </h3>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-600">
+                        Email Address
+                      </label>
+                      <Input
+                        type="email"
+                        value={userDetailsObj.email || "Email_"}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-purple-600" />
+                      Security
+                    </h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">
+                          Current Password
+                        </label>
+                        <Input
+                          type="password"
+                          name="currentPassword"
+                          required
+                          className="mt-1 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">
+                          New Password
+                        </label>
+                        <Input
+                          type="password"
+                          name="newPassword"
+                          required
+                          className="mt-1 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">
+                          Confirm Password
+                        </label>
+                        <Input
+                          type="password"
+                          name="confirmPassword"
+                          required
+                          className="mt-1 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Security
-                </h3>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Current Password *
-                  </label>
-                  <Input
-                    type="password"
-                    required
-                    className="mt-1"
-                    placeholder="Enter current password"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    New Password *
-                  </label>
-                  <Input
-                    type="password"
-                    required
-                    className="mt-1"
-                    placeholder="Enter new password"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Confirm Password *
-                  </label>
-                  <Input
-                    type="password"
-                    required
-                    className="mt-1"
-                    placeholder="Confirm new password"
-                  />
-                </div>
+                {!passwordMatch && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      Passwords do not match. Please try again.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <Button
                   type="submit"
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white mt-4"
-
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl text-white transform hover:scale-[1.02] transition-all duration-300"
                 >
                   Save Changes
                 </Button>
+              </form>
+            ) : (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
+                  <Mail className="w-5 h-5 text-purple-600" />
+                  Contact Information
+                </h3>
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-600">
+                    Email Address
+                  </label>
+                  <p className="text-gray-800 font-medium mt-1">{email}</p>
+                </div>
               </div>
-            </form>
-          ) : (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
-                <Mail className="w-5 h-5 text-purple-600" />
-                Contact Information
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                <label className="text-sm font-medium text-gray-600">
-                  Email Address
-                </label>
-                <p className="text-gray-800 font-medium mt-1">{email}</p>
-              </div>
-            </div>
-          )}
+            )}
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-black-100">
-            <p className="text-sm text-red-700">
-              <span className="font-medium">Note:</span> Please contact your
-              department admin for any queries related to your details
-            </p>
+            <Alert className="mt-6 border-l-4 border-red-500 bg-red-50">
+              <AlertDescription className="text-sm text-red-700">
+                <span className="font-medium">Note:</span> Please contact your
+                department admin for any queries related to your details
+              </AlertDescription>
+            </Alert>
           </div>
         </Card>
       </div>
-    
+    </div>
   );
 };
-
 const FeedbackHistoryContent = (userobj) => {
   const [feedbackHistory, setFeedbackHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState({ from: null, to: null });
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterType, setFilterType] = useState('range');
+  const [filterType, setFilterType] = useState("range");
   const [selectedDate, setSelectedDate] = useState(null);
   const itemsPerPage = 6;
-
 
   const fetchFeedbackHistory = async () => {
     console.log("called");
@@ -455,26 +554,27 @@ const FeedbackHistoryContent = (userobj) => {
     fetchFeedbackHistory();
   }, []);
 
- 
   const clearDateFilters = () => {
     setDateRange({ from: null, to: null });
     setSelectedDate(null);
   };
 
-  const filteredFeedback = feedbackHistory.filter(item => {
-    const matchesSearch = item.task_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.for_course.toLowerCase().includes(searchQuery.toLowerCase());
-    
+  const filteredFeedback = feedbackHistory.filter((item) => {
+    const matchesSearch =
+      item.task_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.for_course.toLowerCase().includes(searchQuery.toLowerCase());
+
     const itemDate = new Date(item.completedAt);
-    
+
     let matchesDate = true;
-    if (filterType === 'range' && (dateRange.from || dateRange.to)) {
-      matchesDate = (!dateRange.from || itemDate >= dateRange.from) &&
-                   (!dateRange.to || itemDate <= dateRange.to);
-    } else if (filterType === 'single' && selectedDate) {
+    if (filterType === "range" && (dateRange.from || dateRange.to)) {
+      matchesDate =
+        (!dateRange.from || itemDate >= dateRange.from) &&
+        (!dateRange.to || itemDate <= dateRange.to);
+    } else if (filterType === "single" && selectedDate) {
       matchesDate = itemDate.toDateString() === selectedDate.toDateString();
     }
-    
+
     return matchesSearch && matchesDate;
   });
 
@@ -484,211 +584,213 @@ const FeedbackHistoryContent = (userobj) => {
     currentPage * itemsPerPage
   );
 
-
   if (loading) {
-    return <LoadingSpinner message="Hold on tight, loading your dashboard..." />;
+    return (
+      <LoadingSpinner message="Hold on tight, loading your dashboard..." />
+    );
   }
 
   return (
-  //   <div>
-  //     <h2 className="text-2xl font-bold mb-4">Feedback History</h2>
-  //     <p>
-  //       View all your past feedback and comments here. You can also track your
-  //       feedback progress.
-  //     </p>
+    <div className="min-h-screen w-full px-4 py-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Feedback History
+        </h1>
+        <p className="text-gray-600 mb-8 text-lg">
+          View all your past feedback and track your progress over time
+        </p>
 
-  //     {feedbackHistory && feedbackHistory.length > 0 ? (
-  //       <div className="mt-4 overflow-y-auto max-h-[30rem]">
-  //         <ul className="mt-4">
-  //           {feedbackHistory.map((task, index) => (
-  //             <li
-  //               key={index}
-  //               className="mb-4 p-4 border rounded-lg shadow-lg flex justify-between items-center"
-  //             >
-  //               <div className="flex items-center gap-4">
-  //                 <Image
-  //                   src={Emoji}
-  //                   alt="Emoji"
-  //                   width={100}
-  //                   height={100}
-  //                   className="mr-2"
-  //                 />
-  //                 <div>
-  //                   <h4 className="font-bold text-lg">{task.task_title}</h4>
-  //                   <p>Course ID: {task.for_course}</p>
-  //                   <p>Created by: {task.faculty}</p>
-  //                   <p>
-  //                     Completed At:{" "}
-  //                     {new Date(task.completedAt).toLocaleString()}
-  //                   </p>
-  //                   <div
-  //                     className={`px-2 py-1 ${
-  //                       task.active ? "bg-green-500" : "bg-red-500"
-  //                     } text-white inline-block rounded-md mt-2`}
-  //                   >
-  //                     {task.completed ? "Completed" : "Error"}
-  //                   </div>
-  //                 </div>
-  //               </div>
-  //             </li>
-  //           ))}
-  //         </ul>
-  //       </div>
-  //     ) : (
-  //       <div className="w-full flex flex-col min-h-[500px] justify-center items-center gap-2">
-  //         <Image
-  //           src={FeedbackHistory}
-  //           alt="Feedback History"
-  //           width={200}
-  //           height={200}
-  //           className=""
-  //         />
-  //         <p>No feedback history available</p>
-  //       </div>
-  //     )}
-  //   </div>
-  // );
-
-  <div className="w-full px-4 py-6">
-      <h1 className="text-2xl font-bold mb-2">Feedback History</h1>
-      <p className="text-gray-600 mb-6">View all your past feedback and comments here. You can also track your feedback progress.</p>
-      
-      <Card className="w-full p-4">
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex justify-between items-center">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <Input
-                placeholder="Search feedbacks"
-                className="pl-10 pr-4 py-2 w-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <Select value={filterType} onValueChange={value => {
-                setFilterType(value);
-                clearDateFilters();
-              }}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select date filter type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="single">Single Date</SelectItem>
-                  <SelectItem value="range">Date Range</SelectItem>
-                </SelectContent>
-              </Select>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Calendar size={20} />
-                    {filterType === 'range' ? 
-                      (dateRange.from ? dateRange.from.toLocaleDateString() : 'Select date range') :
-                      (selectedDate ? selectedDate.toLocaleDateString() : 'Select date')}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <CalendarComponent
-                    mode={filterType === 'range' ? "range" : "single"}
-                    selected={filterType === 'range' ? dateRange : selectedDate}
-                    onSelect={filterType === 'range' ? 
-                      (range) => setDateRange(range || { from: null, to: null }) :
-                      (date) => setSelectedDate(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              {(dateRange.from || selectedDate) && (
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={clearDateFilters}
-                  className="h-9 w-9"
+        <Card className="w-full p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
+              <div className="relative flex-1 max-w-md w-full">
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <Input
+                  placeholder="Search feedbacks or courses..."
+                  className="pl-10 pr-4 py-2 w-full border-2 focus:ring-2 focus:ring-blue-500 transition-all"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-4 w-full md:w-auto">
+                <Select
+                  value={filterType}
+                  onValueChange={(value) => {
+                    setFilterType(value);
+                    clearDateFilters();
+                  }}
                 >
-                  <X size={20} />
-                </Button>
-              )}
+                  <SelectTrigger className="w-[180px] border-2 hover:border-blue-400 transition-colors">
+                    <SelectValue placeholder="Filter by date" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single">Single Date</SelectItem>
+                    <SelectItem value="range">Date Range</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 border-2 hover:border-blue-400 hover:bg-blue-50 transition-all"
+                    >
+                      <Calendar size={20} className="text-blue-600" />
+                      {filterType === "range"
+                        ? dateRange.from
+                          ? dateRange.from.toLocaleDateString()
+                          : "Select dates"
+                        : selectedDate
+                        ? selectedDate.toLocaleDateString()
+                        : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <CalendarComponent
+                      mode={filterType === "range" ? "range" : "single"}
+                      selected={
+                        filterType === "range" ? dateRange : selectedDate
+                      }
+                      onSelect={
+                        filterType === "range"
+                          ? (range) =>
+                              setDateRange(range || { from: null, to: null })
+                          : (date) => setSelectedDate(date)
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                {(dateRange.from || selectedDate) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearDateFilters}
+                    className="h-9 w-9 hover:bg-red-50 hover:text-red-500 transition-colors"
+                  >
+                    <X size={20} />
+                  </Button>
+                )}
+              </div>
             </div>
+            {(dateRange.from || selectedDate) && (
+              <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded-md inline-flex items-center">
+                <Calendar size={16} className="mr-2" />
+                {filterType === "range"
+                  ? `Showing results from ${dateRange.from?.toLocaleDateString()} to ${
+                      dateRange.to?.toLocaleDateString() || "present"
+                    }`
+                  : `Showing results for ${selectedDate.toLocaleDateString()}`}
+              </div>
+            )}
           </div>
-          {(dateRange.from || selectedDate) && (
-            <div className="text-sm text-gray-500">
-              {filterType === 'range' ? 
-                `Showing results from ${dateRange.from?.toLocaleDateString()} to ${dateRange.to?.toLocaleDateString() || 'present'}` :
-                `Showing results for ${selectedDate.toLocaleDateString()}`}
-            </div>
-          )}
-        </div>
 
-        <div className="space-y-4">
-          {paginatedFeedback.length > 0 ? (
-            paginatedFeedback.map((item, index) => (
-              <div key={index} className="flex items-start gap-4 p-6 border rounded-lg bg-white shadow-sm">
-                <div className="w-12 h-12 flex-shrink-0">
-                  <img src={feedbackHistory} alt="Feedback" className="w-full h-full" />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="text-xl font-semibold mb-1">{item.task_title}</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                    {/* console.log(item); */}
-                    <div>
-                      <p>Course ID: {item.for_course}</p>
-                      <p>Created by: {item.faculty}</p>
-                    </div>
-                    <div>
-                      <p>Completed At: {new Date(item.completedAt).toLocaleString()}</p>
-                      <div className="mt-2">
-                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                          {item.completed ? 'Completed' : 'Processing'}
-                        </span>
+          <div className="space-y-4">
+            {paginatedFeedback.length > 0 ? (
+              paginatedFeedback.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-4 p-6 rounded-xl bg-gradient-to-r from-white to-blue-50 border border-blue-100 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  <div className="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+                    {item.task_title.charAt(0)}
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                      {item.task_title}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="space-y-2">
+                        <p className="text-gray-600">
+                          <span className="font-medium text-gray-700">
+                            Course ID:
+                          </span>{" "}
+                          {item.for_course}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium text-gray-700">
+                            Created by:
+                          </span>{" "}
+                          {item.faculty}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-gray-600">
+                          <span className="font-medium text-gray-700">
+                            Completed:
+                          </span>{" "}
+                          {new Date(item.completedAt).toLocaleString()}
+                        </p>
+                        <div className="mt-2">
+                          <span className="px-4 py-1 bg-gradient-to-r from-green-100 to-green-200 text-green-800 rounded-full text-sm font-medium">
+                            {item.completed ? "Completed" : "Processing"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <div className="text-gray-500 space-y-2">
+                  <Search size={48} className="mx-auto text-gray-400" />
+                  <p className="text-lg">
+                    No feedback found for the selected filters
+                  </p>
+                  <p className="text-sm">
+                    Try adjusting your search or date filters
+                  </p>
+                </div>
               </div>
-            ))
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No feedback found for the selected filters
+            )}
+          </div>
+
+          {paginatedFeedback.length > 0 && (
+            <div className="flex items-center justify-between mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="border-2 hover:border-blue-400 hover:bg-blue-50 transition-all disabled:opacity-50"
+              >
+                Previous
+              </Button>
+              <div className="flex gap-2">
+                {[...Array(totalPages)].map((_, i) => (
+                  <Button
+                    key={i}
+                    variant={currentPage === i + 1 ? "default" : "outline"}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`w-8 h-8 p-0 border-2 ${
+                      currentPage === i + 1
+                        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                        : "hover:border-blue-400 hover:bg-blue-50"
+                    } transition-all`}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="border-2 hover:border-blue-400 hover:bg-blue-50 transition-all disabled:opacity-50"
+              >
+                Next
+              </Button>
             </div>
           )}
-        </div>
-
-        {paginatedFeedback.length > 0 && (
-          <div className="flex items-center justify-between mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <div className="flex gap-2">
-              {[...Array(totalPages)].map((_, i) => (
-                <Button
-                  key={i}
-                  variant={currentPage === i + 1 ? "default" : "outline"}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className="w-8 h-8 p-0"
-                >
-                  {i + 1}
-                </Button>
-              ))}
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        )}
-      </Card>
+        </Card>
+      </div>
     </div>
-  )
+  );
 };
-
-
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -696,16 +798,18 @@ const StudentDashboard = () => {
   const router = useRouter();
   const [logoutActive, setLogoutActive] = useState(true);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
-  
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   useEffect(() => {
     (async () => {
       const { user, error } = await getUser();
       user ? setUserObj(user.user) : router.push("/login");
     })();
   }, []);
-  
+
   async function handleLogout() {
     setLogoutActive(false);
+    setIsLoggingOut(true);
     const response = await fetch("/api/auth/logout", {
       method: "POST",
     });
@@ -715,25 +819,25 @@ const StudentDashboard = () => {
       console.error("Failed to logout");
     }
   }
-  
+
   const tabs = [
     {
       name: "Dashboard",
       component: <DashboardContent userobj={userobj} />,
       icon: LayoutDashboard,
-      active: activeTab === "Dashboard"
+      active: activeTab === "Dashboard",
     },
     {
       name: "Profile",
       component: <ProfileContent userobj={userobj} />,
       icon: UserCircle,
-      active: activeTab === "Profile"
+      active: activeTab === "Profile",
     },
     {
       name: "Feedback History",
       component: <FeedbackHistoryContent userobj={userobj} />,
       icon: History,
-      active: activeTab === "Feedback History"
+      active: activeTab === "Feedback History",
     },
   ];
 
@@ -790,7 +894,6 @@ const StudentDashboard = () => {
         </div>
 
         <div className="flex flex-col items-center px-3 mt-4">
-         
           <AnimatePresence>
             {isMenuExpanded && (
               <motion.div
@@ -802,9 +905,7 @@ const StudentDashboard = () => {
                 <h3 className="font-semibold">
                   {userobj?.username || "Student"}
                 </h3>
-                <h3 className="font-semibold">
-                  {userobj?.email || "Student"}
-                </h3>
+                <h3 className="font-semibold">{userobj?.email || "Student"}</h3>
                 <p className="text-sm text-gray-500">Student</p>
               </motion.div>
             )}
@@ -849,22 +950,34 @@ const StudentDashboard = () => {
         </nav>
 
         <div className="absolute bottom-0 w-full p-4">
-          <Button
+          <button
             onClick={handleLogout}
-            disabled={!logoutActive}
-            className="w-full"
-            variant="destructive"
+            disabled={isLoggingOut}
+            className={`flex items-center justify-center w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-200 relative overflow-hidden ${
+              isLoggingOut ? "cursor-not-allowed opacity-75" : "hover:shadow-xl"
+            }`}
+            title={!isMenuExpanded ? "Logout" : ""}
           >
-            <LogOut className="mr-2" size={18} />
-            {isMenuExpanded && "Logout"}
-          </Button>
+            <div
+              className={`flex items-center justify-center gap-3 ${
+                isLoggingOut ? "opacity-0" : "opacity-100"
+              } transition-opacity duration-200`}
+            >
+              <LogOut className="w-5 h-5" />
+              {isMenuExpanded && <span className="font-medium">Logout</span>}
+            </div>
+
+            {isLoggingOut && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+          </button>
         </div>
       </motion.div>
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-        
-
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

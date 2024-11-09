@@ -263,7 +263,7 @@ const StudentContent = () => {
               className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 py-2 transition-all duration-200 transform hover:scale-105"
               onClick={() =>
                 window.open(
-                  "http://localhost:3000/admin/add/students",
+                  `${window.location.origin}/admin/add/students`,
                   "_blank"
                 )
               }

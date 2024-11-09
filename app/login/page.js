@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// import Image from 'next/image';
-
-
+import { Loader2 } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,20 +10,20 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingState, setLoadingState] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
   const router = useRouter();
 
-  // const handleChange = (e) => {
-  //   const { name, value, type, checked } = e.target;
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     [name]: type === 'checkbox' ? checked : value
-  //   }));
-  //   setEmail()
-  // };
+  useEffect(() => {
+    return () => {
+      setIsLoading(false);
+      setLoadingState('idle');
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoadingState('loading');
     setError('');
 
     try {
@@ -40,18 +38,23 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        if (data.user.role === 'student' || data.user.role === 'faculty') {
-          router.push('/dashboard');
-      }  else {
-        router.push('/admin');
+        setLoadingState('success');
+        // Add a small delay to show the success state
+        setTimeout(() => {
+          if (data.user.role === 'student' || data.user.role === 'faculty') {
+            router.push('/dashboard');
+          } else {
+            router.push('/admin');
+          }
+        }, 1000);
+      } else {
+        setLoadingState('error');
+        setError(data.message);
+        setIsLoading(false);
       }
-    }
-    else {
-      setError(data.message);
-    }
-  }catch (err) {
+    } catch (err) {
+      setLoadingState('error');
       setError('An unexpected error occurred. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -60,11 +63,49 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const inputClasses = "w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c89ff] bg-gray-50/50";
+  const inputClasses = "w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c89ff] bg-gray-50/50 disabled:opacity-50 disabled:cursor-not-allowed";
+
+  const getButtonContent = () => {
+    switch (loadingState) {
+      case 'loading':
+        return (
+          <div className="flex items-center justify-center space-x-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Signing in...</span>
+          </div>
+        );
+      case 'success':
+        return (
+          <div className="flex items-center justify-center space-x-2">
+            <svg className="w-5 h-5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Success!</span>
+          </div>
+        );
+      default:
+        return 'Log in';
+    }
+  };
+
+  const getButtonClasses = () => {
+    const baseClasses = "w-full py-3 rounded-2xl font-medium transition-all duration-200 flex items-center justify-center";
+    
+    switch (loadingState) {
+      case 'loading':
+        return `${baseClasses} bg-[#9c89ff]/80 text-white cursor-not-allowed`;
+      case 'success':
+        return `${baseClasses} bg-green-500 text-white`;
+      case 'error':
+        return `${baseClasses} bg-[#9c89ff] text-gray-800 hover:bg-[#7b61ff]`;
+      default:
+        return `${baseClasses} bg-[#9c89ff] text-gray-800 hover:bg-[#7b61ff]`;
+    }
+  };
 
   return (
     <div className="h-screen bg-[#ddd8ff] p-6 flex items-center justify-center">
-      <div className="w-full h-[500px] max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden flex ">
+      <div className="w-full h-[500px] max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden flex">
         {/* Left (Form) section */}
         <div className="w-full md:w-1/2 p-8 max-w-md rounded-3xl overflow-hidden">
           <div className="mb-8">
@@ -80,10 +121,10 @@ export default function Login() {
                 type="email"
                 name="email"
                 value={email}
-                // onChange={handleChange}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
                 required
+                disabled={isLoading}
                 className={inputClasses}
               />
             </div>
@@ -93,16 +134,17 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={password}
-                // onChange={handleChange}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 required
+                disabled={isLoading}
                 className={inputClasses}
               />
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-3 top-2.5 text-gray-500"
+                disabled={isLoading}
+                className="absolute right-3 top-2.5 text-gray-500 disabled:opacity-50"
               >
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -118,7 +160,7 @@ export default function Login() {
             </div>
 
             {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg animate-shake">
                 {error}
               </div>
             )}
@@ -128,8 +170,7 @@ export default function Login() {
                 type="checkbox"
                 id="terms"
                 name="rememberMe"
-                // checked={formData.rememberMe}
-                // onChange={handleChange}
+                disabled={isLoading}
                 className="rounded text-purple-600 focus:ring-purple-500 mr-2"
               />
               <label htmlFor="terms" className="text-sm text-gray-600">
@@ -140,9 +181,9 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#9c89ff] text-gray-800 py-3 rounded-2xl font-medium hover:bg-[#7b61ff] transition-colors disabled:opacity-50"
+              className={getButtonClasses()}
             >
-              {isLoading ? "Logging in..." : "Log in"}
+              {getButtonContent()}
             </button>
 
             <div className="text-center text-sm">
@@ -155,16 +196,7 @@ export default function Login() {
         </div>
 
         {/* Right (Gradient) section */}
-        <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-[#9c89ff] to-[#ddd8ff] p-8 relative">
-          {/* <Image
-            src="/assets/LoginIcon.png"
-            alt="Login Icon"
-            width={200}
-            height={200}
-            priority
-            className="object-contain"
-          /> */}
-        </div>
+        <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-[#9c89ff] to-[#ddd8ff] p-8 relative" />
       </div>
     </div>
   );

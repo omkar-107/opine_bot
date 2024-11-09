@@ -405,7 +405,7 @@ const CourseContent = () => {
                   className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 gap-2"
                   onClick={() => {
                     window.open(
-                      "http://localhost:3000/admin/courses/assign",
+                      `${window.location.origin}/admin/courses/assign`,
                       "_blank"
                     );
                   }}
