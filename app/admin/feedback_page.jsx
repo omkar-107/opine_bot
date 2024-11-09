@@ -1,3 +1,4 @@
+"use client"
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
