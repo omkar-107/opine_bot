@@ -47,6 +47,7 @@ ChartJS.register(
 );
 
 
+
 // Define interfaces for the dashboard data structure
 interface DashboardData {
   studentDistribution: {
