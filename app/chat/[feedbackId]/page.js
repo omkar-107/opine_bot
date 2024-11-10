@@ -6,6 +6,7 @@ import { Mic, Square, ChevronDown, Send, Clock } from "lucide-react";
 import { InfinitySpin } from "react-loader-spinner";
 import { useParams } from "next/navigation";
 import { set } from "mongoose";
+import { useRouter } from "next/navigation";
 
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
 
@@ -85,6 +86,7 @@ export default function ChatbotUI() {
   const { feedbackId } = useParams();
   const [feedbackDetails, setFeedbackDetails] = useState({});
   const [pageLoading, setPageLoading] = useState(true);
+  const router = useRouter();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -337,6 +339,7 @@ export default function ChatbotUI() {
       throw error;
     } finally {
       setIsLoading(false);
+      router.push("/dashboard");
     }
   };
 
