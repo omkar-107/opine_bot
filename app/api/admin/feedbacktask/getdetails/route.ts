@@ -22,8 +22,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }).select("email username branch year semester");
     console.log("enrolledStudents", enrolledStudents);
 
-    // Step 2: Get list of students who have given feedback for the specified task
-    const feedbackGiven = await Feedback.find({ for_task: feedbacktaskId })
+    // Step 2: Get list of students who have given feedback for the specified task and completed it
+    const feedbackGiven = await Feedback.find({
+      for_task: feedbacktaskId,
+      completed: true,
+    })
       .select("given_by")
       .lean();
 
