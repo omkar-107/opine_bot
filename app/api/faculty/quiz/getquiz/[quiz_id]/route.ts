@@ -1,7 +1,7 @@
 import connectToDatabase from "@/utils/db";
 import Quiz from "@/models/Quiz";
 import { NextRequest, NextResponse } from "next/server";
-import { authorizeUsername } from "@/utils/auth";
+import { authorizeFaculty } from "@/utils/auth";
 import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
@@ -14,15 +14,6 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  //   // Authenticate faculty
-  //   const isAuthorized = await authorizeUsername(
-  //     req.cookies.get("auth")?.value,
-  //     quiz_id
-  //   );
-  //   if (!isAuthorized) {
-  //     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  //   }
-
   // Connect to database
   await connectToDatabase();
 
@@ -31,6 +22,18 @@ export async function GET(req: NextRequest) {
 
     if (!quiz) {
       return NextResponse.json({ message: "Quiz not found" }, { status: 404 });
+    }
+
+    const isAuthorized = await authorizeFaculty(
+      req.cookies.get("auth")?.value,
+      quiz.created_by
+    );
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { message: "Unauthorized Quiz Access" },
+        { status: 401 }
+      );
     }
 
     return NextResponse.json(quiz, { status: 200 });

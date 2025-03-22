@@ -3,7 +3,7 @@
 import connectToDatabase from "@/utils/db";
 import Faculty from "@/models/Faculty";
 import { NextRequest, NextResponse } from "next/server";
-import {authorizeUsername} from "@/utils/auth";
+import { authorizeUsername } from "@/utils/auth";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const username = req.nextUrl.pathname.split("/").pop();
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       {
         $project: {
           name: 1,
-          courseDetails: { id_: 1, title: 1 }, // Only keep the title from the matched courses
+          courseDetails: { id_: 1, title: 1, _id: 1 }, // Only keep the title from the matched courses
         },
       },
     ]);

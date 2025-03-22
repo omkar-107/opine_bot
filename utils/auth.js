@@ -2,6 +2,7 @@ import connectToDatabase from "./db";
 import { verify } from "jsonwebtoken";
 import FeedbackTask from "@/models/FeedbackTask";
 import Feedback from "@/models/Feedback";
+import Faculty from "@/models/Faculty";
 
 export const authorizeUsername = async (token, username) => {
     let user = verify(token, process.env.AUTH_SECRET);
@@ -52,5 +53,24 @@ export const authorizeTaskId = async (token, taskId) => {
     if (feedbackTaskObj.created_by !== user.user.username) {
         return false;
     }
+    return true;
+}
+
+export const authorizeFaculty = async (token, created_by) => {
+    let user = verify(token, process.env.AUTH_SECRET);
+    console.log('user is ', user);
+
+    const faculty = await Faculty.findOne({
+        _id: created_by
+    });
+
+    if (!faculty) {
+        return false;
+    }
+
+    if (faculty.username !== user.user.username) {
+        return false;
+    }
+
     return true;
 }
