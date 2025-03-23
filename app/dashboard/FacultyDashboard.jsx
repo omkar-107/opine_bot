@@ -20,6 +20,7 @@ import {
   UserCircle2,
   LogOut,
   Bell,
+  Menu,X,
   Settings,
   ClipboardList,
   ChevronRight,
@@ -34,7 +35,7 @@ import {
   AlertCircle,
   Clock,
   Trash2,
-  X,
+  
   Search,
   XCircle,
   Filter,
@@ -118,24 +119,24 @@ const DashboardContent = ({ userobj, loadingParent }) => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8 shadow-sm">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+    <div className="p-3 sm:p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8 shadow-sm">
+        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
           Welcome to your Dashboard
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-sm sm:text-base text-gray-600">
           Here's an overview of your activities and updates
         </p>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
-          <Users className="w-6 h-6 text-blue-500" />
+      <div className="mb-6 md:mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 md:mb-6 flex items-center gap-2">
+          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
           Feedback Tasks
         </h2>
 
         {feedbackTasks.length > 0 ? (
-          <div className="space-y-4 overflow-y-auto max-h-[600px] pr-2">
+          <div className="space-y-3 sm:space-y-4 overflow-y-auto max-h-[500px] md:max-h-[600px] pr-1 sm:pr-2">
             {feedbackTasks.map((task, index) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -144,31 +145,27 @@ const DashboardContent = ({ userobj, loadingParent }) => {
                 key={index}
               >
                 <Card className="hover:shadow-lg transition-shadow duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-4">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                      <div className="space-y-3 sm:space-y-4 w-full sm:w-auto">
                         <div>
-                          <h3 className="text-xl font-semibold text-gray-800">
+                          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 pr-2">
                             {task.title}
                           </h3>
-                          <div className="mt-2 space-y-2">
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Book className="w-4 h-4" />
-                              <span>Course ID: {task.course_id}</span>
+                          <div className="mt-2 space-y-1 sm:space-y-2">
+                            <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
+                              <Book className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">Course ID: {task.course_id}</span>
                             </div>
-                            {/* <div className="flex items-center gap-2 text-gray-600">
-                              <Book className="w-4 h-4" />
-                              <span>Course ID: {task.course_id}</span>
-                            </div> */}
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Calendar className="w-4 h-4" />
-                              <span>Created by: {task.created_by}</span>
+                            <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
+                              <Calendar className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">Created by: {task.created_by}</span>
                             </div>
                           </div>
                         </div>
                         <Badge
                           variant={task.active ? "success" : "destructive"}
-                          className={`px-3 py-1 ${
+                          className={`px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm ${
                             task.active
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
@@ -185,10 +182,10 @@ const DashboardContent = ({ userobj, loadingParent }) => {
                             "_blank"
                           )
                         }
-                        className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-2 rounded-lg transition-all duration-300 flex items-center gap-2"
+                        className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-3 sm:px-6 py-1.5 sm:py-2 rounded-lg transition-all duration-300 flex items-center gap-1 sm:gap-2 text-sm sm:text-base w-full sm:w-auto mt-3 sm:mt-0 justify-center sm:justify-start"
                       >
                         View Feedback
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </CardContent>
@@ -198,8 +195,8 @@ const DashboardContent = ({ userobj, loadingParent }) => {
           </div>
         ) : (
           <Card className="bg-gray-50">
-            <CardContent className="p-12 text-center text-gray-500">
-              <p>No outstanding feedback tasks available at the moment.</p>
+            <CardContent className="p-6 sm:p-12 text-center text-gray-500">
+              <p className="text-sm sm:text-base">No outstanding feedback tasks available at the moment.</p>
             </CardContent>
           </Card>
         )}
@@ -207,6 +204,7 @@ const DashboardContent = ({ userobj, loadingParent }) => {
     </div>
   );
 };
+
 
 const NewFeedbackContent = ({ userobj }) => {
   const [title, setTitle] = useState("");
@@ -274,29 +272,30 @@ const NewFeedbackContent = ({ userobj }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-3 sm:p-4 md:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="w-full"
       >
-        <Card className="max-w-2xl mx-auto shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardContent className="p-8">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
-                <PlusCircle className="w-6 h-6" />
+        <Card className="w-full max-w-2xl mx-auto shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <div className="mb-4 sm:mb-6 md:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
+                <PlusCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                 Create New Feedback Task
               </h2>
-              <p className="text-gray-500 mt-2">
+              <p className="text-sm sm:text-base text-gray-500 mt-1 sm:mt-2">
                 Fill in the details below to create a new feedback task
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="space-y-1 sm:space-y-2">
                 <Label
                   htmlFor="title"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-xs sm:text-sm font-medium text-gray-700"
                 >
                   Title
                 </Label>
@@ -306,14 +305,14 @@ const NewFeedbackContent = ({ userobj }) => {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                   placeholder="Enter feedback title"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                  className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 <Label
                   htmlFor="courseId"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-xs sm:text-sm font-medium text-gray-700"
                 >
                   Course
                 </Label>
@@ -322,7 +321,7 @@ const NewFeedbackContent = ({ userobj }) => {
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
                   required
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                  className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
                 >
                   <option value="" disabled>
                     Select a course
@@ -335,32 +334,32 @@ const NewFeedbackContent = ({ userobj }) => {
                 </select>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg flex items-center gap-3">
-                <User className="w-5 h-5 text-blue-500" />
+              <div className="bg-blue-50 p-3 sm:p-4 rounded-lg flex items-center gap-2 sm:gap-3">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                 <div>
-                  <p className="text-sm text-gray-600">Faculty</p>
-                  <p className="font-medium text-gray-900">
+                  <p className="text-xs sm:text-sm text-gray-600">Faculty</p>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     {userobj.username}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="active"
                     checked={active}
                     onCheckedChange={(checked) => setActive(checked)}
-                    className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                    className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 rounded focus:ring-blue-500"
                   />
                   <Label
                     htmlFor="active"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-xs sm:text-sm font-medium text-gray-700"
                   >
                     Active Status
                   </Label>
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500 ml-6 sm:ml-0">
                   {active
                     ? "Task will be visible to students"
                     : "Task will be hidden from students"}
@@ -370,18 +369,18 @@ const NewFeedbackContent = ({ userobj }) => {
               <Button
                 type="submit"
                 disabled={loading || !title || !courseId}
-                className={`w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`w-full py-2 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 {loading ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Creating...
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="w-5 h-5" />
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                     Create Feedback Task
                   </>
                 )}
@@ -393,6 +392,7 @@ const NewFeedbackContent = ({ userobj }) => {
     </div>
   );
 };
+
 
 const FeedbackDashboardContent = () => {
   return (
@@ -1600,38 +1600,21 @@ const ProfileContent = ({ userobj }) => {
     return <LoadingSpinner message="Loading profile..." />;
   }
 
-  // if (loading) {
-  //   return (
-  //     <div className="w-full h-full flex flex-col items-center justify-center gap-4">
-  //       <BallTriangle
-  //         height={100}
-  //         width={100}
-  //         radius={5}
-  //         color="#7b61ff"
-  //         ariaLabel="ball-triangle-loading"
-  //         wrapperStyle={{}}
-  //         wrapperClass=""
-  //         visible={true}
-  //       />
-  //       <p>Loading profile...</p>
-  //     </div>
-  //   );
-  // }
-
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
+    <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6 p-2 sm:p-4">
       {/* Profile Card */}
       <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-white">
-        <CardHeader className="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
-              <User size={32} className="text-white" />
+        <CardHeader className="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-3 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/20 flex items-center justify-center">
+              <User size={24} className="text-white sm:hidden" />
+              <User size={32} className="text-white hidden sm:block" />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold">{userDetailsObj.username}</h2>
-              <div className="flex items-center gap-2 mt-2">
-                <Building2 size={16} />
-                <span className="text-sm opacity-90">
+            <div className="text-center sm:text-left">
+              <h2 className="text-xl sm:text-2xl font-bold mt-2 sm:mt-0">{userDetailsObj.username}</h2>
+              <div className="flex items-center justify-center sm:justify-start gap-2 mt-1 sm:mt-2">
+                <Building2 size={14} className="sm:size-16" />
+                <span className="text-xs sm:text-sm opacity-90">
                   {userDetailsObj.department}
                 </span>
               </div>
@@ -1642,22 +1625,22 @@ const ProfileContent = ({ userobj }) => {
 
       {/* Courses Section */}
       <Card className="bg-white">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-blue-100 pb-4">
+        <CardHeader className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-blue-100 pb-3 sm:pb-4 gap-2">
           <div className="flex items-center gap-2">
-            <BookOpen className="text-blue-700" />
-            <h2 className="text-xl font-semibold text-blue-900">Courses</h2>
+            <BookOpen className="text-blue-700 size-4 sm:size-5" />
+            <h2 className="text-lg sm:text-xl font-semibold text-blue-900">Courses</h2>
           </div>
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+          <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs sm:text-sm">
             {coursesDetails.length} Courses
           </Badge>
         </CardHeader>
-        <CardContent className="pt-4">
+        <CardContent className="pt-3 sm:pt-4 px-2 sm:px-4">
           {coursesDetails.length > 0 ? (
-            <div className="grid gap-4">
+            <div className="grid gap-3 sm:gap-4">
               {coursesDetails.map((course) => (
                 <div
                   key={course.id_}
-                  className="group p-4 rounded-lg transition-all duration-200 hover:bg-blue-50 cursor-pointer border border-blue-100 hover:border-blue-300"
+                  className="group p-3 sm:p-4 rounded-lg transition-all duration-200 hover:bg-blue-50 cursor-pointer border border-blue-100 hover:border-blue-300"
                   onClick={() =>
                     setSelectedCourse(
                       selectedCourse?.id_ === course.id_ ? null : course
@@ -1665,39 +1648,39 @@ const ProfileContent = ({ userobj }) => {
                   }
                 >
                   <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <h3 className="font-mono text-lg font-bold tracking-wider text-gray-900">
+                    <div className="space-y-1 max-w-[80%]">
+                      <h3 className="font-mono text-sm sm:text-lg font-bold tracking-wider text-gray-900 truncate">
                         {course.id_}
                       </h3>
-                      <p className="text-blue-700 group-hover:text-blue-800 transition-colors">
+                      <p className="text-blue-700 group-hover:text-blue-800 transition-colors text-xs sm:text-base truncate">
                         {course.title}
                       </p>
                     </div>
                     <div
-                      className={`transform transition-transform duration-200 ${
+                      className={`transform transition-transform duration-200 flex-shrink-0 ${
                         selectedCourse?.id_ === course.id_ ? "rotate-180" : ""
                       }`}
                     >
                       <AlertCircle
-                        size={20}
-                        className="text-blue-400 group-hover:text-blue-600"
+                        size={16}
+                        className="text-blue-400 group-hover:text-blue-600 sm:size-20"
                       />
                     </div>
                   </div>
 
                   {/* Expanded Course Details */}
                   {selectedCourse?.id_ === course.id_ && (
-                    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg animate-fadeIn">
-                      <div className="flex items-start gap-3">
-                        <Badge className="bg-blue-700 text-white mt-1">
+                    <div className="mt-3 sm:mt-4 p-2 sm:p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg animate-fadeIn">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                        <Badge className="bg-blue-700 text-white self-start">
                           Details
                         </Badge>
                         <div>
-                          <p className="text-sm text-blue-800 font-medium">
+                          <p className="text-xs sm:text-sm text-blue-800 font-medium">
                             Course ID:{" "}
                             <span className="font-mono">{course.id_}</span>
                           </p>
-                          <p className="text-sm text-blue-700 mt-1">
+                          <p className="text-xs sm:text-sm text-blue-700 mt-1">
                             Click to view more details about this course.
                           </p>
                         </div>
@@ -1708,9 +1691,9 @@ const ProfileContent = ({ userobj }) => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <BookOpen size={48} className="mx-auto mb-4 text-blue-300" />
-              <p>No courses found</p>
+            <div className="text-center py-6 sm:py-8 text-gray-500">
+              <BookOpen size={32} className="mx-auto mb-3 text-blue-300 sm:size-48 sm:mb-4" />
+              <p className="text-sm sm:text-base">No courses found</p>
             </div>
           )}
         </CardContent>
@@ -1759,7 +1742,37 @@ const FacultyDashboard = () => {
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  
+  // Track window size for responsiveness
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
+
+  // Update window dimensions on resize
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      
+      // Auto-collapse sidebar on mobile
+      if (window.innerWidth < 768) {
+        setIsMenuExpanded(false);
+      }
+    }
+    
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+      handleResize(); // Initial call
+      
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
   useEffect(() => {
     (async () => {
       const { user, error } = await getUser();
@@ -1784,6 +1797,15 @@ const FacultyDashboard = () => {
       console.error("Failed to logout");
     }
   }
+
+  const handleTabClick = (tabName) => {
+    setActiveTab(tabName);
+    // Close mobile menu when a tab is selected
+    if (windowSize.width < 768) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner message="Loading dashboard..." />;
   }
@@ -1812,172 +1834,285 @@ const FacultyDashboard = () => {
     }
   };
 
-  return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Sidebar */}
-      <motion.div
-        initial={{ width: "80px" }}
-        animate={{ width: isMenuExpanded ? "280px" : "80px" }}
-        transition={{ type: "tween", duration: 0.3 }}
-        className="bg-white shadow-xl z-10 relative"
-      >
-        <div className="p-4 flex items-center justify-between">
-          <AnimatePresence>
-            {isMenuExpanded && (
-              <motion.h2
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-xl font-bold text-gray-800"
-              >
-                {/* Faculty Hub */}
-              </motion.h2>
-            )}
-          </AnimatePresence>
-          <div className="absolute top-1/2 -translate-y-1/2 -right-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuExpanded(!isMenuExpanded)}
-              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center items-center shadow-md"
-            >
-              <ChevronRight
-                className={`transform transition-transform ${
-                  isMenuExpanded ? "rotate-180" : ""
-                }`}
-                size={16}
-              />
-            </Button>
-          </div>
-        </div>
+  // Determine if we're on mobile
+  const isMobile = windowSize.width < 768;
 
-        <div className="flex flex-col items-center px-3 mt-4">
-          <Avatar className="mb-4">
-            {/* <AvatarImage src={userobj?.avatar} /> */}
-            <AvatarFallback>
-              {/* {userobj?.username?.[0]?.toUpperCase() || 'U'} */}
-            </AvatarFallback>
-          </Avatar>
-          <AnimatePresence>
-            {isMenuExpanded && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-center"
-              >
+  return (
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100 overflow-hidden">
+      {/* Mobile Header with Hamburger */}
+      {isMobile && (
+        <div className="bg-white p-4 shadow-md flex items-center justify-between z-40">
+          <h1 className="text-xl font-bold text-purple-700">Faculty Hub</h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden"
+          >
+            {isMobileMenuOpen ? (
+              <X size={24} />
+            ) : (
+              <Menu size={24} />
+            )}
+          </Button>
+        </div>
+      )}
+
+      {/* Mobile Menu - Slides down from top with transparency */}
+      {isMobile && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ 
+            opacity: isMobileMenuOpen ? 1 : 0,
+            height: isMobileMenuOpen ? "auto" : 0
+          }}
+          transition={{ duration: 0.3 }}
+          className="bg-white bg-opacity-90 backdrop-blur-sm shadow-lg z-50 overflow-hidden"
+          style={{
+            position: 'absolute',
+            top: '64px',
+            left: 0,
+            right: 0,
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          <div className="p-4">
+            <div className="flex items-center justify-center mb-4">
+              <Avatar className="mr-3">
+                <AvatarFallback>
+                  {userobj?.username?.[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
                 <h3 className="font-semibold">
                   {userobj?.username || "Faculty Member"}
                 </h3>
                 <p className="text-sm text-gray-500">Faculty</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
+            </div>
+            
+            <Separator className="my-4 opacity-50" />
+            
+            <nav className="space-y-2">
+              {tabs.map((tab) => (
+                <motion.button
+                  key={tab.name}
+                  onClick={() => handleTabClick(tab.name)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`
+                    flex items-center w-full p-3 rounded-lg 
+                    transition-colors duration-200
+                    ${
+                      activeTab === tab.name
+                        ? "bg-purple-100 bg-opacity-80 text-purple-700"
+                        : "hover:bg-gray-100 hover:bg-opacity-70"
+                    }
+                  `}
+                >
+                  <tab.icon className="mr-3" size={20} />
+                  <div>
+                    <p className="text-sm font-medium">{tab.name}</p>
+                  </div>
+                </motion.button>
+              ))}
+              
+              <Separator className="my-4 opacity-50" />
+              
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className={`flex items-center justify-center w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-200 relative overflow-hidden ${
+                  isLoggingOut ? "cursor-not-allowed opacity-75" : "hover:shadow-xl"
+                }`}
+              >
+                <div
+                  className={`flex items-center justify-center gap-3 ${
+                    isLoggingOut ? "opacity-0" : "opacity-100"
+                  } transition-opacity duration-200`}
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Logout</span>
+                </div>
 
-        <Separator className="my-4" />
+                {isLoggingOut && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+              </button>
+            </nav>
+          </div>
+        </motion.div>
+      )}
 
-        <nav className="space-y-2 px-3">
-          {tabs.map((tab) => (
-            <motion.button
-              key={tab.name}
-              onClick={() => setActiveTab(tab.name)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`
-                flex items-center w-full p-2 rounded-lg 
-                transition-colors duration-200
-                ${
-                  activeTab === tab.name
-                    ? "bg-purple-100 text-purple-700"
-                    : "hover:bg-gray-100"
-                }
-              `}
-            >
-              <tab.icon className="mr-3" size={20} />
+      {/* Backdrop overlay for mobile menu */}
+      {isMobile && isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-30 z-40" 
+          style={{ top: '64px' }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Desktop Sidebar - only visible on larger screens */}
+      {!isMobile && (
+        <motion.div
+          initial={{ width: "80px" }}
+          animate={{ width: isMenuExpanded ? "280px" : "80px" }}
+          transition={{ type: "tween", duration: 0.3 }}
+          className="bg-white shadow-xl z-10 relative"
+        >
+          <div className="p-4 flex items-center justify-between">
+            <AnimatePresence>
+              {isMenuExpanded && (
+                <motion.h2
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-xl font-bold text-purple-700"
+                >
+                  Faculty Hub
+                </motion.h2>
+              )}
+            </AnimatePresence>
+            <div className="absolute top-1/2 -translate-y-1/2 -right-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center shadow-md"
+              >
+                <ChevronRight
+                  className={`transform transition-transform ${
+                    isMenuExpanded ? "rotate-180" : ""
+                  }`}
+                  size={16}
+                />
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center px-3 mt-4">
+            <Avatar className="mb-4">
+              <AvatarFallback>
+                {userobj?.username?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <AnimatePresence>
               {isMenuExpanded && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
+                  className="text-center"
                 >
-                  <p className="text-sm">{tab.name}</p>
-                  <p className="text-xs text-gray-500">{tab.description}</p>
+                  <h3 className="font-semibold">
+                    {userobj?.username || "Faculty Member"}
+                  </h3>
+                  <p className="text-sm text-gray-500">Faculty</p>
                 </motion.div>
               )}
-            </motion.button>
-          ))}
-        </nav>
+            </AnimatePresence>
+          </div>
 
-        <div className="absolute bottom-0 w-full p-4">
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className={`flex items-center justify-center w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-200 relative overflow-hidden ${
-              isLoggingOut ? "cursor-not-allowed opacity-75" : "hover:shadow-xl"
-            }`}
-            title={!isMenuExpanded ? "Logout" : ""}
-          >
-            <div
-              className={`flex items-center justify-center gap-3 ${
-                isLoggingOut ? "opacity-0" : "opacity-100"
-              } transition-opacity duration-200`}
+          <Separator className="my-4" />
+
+          <nav className="space-y-2 px-3">
+            {tabs.map((tab) => (
+              <motion.button
+                key={tab.name}
+                onClick={() => handleTabClick(tab.name)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`
+                  flex items-center w-full p-2 rounded-lg 
+                  transition-colors duration-200
+                  ${
+                    activeTab === tab.name
+                      ? "bg-purple-100 text-purple-700"
+                      : "hover:bg-gray-100"
+                  }
+                `}
+              >
+                <tab.icon className="mr-3" size={20} />
+                {isMenuExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <p className="text-sm">{tab.name}</p>
+                  </motion.div>
+                )}
+              </motion.button>
+            ))}
+          </nav>
+
+          <div className="absolute bottom-0 w-full p-4">
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className={`flex items-center justify-center w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-200 relative overflow-hidden ${
+                isLoggingOut ? "cursor-not-allowed opacity-75" : "hover:shadow-xl"
+              }`}
+              title={!isMenuExpanded ? "Logout" : ""}
             >
-              <LogOut className="w-5 h-5" />
-              {isMenuExpanded && <span className="font-medium">Logout</span>}
-            </div>
-
-            {isLoggingOut && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div
+                className={`flex items-center justify-center gap-3 ${
+                  isLoggingOut ? "opacity-0" : "opacity-100"
+                } transition-opacity duration-200`}
+              >
+                <LogOut className="w-5 h-5" />
+                {isMenuExpanded && <span className="font-medium">Logout</span>}
               </div>
-            )}
-          </button>
-        </div>
-      </motion.div>
+
+              {isLoggingOut && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-        <header className="flex justify-between items-center mb-6">
-          <motion.h1
-            className="text-3xl font-bold text-gray-800"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            {/* {activeTab} */}
-          </motion.h1>
-          {/* <div className="flex items-center space-x-4">
-            <Button variant="outline" size="icon">
-              <Settings size={20} />
-            </Button>
-            <Button variant="outline" size="icon" className="relative">
-              <Bell size={20} />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1.5 py-0.5 text-xs">
-                3
-              </span>
-            </Button>
-            <Avatar>
-              <AvatarImage src={userobj?.avatar} />
-              <AvatarFallback>
-                {userobj?.username?.[0]?.toUpperCase() || 'F'}
-              </AvatarFallback>
-            </Avatar>
-          </div> */}
-        </header>
+      <div className="flex-1 overflow-y-auto bg-gray-50">
+        {/* Desktop header - hidden on mobile */}
+        {!isMobile && (
+          <header className="flex justify-between items-center p-6">
+            <motion.h1
+              className="text-2xl md:text-3xl font-bold text-gray-800"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              {activeTab}
+            </motion.h1>
+          </header>
+        )}
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {renderTabContent()}
-          </motion.div>
-        </AnimatePresence>
+        {/* Responsive padding adjustments */}
+        <div className={`p-3 md:p-6 ${isMobile ? "pt-2" : ""}`}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-lg shadow-md p-4 md:p-6"
+            >
+              {isMobile && (
+                <h2 className="text-xl font-bold text-gray-800 mb-4">{activeTab}</h2>
+              )}
+              {renderTabContent()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
 };
+
 export default FacultyDashboard;
