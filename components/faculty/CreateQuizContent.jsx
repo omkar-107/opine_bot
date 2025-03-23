@@ -29,6 +29,21 @@ const CreateQuizContent = ({ userobj }) => {
   const [submitError, setSubmitError] = useState("");
   const [courses, setCourses] = useState([]);
   const [facultyDetailsObj, setFacultyDetailsObj] = useState({});
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+
+  useEffect(() => {
+    // Track window resize for responsiveness
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -166,21 +181,25 @@ const CreateQuizContent = ({ userobj }) => {
     ]);
   };
 
+  // Determine if we're on a small screen
+  const isMobile = windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-6">
+    <div className="w-full">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.3 }}
       >
-        <Card className="max-w-4xl mx-auto shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardContent className="p-8">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
-                <FileText className="w-6 h-6" />
+        <Card className="w-full border-0 shadow-md bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="mb-4 md:mb-6">
+              <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
+                <FileText className="w-5 h-5 md:w-6 md:h-6" />
                 Create New Quiz
               </h2>
-              <p className="text-gray-500 mt-2">
+              <p className="text-sm md:text-base text-gray-500 mt-1 md:mt-2">
                 Fill in the details below to create a new quiz for your students
               </p>
             </div>
@@ -189,9 +208,9 @@ const CreateQuizContent = ({ userobj }) => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 rounded-lg bg-green-50 text-green-700 flex items-center gap-3"
+                className="mb-4 md:mb-6 p-3 rounded-lg bg-green-50 text-green-700 flex items-center text-sm md:text-base gap-2"
               >
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                 <span>Quiz created successfully!</span>
                 <Button
                   variant="ghost"
@@ -208,10 +227,10 @@ const CreateQuizContent = ({ userobj }) => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 rounded-lg bg-red-50 text-red-700 flex items-center gap-3"
+                className="mb-4 md:mb-6 p-3 rounded-lg bg-red-50 text-red-700 flex items-center text-sm md:text-base gap-2"
               >
-                <AlertCircle className="w-5 h-5" />
-                <span>{submitError}</span>
+                <AlertCircle className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                <span className="line-clamp-2">{submitError}</span>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -223,13 +242,13 @@ const CreateQuizContent = ({ userobj }) => {
               </motion.div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-1 md:space-y-2">
                     <Label
                       htmlFor="title"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-xs md:text-sm font-medium text-gray-700"
                     >
                       Quiz Title
                     </Label>
@@ -239,14 +258,14 @@ const CreateQuizContent = ({ userobj }) => {
                       onChange={(e) => setTitle(e.target.value)}
                       required
                       placeholder="Enter quiz title"
-                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                      className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1 md:space-y-2">
                     <Label
                       htmlFor="courseId"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-xs md:text-sm font-medium text-gray-700"
                     >
                       Course
                     </Label>
@@ -255,7 +274,7 @@ const CreateQuizContent = ({ userobj }) => {
                       value={courseId}
                       onChange={(e) => setCourseId(e.target.value)}
                       required
-                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                      className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
                     >
                       <option value="" disabled>
                         Select a course
@@ -269,13 +288,13 @@ const CreateQuizContent = ({ userobj }) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-1 md:space-y-2">
                     <Label
                       htmlFor="time"
-                      className="text-sm font-medium text-gray-700 flex items-center gap-2"
+                      className="text-xs md:text-sm font-medium text-gray-700 flex items-center gap-1 md:gap-2"
                     >
-                      <Clock size={16} className="text-blue-500" />
+                      <Clock size={14} className="text-blue-500" />
                       Time Limit (minutes)
                     </Label>
                     <Input
@@ -286,16 +305,16 @@ const CreateQuizContent = ({ userobj }) => {
                       value={time}
                       onChange={(e) => setTime(e.target.value)}
                       required
-                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                      className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1 md:space-y-2">
                     <Label
                       htmlFor="syllabus"
-                      className="text-sm font-medium text-gray-700 flex items-center gap-2"
+                      className="text-xs md:text-sm font-medium text-gray-700 flex items-center gap-1 md:gap-2"
                     >
-                      <BookOpen size={16} className="text-blue-500" />
+                      <BookOpen size={14} className="text-blue-500" />
                       Syllabus Topics (optional)
                     </Label>
                     <Input
@@ -303,35 +322,35 @@ const CreateQuizContent = ({ userobj }) => {
                       value={syllabus}
                       onChange={(e) => setSyllabus(e.target.value)}
                       placeholder="e.g., Chapter 1-3, Arrays, Functions"
-                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                      className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-blue-800">
+              <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-blue-800">
                     Questions ({questions.length})
                   </h3>
                   <Button
                     type="button"
                     onClick={addQuestion}
-                    className="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg flex items-center gap-2 py-2 px-3 text-sm"
+                    className="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg flex items-center justify-center sm:justify-start gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-3 text-xs md:text-sm w-full sm:w-auto"
                   >
-                    <PlusCircle size={16} />
+                    <PlusCircle size={14} className="flex-shrink-0" />
                     Add Question
                   </Button>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-4 md:space-y-6">
                   {questions.map((question, qIndex) => (
                     <div
                       key={qIndex}
-                      className="bg-white p-6 rounded-lg shadow-sm border border-blue-100"
+                      className="bg-white p-3 md:p-4 rounded-lg shadow-sm border border-blue-100"
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-semibold text-gray-800">
+                      <div className="flex items-center justify-between mb-2 md:mb-4">
+                        <h4 className="font-semibold text-sm md:text-base text-gray-800">
                           Question {qIndex + 1}
                         </h4>
                         {questions.length > 1 && (
@@ -340,18 +359,18 @@ const CreateQuizContent = ({ userobj }) => {
                             onClick={() => removeQuestion(qIndex)}
                             variant="ghost"
                             size="sm"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={16} className="flex-shrink-0" />
                           </Button>
                         )}
                       </div>
 
-                      <div className="space-y-4">
+                      <div className="space-y-3 md:space-y-4">
                         <div>
                           <Label
                             htmlFor={`question-${qIndex}`}
-                            className="text-sm font-medium text-gray-700"
+                            className="text-xs md:text-sm font-medium text-gray-700"
                           >
                             Question Text
                           </Label>
@@ -367,18 +386,18 @@ const CreateQuizContent = ({ userobj }) => {
                             }
                             placeholder="Enter your question here"
                             required
-                            className="mt-1 w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                            className="mt-1 w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                           />
                         </div>
 
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
+                        <div className="space-y-2 md:space-y-3">
+                          <Label className="text-xs md:text-sm font-medium text-gray-700">
                             Options
                           </Label>
                           {question.options.map((option, oIndex) => (
                             <div
                               key={oIndex}
-                              className="flex items-center gap-3"
+                              className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3"
                             >
                               <div className="flex-1">
                                 <Input
@@ -392,12 +411,13 @@ const CreateQuizContent = ({ userobj }) => {
                                   }
                                   placeholder={`Option ${oIndex + 1}`}
                                   required
-                                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                                  className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                                 />
                               </div>
-                              <div>
+                              <div className="flex items-center justify-end mt-1 sm:mt-0">
                                 <input
                                   type="radio"
+                                  id={`correct-${qIndex}-${oIndex}`}
                                   name={`correct-${qIndex}`}
                                   checked={question.correct_answer === option}
                                   onChange={() =>
@@ -407,7 +427,7 @@ const CreateQuizContent = ({ userobj }) => {
                                 />
                                 <Label
                                   htmlFor={`correct-${qIndex}-${oIndex}`}
-                                  className="ml-2 text-sm text-gray-600"
+                                  className="ml-2 text-xs md:text-sm text-gray-600"
                                 >
                                   Correct
                                 </Label>
@@ -424,7 +444,7 @@ const CreateQuizContent = ({ userobj }) => {
               <Button
                 type="submit"
                 disabled={loading || !isFormValid()}
-                className={`w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`w-full py-2 md:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm md:text-base font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${
                   loading || !isFormValid()
                     ? "opacity-50 cursor-not-allowed"
                     : ""
@@ -432,12 +452,12 @@ const CreateQuizContent = ({ userobj }) => {
               >
                 {loading ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Creating Quiz...
+                    <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="ml-1">Creating...</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="w-5 h-5" />
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />
                     Create Quiz
                   </>
                 )}
