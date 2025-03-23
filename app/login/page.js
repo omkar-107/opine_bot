@@ -39,14 +39,11 @@ export default function Login() {
 
       if (res.ok) {
         setLoadingState('success');
-        // Add a small delay to show the success state
-        setTimeout(() => {
-          if (data.user.role === 'student' || data.user.role === 'faculty') {
-            router.push('/dashboard');
-          } else {
-            router.push('/admin');
-          }
-        }, 1000);
+        if (data.user.role === 'student' || data.user.role === 'faculty') {
+          router.push('/dashboard');
+        } else {
+          router.push('/admin');
+        }
       } else {
         setLoadingState('error');
         setError(data.message);
@@ -90,7 +87,7 @@ export default function Login() {
 
   const getButtonClasses = () => {
     const baseClasses = "w-full py-3 rounded-2xl font-medium transition-all duration-200 flex items-center justify-center";
-    
+
     switch (loadingState) {
       case 'loading':
         return `${baseClasses} bg-[#9c89ff]/80 text-white cursor-not-allowed`;
