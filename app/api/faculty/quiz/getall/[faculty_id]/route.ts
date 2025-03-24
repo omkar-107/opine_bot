@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const quizzes = await Quiz.find({
-      created_by: new mongoose.Types.ObjectId(faculty_id),
+      created_by_id: new mongoose.Types.ObjectId(faculty_id),
     });
 
     if (!quizzes.length) {

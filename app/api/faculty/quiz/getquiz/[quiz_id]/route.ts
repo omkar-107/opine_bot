@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     const isAuthorized = await authorizeFaculty(
       req.cookies.get("auth")?.value,
-      quiz.created_by
+      quiz.created_by_id
     );
 
     if (!isAuthorized) {

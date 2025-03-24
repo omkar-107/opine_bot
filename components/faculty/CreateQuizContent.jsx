@@ -32,6 +32,7 @@ const CreateQuizContent = ({ userobj }) => {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0
   );
+  const [courseName, setCourseName] = useState("");
 
   useEffect(() => {
     // Track window resize for responsiveness
@@ -138,6 +139,12 @@ const CreateQuizContent = ({ userobj }) => {
     setSubmitSuccess(false);
     setSubmitError("");
 
+    courses.forEach((course) => {
+      if (course._id === courseId) {
+        setCourseName(`${course.id_} - ${course.title}`);
+      }
+    });
+
     try {
       const response = await fetch("/api/faculty/quiz/create", {
         method: "POST",
@@ -147,8 +154,10 @@ const CreateQuizContent = ({ userobj }) => {
         body: JSON.stringify({
           title,
           num_questions: questions.length,
-          created_by: facultyDetailsObj._id,
+          created_by_id: facultyDetailsObj._id,
+          created_by_username: userobj.username,
           course_id: courseId,
+          course_name: courseName,
           time: parseInt(time),
           syllabus,
           questions,

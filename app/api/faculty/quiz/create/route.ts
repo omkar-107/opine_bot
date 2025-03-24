@@ -1,15 +1,17 @@
 import connectToDatabase from "@/utils/db";
 import Quiz from "@/models/Quiz";
 import { NextRequest, NextResponse } from "next/server";
-import { nanoid } from "nanoid"; 
+import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
   try {
     const {
       title,
       num_questions,
-      created_by,
+      created_by_id,
+      created_by_username,
       course_id,
+      course_name,
       time,
       syllabus,
       questions,
@@ -19,8 +21,10 @@ export async function POST(req: NextRequest) {
     if (
       !title ||
       !num_questions ||
-      !created_by ||
+      !created_by_id ||
+      !created_by_username ||
       !course_id ||
+      !course_name ||
       !time ||
       !questions ||
       !Array.isArray(questions) ||
@@ -43,8 +47,10 @@ export async function POST(req: NextRequest) {
       quiz_code,
       title,
       num_questions,
-      created_by,
+      created_by_id,
+      created_by_username,
       course_id,
+      course_name,
       active: false, // Default: quiz is inactive until started
       time,
       syllabus,

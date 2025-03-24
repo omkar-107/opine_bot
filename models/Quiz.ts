@@ -12,8 +12,10 @@ export interface IQuiz extends Document {
   quiz_code: string;
   title: string;
   num_questions: number;
-  created_by: mongoose.Types.ObjectId; // Faculty ID
+  created_by_id: mongoose.Types.ObjectId; // Faculty ID
+  created_by_username: string; // Faculty username
   course_id: mongoose.Types.ObjectId; // Course ID
+  course_name: string; // Course name
   active: boolean;
   time: number; // Duration in minutes
   syllabus?: string; // Course topics covered
@@ -31,8 +33,14 @@ const QuizSchema: Schema = new Schema(
     quiz_code: { type: String, unique: true, required: true },
     title: { type: String, required: true },
     num_questions: { type: Number, required: true },
-    created_by: { type: Schema.Types.ObjectId, ref: "Faculty", required: true },
+    created_by_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Faculty",
+      required: true,
+    },
+    created_by_username: { type: String, required: true },
     course_id: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+    course_name: { type: String, required: true },
     active: { type: Boolean, default: false },
     time: { type: Number, required: true }, // Quiz duration
     syllabus: { type: String },

@@ -81,7 +81,14 @@ const ViewQuizzesContent = ({ userobj }) => {
           setFilteredQuizzes(data);
 
           // Extract unique course IDs
-          const courses = [...new Set(data.map((quiz) => quiz.course_id))];
+          const courses = Array.from(
+            new Map(
+              data.map((quiz) => [
+                quiz.course_id,
+                { cid: quiz.course_id, cname: quiz.course_name },
+              ])
+            ).values()
+          );
           setUniqueCourses(courses);
         } else {
           console.error("Failed to fetch quizzes");
@@ -183,6 +190,7 @@ const ViewQuizzesContent = ({ userobj }) => {
         onBack={() => setSelectedQuiz(null)}
         isMobile={isMobile}
         isTablet={isTablet}
+        userobj={userobj}
       />
     );
   }
@@ -276,8 +284,8 @@ const ViewQuizzesContent = ({ userobj }) => {
                     >
                       <option value="all">All Courses</option>
                       {uniqueCourses.map((course) => (
-                        <option key={course} value={course}>
-                          {course}
+                        <option key={course.cid} value={course.cid}>
+                          {course.cname}
                         </option>
                       ))}
                     </select>
@@ -362,7 +370,7 @@ const ViewQuizzesContent = ({ userobj }) => {
                       }`}
                     ></div>
                     <div className="flex-1 p-3 sm:p-4 md:p-6">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1 sm:gap-3">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <FileText
@@ -399,7 +407,7 @@ const ViewQuizzesContent = ({ userobj }) => {
                             </div>
                             <div className="flex items-center gap-1 sm:gap-2 text-gray-600 text-xs sm:text-sm">
                               <Book size={isMobile ? 12 : 14} />
-                              <span>Course: {quiz.course_id}</span>
+                              <span>Course: {quiz.course_name}</span>
                             </div>
                           </div>
 
@@ -462,7 +470,7 @@ const ViewQuizzesContent = ({ userobj }) => {
   );
 };
 
-const QuizDetailView = ({ quiz, onBack, isMobile, isTablet }) => {
+const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
   const [activeTab, setActiveTab] = useState("questions");
 
   return (
@@ -714,13 +722,13 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet }) => {
                 <div className="space-y-1">
                   <p className="text-xs sm:text-sm text-gray-500">Course ID</p>
                   <p className="text-xs sm:text-sm font-medium">
-                    {quiz.course_id}
+                    {quiz.course_name}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs sm:text-sm text-gray-500">Created By</p>
                   <p className="text-xs sm:text-sm font-medium">
-                    {quiz.created_by}
+                    {userobj.username}
                   </p>
                 </div>
                 <div className="space-y-1">
