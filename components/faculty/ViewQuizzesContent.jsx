@@ -58,6 +58,7 @@ const ViewQuizzesContent = ({ userobj }) => {
 
   useEffect(() => {
     const fetchQuizzes = async () => {
+      setLoading(true);
       let faculty_id = "";
       try {
         const response = await fetch(
@@ -101,7 +102,7 @@ const ViewQuizzesContent = ({ userobj }) => {
     };
 
     fetchQuizzes();
-  }, [userobj.username]);
+  }, [userobj.username, selectedQuiz]);
 
   useEffect(() => {
     applyFilters();
@@ -472,6 +473,37 @@ const ViewQuizzesContent = ({ userobj }) => {
 
 const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
   const [activeTab, setActiveTab] = useState("questions");
+  const [quizStatus, setQuizStatus] = useState(quiz.active);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleToggleStatus = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `/api/faculty/quiz/togglestatus/${quiz._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setQuizStatus(data.active);
+        alert(data.message);
+      } else {
+        alert(data.message || "Failed to update quiz status");
+      }
+    } catch (error) {
+      console.error("Error toggling quiz status:", error);
+      alert("An error occurred while updating quiz status");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="p-2 sm:p-4 md:p-6 max-w-7xl mx-auto">
@@ -519,14 +551,14 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
                 {quiz.title}
               </h1>
               <Badge
-                variant={quiz.active ? "success" : "secondary"}
+                variant={quizStatus ? "success" : "secondary"}
                 className={`text-xs sm:text-sm ${
-                  quiz.active
+                  quizStatus
                     ? "bg-green-100 text-green-800"
                     : "bg-gray-100 text-gray-800"
                 }`}
               >
-                {quiz.active ? "Active" : "Inactive"}
+                {quizStatus ? "Active" : "Inactive"}
               </Badge>
             </div>
             <p className="mt-1 sm:mt-2 text-xs sm:text-sm md:text-base text-gray-600">
@@ -536,8 +568,21 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
           </div>
 
           <div className="space-y-2">
-            <Button className="w-full text-xs sm:text-sm bg-blue-500 hover:bg-blue-600 text-white">
-              {quiz.active ? "Deactivate Quiz" : "Activate Quiz"}
+            <Button
+              className="w-full text-xs sm:text-sm bg-blue-500 hover:bg-blue-600 text-white"
+              onClick={handleToggleStatus}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center">
+                  <span className="animate-spin mr-2">⟳</span>
+                  Updating...
+                </span>
+              ) : quizStatus ? (
+                "Deactivate Quiz"
+              ) : (
+                "Activate Quiz"
+              )}
             </Button>
             <Button variant="outline" className="w-full text-xs sm:text-sm">
               Edit Quiz
@@ -773,14 +818,14 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
                 <div className="space-y-1">
                   <p className="text-xs sm:text-sm text-gray-500">Status</p>
                   <Badge
-                    variant={quiz.active ? "success" : "secondary"}
+                    variant={quizStatus ? "success" : "secondary"}
                     className={`text-xs ${
-                      quiz.active
+                      quizStatus
                         ? "bg-green-100 text-green-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {quiz.active ? "Active" : "Inactive"}
+                    {quizStatus ? "Active" : "Inactive"}
                   </Badge>
                 </div>
                 <div className="space-y-1">

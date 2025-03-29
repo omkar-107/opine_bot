@@ -12,8 +12,11 @@ import {
   Clock,
   FileText,
   PlusCircle,
+  RotateCw,
   Trash2,
   X,
+  ListOrdered,
+  BarChart2,
 } from "lucide-react";
 
 const CreateQuizContent = ({ userobj }) => {
@@ -25,6 +28,7 @@ const CreateQuizContent = ({ userobj }) => {
     { question_text: "", options: ["", "", "", ""], correct_answer: "" },
   ]);
   const [loading, setLoading] = useState(false);
+  const [generateLoading, setGenerateLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [courses, setCourses] = useState([]);
@@ -33,6 +37,8 @@ const CreateQuizContent = ({ userobj }) => {
     typeof window !== "undefined" ? window.innerWidth : 0
   );
   const [courseName, setCourseName] = useState("");
+  const [questionCount, setQuestionCount] = useState(5);
+  const [questionDifficulty, setQuestionDifficulty] = useState("Medium"); // No default selection
 
   useEffect(() => {
     // Track window resize for responsiveness
@@ -83,6 +89,52 @@ const CreateQuizContent = ({ userobj }) => {
     fetchFacultyDetails();
   }, [userobj.username]);
 
+  const handleGenerateQuestions = async () => {
+    if (!syllabus && !courseId) {
+      setSubmitError("Please select a course and specify syllabus topics");
+      return;
+    }
+
+    setGenerateLoading(true);
+    setSubmitError("");
+
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
+    try {
+      const response = await fetch(`${baseUrl}/generate_questions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          syllabus: syllabus || "General topics",
+          num_questions: questionCount,
+          difficulty: questionDifficulty,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Transform generated questions to match the required format
+        const generatedQuestions = data.questions.map((q) => ({
+          question_text: q.question,
+          options: q.options,
+          correct_answer: q.options[q.answer],
+        }));
+
+        setQuestions(generatedQuestions);
+      } else {
+        setSubmitError("Failed to generate questions");
+      }
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      setSubmitError("An unexpected error occurred while generating questions");
+    } finally {
+      setGenerateLoading(false);
+    }
+  };
+
   const handleQuestionChange = (index, field, value) => {
     const updatedQuestions = [...questions];
     updatedQuestions[index][field] = value;
@@ -119,6 +171,8 @@ const CreateQuizContent = ({ userobj }) => {
 
   const isFormValid = () => {
     if (!title || !courseId || !time) return false;
+
+    if (!syllabus) return false;
 
     for (const question of questions) {
       if (!question.question_text.trim()) return false;
@@ -189,10 +243,6 @@ const CreateQuizContent = ({ userobj }) => {
       { question_text: "", options: ["", "", "", ""], correct_answer: "" },
     ]);
   };
-
-  // Determine if we're on a small screen
-  const isMobile = windowWidth < 640;
-  const isTablet = windowWidth >= 640 && windowWidth < 1024;
 
   return (
     <div className="w-full">
@@ -320,19 +370,83 @@ const CreateQuizContent = ({ userobj }) => {
 
                   <div className="space-y-1 md:space-y-2">
                     <Label
+                      htmlFor="questionCount"
+                      className="text-xs md:text-sm font-medium text-gray-700 flex items-center gap-1 md:gap-2"
+                    >
+                      <ListOrdered size={14} className="text-blue-500" />
+                      Number of Questions
+                    </Label>
+                    <Input
+                      id="questionCount"
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={questionCount}
+                      onChange={(e) =>
+                        setQuestionCount(parseInt(e.target.value, 10))
+                      }
+                      required
+                      className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-1 md:space-y-2">
+                    <Label
+                      htmlFor="questionDifficulty"
+                      className="text-xs md:text-sm font-medium text-gray-700 flex items-center gap-1 md:gap-2"
+                    >
+                      <BarChart2 size={14} className="text-blue-500" />
+                      Difficulty Level
+                    </Label>
+                    <select
+                      id="questionDifficulty"
+                      value={questionDifficulty}
+                      onChange={(e) => setQuestionDifficulty(e.target.value)}
+                      required
+                      className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                    >
+                      <option value="" disabled>
+                        Select difficulty
+                      </option>
+                      <option value="Easy">Easy</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Hard">Hard</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1 md:space-y-2">
+                    <Label
                       htmlFor="syllabus"
                       className="text-xs md:text-sm font-medium text-gray-700 flex items-center gap-1 md:gap-2"
                     >
                       <BookOpen size={14} className="text-blue-500" />
-                      Syllabus Topics (optional)
+                      Syllabus Topics
                     </Label>
-                    <Input
-                      id="syllabus"
-                      value={syllabus}
-                      onChange={(e) => setSyllabus(e.target.value)}
-                      placeholder="e.g., Chapter 1-3, Arrays, Functions"
-                      className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="syllabus"
+                        value={syllabus}
+                        onChange={(e) => setSyllabus(e.target.value)}
+                        placeholder="e.g., Chapter 1-3, Arrays, Functions"
+                        className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleGenerateQuestions}
+                        disabled={generateLoading}
+                        className="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3 px-2 md:px-3 text-xs md:text-sm"
+                      >
+                        {generateLoading ? (
+                          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <RotateCw size={14} className="flex-shrink-0" />
+                        )}
+                        Generate
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
