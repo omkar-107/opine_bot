@@ -3,6 +3,7 @@ import { verify } from "jsonwebtoken";
 import FeedbackTask from "@/models/FeedbackTask";
 import Feedback from "@/models/Feedback";
 import Faculty from "@/models/Faculty";
+import Student from "@/models/Student";
 
 export const authorizeUsername = async (token, username) => {
     let user = verify(token, process.env.AUTH_SECRET);
@@ -69,6 +70,25 @@ export const authorizeFaculty = async (token, created_by) => {
     }
 
     if (faculty.username !== user.user.username) {
+        return false;
+    }
+
+    return true;
+}
+
+export const authorizeStudent = async (token, stu_email) => {
+    let user = verify(token, process.env.AUTH_SECRET);
+    console.log('user is ', user);
+
+    const student = await Student.findOne({
+        email: stu_email
+    });
+
+    if (!student) {
+        return false;
+    }
+
+    if (student.email !== user.user.email) {
         return false;
     }
 

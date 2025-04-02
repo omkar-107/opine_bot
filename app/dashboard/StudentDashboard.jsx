@@ -6,6 +6,7 @@ import {
   History,
   LayoutDashboard,
   LogOut,
+  Brain,
   Menu,
   UserCircle,
   X,
@@ -16,6 +17,7 @@ import { useEffect, useState } from "react";
 import DashboardContent from "@/components/student/DashboardContent";
 import FeedbackHistoryContent from "@/components/student/FeedbackHistoryContent";
 import ProfileContent from "@/components/student/ProfileContent";
+import QuizDashboard from "@/components/student/QuizDashboard";
 
 async function getUser() {
   try {
@@ -94,6 +96,12 @@ const StudentDashboard = () => {
       icon: History,
       active: activeTab === "Feedback History",
     },
+    {
+      name: "Quiz Dashboard",
+      component: <QuizDashboard userobj={userobj} />,
+      icon: Brain,
+      active: activeTab === "Quiz Dashboard",
+    },
   ];
 
   const renderTabContent = () => {
@@ -104,6 +112,8 @@ const StudentDashboard = () => {
         return <ProfileContent userobj={userobj} />;
       case "Feedback History":
         return <FeedbackHistoryContent userobj={userobj} />;
+      case "Quiz Dashboard":
+        return <QuizDashboard userobj={userobj} />;
       default:
         return <DashboardContent userobj={userobj} />;
     }

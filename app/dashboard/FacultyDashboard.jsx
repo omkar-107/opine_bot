@@ -72,7 +72,7 @@ const tabs = [
     icon: FileText,
   },
   {
-    name: "View Feedbacks",
+    name: "Summary & Insights",
     component: FeedbackDashboardContent,
     icon: ClipboardList,
   },
