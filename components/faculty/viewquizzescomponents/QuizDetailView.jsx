@@ -430,11 +430,56 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
             {quiz.responses.length > 0 ? (
               <div>
                 <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-6">
-                  Student Responses
+                  Student Responses ({quiz.responses.length})
                 </h3>
-                <p className="text-xs sm:text-sm">
-                  Response details will be displayed here
-                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs sm:text-sm">
+                    <thead className="bg-gray-50 text-gray-700">
+                      <tr>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left font-medium">
+                          Response ID
+                        </th>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left font-medium">
+                          Email
+                        </th>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left font-medium">
+                          Score
+                        </th>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left font-medium">
+                          Submitted At
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {quiz.responses.map((response) => (
+                        <tr key={response._id} className="hover:bg-gray-50">
+                          <td className="px-3 py-2 sm:px-4 sm:py-3 font-mono text-gray-800 truncate">
+                            {response.responseid}
+                          </td>
+                          <td className="px-3 py-2 sm:px-4 sm:py-3 text-gray-800">
+                            {response.email}
+                          </td>
+                          <td className="px-3 py-2 sm:px-4 sm:py-3">
+                            <Badge
+                              className={`${
+                                response.score >= 70
+                                  ? "bg-green-100 text-green-800"
+                                  : response.score >= 40
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {response.score}%
+                            </Badge>
+                          </td>
+                          <td className="px-3 py-2 sm:px-4 sm:py-3 text-gray-600">
+                            {new Date(response.submitted_at).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             ) : (
               <div className="text-center py-6 sm:py-10 md:py-12">

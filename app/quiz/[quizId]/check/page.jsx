@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardFooter,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
@@ -13,7 +18,7 @@ const QuizCodeEntry = ({ user }) => {
   const [quizCode, setQuizCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   // Extract quizId from URL if present
   useEffect(() => {
     console.log(quizId);
@@ -26,41 +31,45 @@ const QuizCodeEntry = ({ user }) => {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    
+
     if (!quizCode.trim()) {
       setError("Please enter a quiz code");
       return;
     }
-    
+
     setIsLoading(true);
     setError("");
-    
+
     try {
       // Make a POST request to the correct endpoint
       const response = await fetch(`/api/student/quiz/check/${quizId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          quiz_code: quizCode
-        })
+          quiz_code: quizCode,
+        }),
       });
-      
+
+      if (response.status === 409) {
+        alert("Quiz already started or completed.");
+        router.push("/dashboard");
+      }
+
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "Quiz not found");
       }
-      
+
       const responseData = await response.json();
       console.log(responseData);
-      
+
       // Show success alert
       alert(`Successfully authorized: ${responseData.quiz.title}`);
-      
+
       // Redirect to the quiz page
       router.push(`/quiz/${responseData.quiz.id}`);
-      
     } catch (error) {
       console.error("Error checking quiz:", error);
       setError(error.message || "Failed to find quiz");
@@ -91,7 +100,10 @@ const QuizCodeEntry = ({ user }) => {
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
-                <label htmlFor="quizCode" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="quizCode"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Quiz Code
                 </label>
                 <Input
@@ -101,19 +113,19 @@ const QuizCodeEntry = ({ user }) => {
                   onChange={handleCodeChange}
                   className="w-full p-3 text-lg font-mono tracking-wider text-center"
                 />
-                {error && (
-                  <p className="mt-2 text-sm text-red-600">{error}</p>
-                )}
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
               </div>
-              
+
               <div className="text-sm text-gray-600">
-                <p>Enter the code provided by your instructor to access the quiz.</p>
+                <p>
+                  Enter the code provided by your instructor to access the quiz.
+                </p>
               </div>
             </div>
           </form>
         </CardContent>
         <CardFooter className="border-t border-gray-200 p-4 flex justify-end">
-          <Button 
+          <Button
             className="bg-blue-600 hover:bg-blue-700 text-white px-6"
             onClick={handleSubmit}
             disabled={isLoading || !quizCode.trim()}

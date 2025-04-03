@@ -286,8 +286,8 @@ const FeedbackHistoryContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full px-4 py-6 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gray-50 w-full px-2 py-6 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-indigo-800">
           Feedback History
         </h1>

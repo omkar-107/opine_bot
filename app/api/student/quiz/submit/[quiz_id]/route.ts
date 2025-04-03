@@ -158,7 +158,12 @@ export async function POST(
       quiz_id,
       {
         $push: {
-          responses: savedResponse._id,
+          responses: {
+            responseid: savedResponse._id,
+            email: savedResponse.email,
+            score: savedResponse.score,
+            submitted_at: savedResponse.submitted_at,
+          },
         },
       },
       { new: true }

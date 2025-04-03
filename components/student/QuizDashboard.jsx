@@ -16,7 +16,6 @@ import {
 import { useEffect, useState } from "react";
 import QuizCode from "@/components/student/QuizCodeEntry";
 
-
 const LoadingSpinner = ({ message = "Loading..." }) => {
   return (
     <div className="h-64 w-full flex flex-col items-center justify-center">
@@ -172,7 +171,11 @@ const QuizDashboard = ({ userobj }) => {
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading your quizzes..." />;
+    return (
+      <div className="h-screen flex flex-col items-center justify-center">
+        <LoadingSpinner message="Loading your quizzes..." />
+      </div>
+    );
   }
 
   return (

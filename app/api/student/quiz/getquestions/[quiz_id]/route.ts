@@ -2,6 +2,7 @@ import connectToDatabase from "@/utils/db";
 import Quiz, { IQuiz } from "@/models/Quiz";
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
+import QuizResponse from "@/models/QuizResponse";
 
 // Define an interface for the question structure
 interface IQuestion {
@@ -79,6 +80,19 @@ export async function GET(
       return NextResponse.json(
         { message: "This quiz is not currently active" },
         { status: 403 }
+      );
+    }
+
+    // Check if student has already submitted a response for this quiz
+    const existingResponse = await QuizResponse.findOne({
+      quiz_id: quiz_id,
+      email: authData.stu_email,
+    });
+
+    if (existingResponse) {
+      return NextResponse.json(
+        { message: "You have already submitted answers for this quiz" },
+        { status: 409 }
       );
     }
 

@@ -4,6 +4,7 @@ import Student from "@/models/Student";
 import Course from "@/models/Course";
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeStudent } from "@/utils/auth";
+import QuizResponse from "@/models/QuizResponse";
 
 export async function GET(req: NextRequest) {
   const stu_email = req.nextUrl.pathname.split("/").pop();
@@ -80,7 +81,29 @@ export async function GET(req: NextRequest) {
     );
     console.log("Active quizzes:", activeQuizzes);
 
-    if (!activeQuizzes.length) {
+    // Get IDs of active quizzes
+    const quizIds = activeQuizzes.map((quiz) => quiz._id);
+
+    // Find responses from this student for any of the active quizzes
+    const studentResponses = await QuizResponse.find({
+      quiz_id: { $in: quizIds },
+      email: stu_email,
+    });
+    console.log("Student responses:", studentResponses);
+
+    // Create an array of quiz IDs that the student has already responded to
+    const respondedQuizIds = studentResponses.map((response) =>
+      response.quiz_id.toString()
+    );
+
+    // Filter out quizzes that the student has already responded to
+    const availableQuizzes = activeQuizzes.filter(
+      (quiz) => !respondedQuizIds.includes(quiz._id.toString())
+    );
+
+    console.log("Available quizzes (not yet responded):", availableQuizzes);
+
+    if (!availableQuizzes.length) {
       return NextResponse.json(
         { message: "No active quizzes found for this student" },
         { status: 200 }
@@ -90,8 +113,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       {
-        quizzes: activeQuizzes,
-        total: activeQuizzes.length,
+        quizzes: availableQuizzes,
+        total: availableQuizzes.length,
       },
       { status: 200 }
     );

@@ -1,5 +1,6 @@
 import Course from "@/models/Course";
 import Quiz from "@/models/Quiz";
+import QuizResponse from "@/models/QuizResponse";
 import Student from "@/models/Student";
 import { authorizeStudent, getUserFromToken } from "@/utils/auth";
 import connectToDatabase from "@/utils/db";
@@ -119,6 +120,19 @@ export async function POST(
       return NextResponse.json(
         { message: "You are not enrolled in this course" },
         { status: 403 }
+      );
+    }
+
+    // Check if student has already submitted a response for this quiz
+    const existingResponse = await QuizResponse.findOne({
+      quiz_id: quiz_id,
+      email: stu_email,
+    });
+
+    if (existingResponse) {
+      return NextResponse.json(
+        { message: "You have already submitted answers for this quiz" },
+        { status: 409 }
       );
     }
 

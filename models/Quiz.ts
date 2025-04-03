@@ -7,6 +7,14 @@ interface IQuestion {
   correct_answer: string;
 }
 
+// Interface for response records stored in the Quiz
+interface IResponseRecord {
+  responseid: mongoose.Types.ObjectId;
+  email: string;
+  score: number;
+  submitted_at: Date;
+}
+
 // Quiz Interface
 export interface IQuiz extends Document {
   quiz_code: string;
@@ -21,7 +29,7 @@ export interface IQuiz extends Document {
   syllabus?: string; // Course topics covered
   started_on?: Date;
   ended_on?: Date;
-  responses: mongoose.Types.ObjectId[]; // Array of QuizResponse IDs
+  responses: IResponseRecord[]; // Changed from ObjectId[] to object array
   questions: IQuestion[];
   createdAt: Date;
   updatedAt: Date;
@@ -46,7 +54,14 @@ const QuizSchema: Schema = new Schema(
     syllabus: { type: String },
     started_on: { type: Date },
     ended_on: { type: Date },
-    responses: [{ type: Schema.Types.ObjectId, ref: "QuizResponse" }], // Tracks submitted responses
+    responses: [
+      {
+        responseid: { type: Schema.Types.ObjectId, ref: "QuizResponse" },
+        email: { type: String },
+        score: { type: Number },
+        submitted_at: { type: Date },
+      },
+    ],
     questions: [
       {
         question_text: { type: String, required: true },

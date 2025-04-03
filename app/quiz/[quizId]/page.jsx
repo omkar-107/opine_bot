@@ -1,8 +1,13 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardFooter,
+} from "@/components/ui/card";
 import { Loader2, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,7 +36,9 @@ export default function QuizPage({ params }) {
 
       try {
         setLoading(true);
-        const response = await fetch(`/api/student/quiz/getquestions/${quizId}`);
+        const response = await fetch(
+          `/api/student/quiz/getquestions/${quizId}`
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -44,7 +51,7 @@ export default function QuizPage({ params }) {
         // Handle the nested structure where quiz data is inside a quiz property
         if (quizData.quiz) {
           setQuiz(quizData.quiz);
-          
+
           // Initialize time if quiz has a time limit
           if (quizData.quiz.time) {
             setTimeRemaining(quizData.quiz.time * 60); // Convert minutes to seconds
@@ -54,7 +61,7 @@ export default function QuizPage({ params }) {
           const initialAnswers = {};
           if (Array.isArray(quizData.quiz.questions)) {
             quizData.quiz.questions.forEach((question, index) => {
-              initialAnswers[index] = '';
+              initialAnswers[index] = "";
             });
             setAnswers(initialAnswers);
           }
@@ -77,7 +84,7 @@ export default function QuizPage({ params }) {
     if (!timeRemaining || timeRemaining <= 0 || quizSubmitted) return;
 
     const timer = setInterval(() => {
-      setTimeRemaining(prev => {
+      setTimeRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
           handleSubmitQuiz();
@@ -94,27 +101,31 @@ export default function QuizPage({ params }) {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   // Handle answer selection
   const handleAnswerSelect = (questionIndex, answer) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
-      [questionIndex]: answer
+      [questionIndex]: answer,
     }));
   };
 
   // Navigate to next/prev question
   const goToNextQuestion = () => {
-    if (quiz && quiz.questions && currentQuestionIndex < quiz.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+    if (
+      quiz &&
+      quiz.questions &&
+      currentQuestionIndex < quiz.questions.length - 1
+    ) {
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
   const goToPrevQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+      setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
@@ -133,7 +144,7 @@ export default function QuizPage({ params }) {
         submissions.push({
           questionId: question._id,
           question: question.question_text,
-          answer: answer
+          answer: answer,
         });
       }
     });
@@ -142,13 +153,14 @@ export default function QuizPage({ params }) {
       quizId: quiz._id,
       title: quiz.title,
       timeSpent: (quiz.time || 0) * 60 - (timeRemaining || 0),
-      submissions: submissions
+      submissions: submissions,
     };
   };
 
   // Calculate score based on user answers
   const calculateScore = (answers) => {
-    if (!quiz || !quiz.questions) return { score: 0, totalPoints: 0, percentage: 0 };
+    if (!quiz || !quiz.questions)
+      return { score: 0, totalPoints: 0, percentage: 0 };
 
     let score = 0;
     let totalPoints = 0;
@@ -167,7 +179,7 @@ export default function QuizPage({ params }) {
     return {
       score,
       totalPoints,
-      percentage
+      percentage,
     };
   };
 
@@ -176,56 +188,62 @@ export default function QuizPage({ params }) {
     try {
       setSubmitting(true);
       // Check if there are any answers
-      const hasAnswers = Object.values(answers).some(answer => answer && answer.trim() !== '');
+      const hasAnswers = Object.values(answers).some(
+        (answer) => answer && answer.trim() !== ""
+      );
       if (!hasAnswers) {
         throw new Error("No answers provided");
       }
-      
+
       // Format data according to the new example structure
-      const formattedAnswers = Object.entries(answers).map(([index, selected_option]) => {
-        const questionIndex = parseInt(index);
-        const question = quiz.questions[questionIndex];
-        
-        return {
-          question_id: question._id,
-          question_text: question.question_text,
-          selected_option: selected_option
-        };
-      }).filter(item => item.selected_option && item.selected_option.trim() !== '');
-      
+      const formattedAnswers = Object.entries(answers)
+        .map(([index, selected_option]) => {
+          const questionIndex = parseInt(index);
+          const question = quiz.questions[questionIndex];
+
+          return {
+            question_id: question._id,
+            question_text: question.question_text,
+            selected_option: selected_option,
+          };
+        })
+        .filter(
+          (item) => item.selected_option && item.selected_option.trim() !== ""
+        );
+
       // Prepare submission data in the new format
       const submissionData = {
-        answers: formattedAnswers
+        answers: formattedAnswers,
       };
-      
+
       // Validate submission data
       if (formattedAnswers.length === 0) {
         throw new Error("No answers provided");
       }
-      
+
       // console.log("Submitting data:", submissionData); // Debug submission data
-      
+
       // Submit quiz answers to the backend
       const response = await fetch(`/api/student/quiz/submit/${quizId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(submissionData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to submit quiz");
       }
-      
+
       // Store response data if needed
       const responseData = await response.json();
-      // console.log("Quiz submission response:", responseData);
-      
+      setSubmissionData(responseData);
+
       // Calculate score for local display
       const resultData = calculateScore(answers);
-      
+
       // Set results and show feedback form
       setResults(resultData);
       setQuizSubmitted(true);
@@ -237,36 +255,38 @@ export default function QuizPage({ params }) {
     }
   };
 
-
   const handleFeedbackSubmit = async () => {
     try {
       setSubmitting(true);
-      
+
       // Simplify the feedback data structure to match the example format
       const feedbackData = {
-        feedback: userFeedback
+        feedback: userFeedback,
       };
-      
+
       // console.log("Submitting feedback:", feedbackData); // Debug feedback data
-      
+
       // Send feedback to backend
-      const response = await fetch(`/api/student/quiz/submit/feedback/${quizId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(feedbackData),
-      });
-      
+      const response = await fetch(
+        `/api/student/quiz/submit/feedback/${quizId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(feedbackData),
+        }
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to submit feedback");
       }
-      
+
       // Store response data if needed
       const responseData = await response.json();
       // console.log("Feedback submission response:", responseData);
-      
+
       setFeedbackSubmitted(true);
     } catch (err) {
       console.error("Error submitting feedback:", err);
@@ -274,6 +294,8 @@ export default function QuizPage({ params }) {
     } finally {
       setSubmitting(false);
     }
+    //redirect to dashboard
+    router.push("/dashboard");
   };
   // Loading state
   if (loading && !quiz) {
@@ -299,8 +321,8 @@ export default function QuizPage({ params }) {
               <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
               <h2 className="text-xl font-semibold mb-2">Error</h2>
               <p className="text-gray-700 text-center">{error}</p>
-              <Button 
-                onClick={() => router.push('/dashboard')}
+              <Button
+                onClick={() => router.push("/dashboard")}
                 className="mt-4"
               >
                 Return Home
@@ -326,6 +348,7 @@ export default function QuizPage({ params }) {
               <h2 className="text-xl font-semibold mb-1">Quiz Completed!</h2>
               <p className="text-gray-600">{quiz && quiz.title}</p>
               <p className="text-gray-500 mt-1">{quiz && quiz.course_name}</p>
+              <p className="text-gray-700 mt-1 italic">Your Score: {submissionData && submissionData.score}</p>
             </div>
 
             {/* <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -343,14 +366,14 @@ export default function QuizPage({ params }) {
             {!feedbackSubmitted ? (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Share your feedback:</h3>
-                <Textarea 
+                <Textarea
                   placeholder="Tell us what you thought about this quiz..."
                   className="w-full mb-4"
                   rows={4}
                   value={userFeedback}
                   onChange={(e) => setUserFeedback(e.target.value)}
                 />
-                <Button 
+                <Button
                   onClick={handleFeedbackSubmit}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   disabled={submitting}
@@ -360,18 +383,22 @@ export default function QuizPage({ params }) {
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Submitting...
                     </span>
-                  ) : 'Submit Feedback'}
+                  ) : (
+                    "Submit Feedback"
+                  )}
                 </Button>
               </div>
             ) : (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <p className="text-green-700 text-center">Thank you for your feedback!</p>
+                <p className="text-green-700 text-center">
+                  Thank you for your feedback!
+                </p>
               </div>
             )}
           </CardContent>
           <CardFooter className="border-t p-4 flex justify-center">
-            <Button 
-              onClick={() => router.push('/')}
+            <Button
+              onClick={() => router.push("/")}
               className="bg-gray-600 hover:bg-gray-700 text-white"
             >
               Return Home
@@ -400,13 +427,17 @@ export default function QuizPage({ params }) {
               {timeRemaining !== null && (
                 <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full">
                   <Clock className="w-5 h-5 mr-2 text-gray-600" />
-                  <span className="font-medium text-lg">{formatTime(timeRemaining)}</span>
+                  <span className="font-medium text-lg">
+                    {formatTime(timeRemaining)}
+                  </span>
                 </div>
               )}
             </div>
             <div className="flex flex-col space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Question {currentQuestionIndex + 1} of {quiz.questions.length}</span>
+                <span>
+                  Question {currentQuestionIndex + 1} of {quiz.questions.length}
+                </span>
                 <span>{Math.round(progress)}%</span>
               </div>
               <Progress value={progress} className="h-2" />
@@ -416,41 +447,50 @@ export default function QuizPage({ params }) {
           <CardContent className="p-6">
             <div className="mb-6">
               <div className="mb-4">
-                <span className="text-sm font-medium text-gray-500">Question {currentQuestionIndex + 1}</span>
-                <h2 className="text-lg font-medium mt-1">{currentQuestion.question_text}</h2>
+                <span className="text-sm font-medium text-gray-500">
+                  Question {currentQuestionIndex + 1}
+                </span>
+                <h2 className="text-lg font-medium mt-1">
+                  {currentQuestion.question_text}
+                </h2>
               </div>
 
               <div className="space-y-2 mt-4">
-                {currentQuestion.options && currentQuestion.options.map((option, idx) => (
-                  <div 
-                    key={idx}
-                    className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
-                      answers[currentQuestionIndex] === option 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200'
-                    }`}
-                    onClick={() => handleAnswerSelect(currentQuestionIndex, option)}
-                  >
-                    <div className="flex items-center">
-                      <div className={`w-5 h-5 mr-3 border rounded-full ${
+                {currentQuestion.options &&
+                  currentQuestion.options.map((option, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
                         answers[currentQuestionIndex] === option
-                          ? 'bg-blue-500 border-blue-500' 
-                          : 'border-gray-300'
-                      }`}>
-                        {answers[currentQuestionIndex] === option && (
-                          <div className="w-3 h-3 bg-white rounded-full mx-auto mt-1"></div>
-                        )}
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200"
+                      }`}
+                      onClick={() =>
+                        handleAnswerSelect(currentQuestionIndex, option)
+                      }
+                    >
+                      <div className="flex items-center">
+                        <div
+                          className={`w-5 h-5 mr-3 border rounded-full ${
+                            answers[currentQuestionIndex] === option
+                              ? "bg-blue-500 border-blue-500"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {answers[currentQuestionIndex] === option && (
+                            <div className="w-3 h-3 bg-white rounded-full mx-auto mt-1"></div>
+                          )}
+                        </div>
+                        <span>{option}</span>
                       </div>
-                      <span>{option}</span>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </CardContent>
 
           <CardFooter className="border-t p-4 flex justify-between">
-            <Button 
+            <Button
               variant="outline"
               onClick={goToPrevQuestion}
               disabled={currentQuestionIndex === 0}
@@ -459,14 +499,14 @@ export default function QuizPage({ params }) {
             </Button>
 
             {currentQuestionIndex < quiz.questions.length - 1 ? (
-              <Button 
+              <Button
                 onClick={goToNextQuestion}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Next
               </Button>
             ) : (
-              <Button 
+              <Button
                 onClick={handleSubmitQuiz}
                 className="bg-green-600 hover:bg-green-700 text-white"
                 disabled={submitting}
@@ -476,7 +516,9 @@ export default function QuizPage({ params }) {
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Submitting...
                   </span>
-                ) : 'Submit Quiz'}
+                ) : (
+                  "Submit Quiz"
+                )}
               </Button>
             )}
           </CardFooter>
@@ -494,11 +536,10 @@ export default function QuizPage({ params }) {
             <div className="flex flex-col items-center">
               <AlertTriangle className="w-12 h-12 text-yellow-500 mb-4" />
               <h2 className="text-xl font-semibold mb-2">No Questions Found</h2>
-              <p className="text-gray-700 text-center">This quiz doesn't contain any questions.</p>
-              <Button 
-                onClick={() => router.push('/')}
-                className="mt-4"
-              >
+              <p className="text-gray-700 text-center">
+                This quiz doesn't contain any questions.
+              </p>
+              <Button onClick={() => router.push("/")} className="mt-4">
                 Return Home
               </Button>
             </div>
