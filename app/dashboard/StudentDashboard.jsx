@@ -18,6 +18,7 @@ import DashboardContent from "@/components/student/DashboardContent";
 import FeedbackHistoryContent from "@/components/student/FeedbackHistoryContent";
 import ProfileContent from "@/components/student/ProfileContent";
 import QuizDashboard from "@/components/student/QuizDashboard";
+import Feedback from "../../components/student/QuizCodeEntry";
 
 async function getUser() {
   try {
@@ -102,6 +103,13 @@ const StudentDashboard = () => {
       icon: Brain,
       active: activeTab === "Quiz Dashboard",
     },
+    {
+      name : "Feedback",
+      component:<Feedback userobj={userobj}/>,
+      icon:Brain,
+      active:activeTab === "Feedback"
+
+    }
   ];
 
   const renderTabContent = () => {
@@ -114,6 +122,8 @@ const StudentDashboard = () => {
         return <FeedbackHistoryContent userobj={userobj} />;
       case "Quiz Dashboard":
         return <QuizDashboard userobj={userobj} />;
+      case "Feedback":
+        return <Feedback userobj={userobj}/>
       default:
         return <DashboardContent userobj={userobj} />;
     }

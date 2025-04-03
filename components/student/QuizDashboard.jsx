@@ -14,6 +14,8 @@ import {
   Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import QuizCode from "@/components/student/QuizCodeEntry";
+
 
 const LoadingSpinner = ({ message = "Loading..." }) => {
   return (
@@ -164,6 +166,8 @@ const QuizDashboard = ({ userobj }) => {
   const handleQuizStart = (quizId) => {
     // Navigate to quiz page or handle quiz start logic
     console.log(`Starting quiz: ${quizId}`);
+    // <QuizCode quizId = {quizId}/>
+    window.open(`${window.location.origin}/quiz/${quizId}/check`, "_blank");
     // window.location.href = `/student/quiz/${quizId}`;
   };
 
