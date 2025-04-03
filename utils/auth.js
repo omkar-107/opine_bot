@@ -94,3 +94,9 @@ export const authorizeStudent = async (token, stu_email) => {
 
     return true;
 }
+
+export const getUserFromToken = async (token) => {
+    let user = verify(token, process.env.AUTH_SECRET);
+    console.log('user is ', user);
+    return user.user;
+}
