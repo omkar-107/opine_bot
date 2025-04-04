@@ -37,8 +37,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const token = sign({user},secretKey, { expiresIn: MAX_AGE });
     const seralized = serialize(process.env.COOKIE_NAME || 'auth', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: MAX_AGE,
       path: "/",
     });
