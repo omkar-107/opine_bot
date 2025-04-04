@@ -35,7 +35,7 @@ import {
   ChevronRight,
   Menu,
   X,
-} from 'lucide-react';
+} from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -174,7 +174,9 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
         <InfoCard
           title="Total Enrollments"
           value={dashboardStats.enrollmentCount}
-          icon={<FileSpreadsheet className="w-4 h-4 sm:w-6 sm:h-6 text-white" />}
+          icon={
+            <FileSpreadsheet className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+          }
           gradientFrom="from-green-500"
           gradientTo="to-emerald-500"
         />
@@ -185,7 +187,9 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <div className="flex items-center">
               <PieChart className="w-4 h-4 md:w-5 md:h-5 mr-2 text-indigo-600" />
-              <h2 className="text-base md:text-lg font-semibold">Students Distribution</h2>
+              <h2 className="text-base md:text-lg font-semibold">
+                Students Distribution
+              </h2>
             </div>
             <select className="px-2 py-1 text-xs md:text-sm border rounded-lg">
               <option>This Year</option>
@@ -196,12 +200,14 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
             <Pie data={pieData} options={{ maintainAspectRatio: false }} />
           </div>
         </div>
-        
+
         <div className="bg-white p-4 md:p-6 rounded-2xl shadow-lg">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <div className="flex items-center">
               <UserCheck className="w-4 h-4 md:w-5 md:h-5 mr-2 text-indigo-600" />
-              <h2 className="text-base md:text-lg font-semibold">Attendance Overview</h2>
+              <h2 className="text-base md:text-lg font-semibold">
+                Attendance Overview
+              </h2>
             </div>
             <div className="flex space-x-2">
               <button className="px-2 md:px-4 py-1 md:py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs md:text-sm font-medium hover:bg-indigo-100 transition-colors">
@@ -238,9 +244,9 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
                     labels: {
                       boxWidth: 10,
                       font: {
-                        size: 10
-                      }
-                    }
+                        size: 10,
+                      },
+                    },
                   },
                 },
               }}
@@ -254,7 +260,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
 
 export default function Page() {
   const [userobj, setUserobj] = useState<UserObject | null>(null);
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState<String>("Dashboard");
   const [logoutActive, setLogoutActive] = useState(true);
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<DashboardData>({
@@ -281,7 +287,7 @@ export default function Page() {
 
   useEffect(() => {
     fetchDashboardData();
-    
+
     // Check window size on initial load
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -290,15 +296,15 @@ export default function Page() {
         setSidebarOpen(true);
       }
     };
-    
+
     // Set initial state based on window size
     handleResize();
-    
+
     // Add event listener for window resize
-    window.addEventListener('resize', handleResize);
-    
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -408,7 +414,7 @@ export default function Page() {
     setIsMobileMenuOpen(false);
   };
 
-  const handleTabChange = (tabName) => {
+  const handleTabChange = (tabName: String) => {
     setActiveTab(tabName);
     // Close mobile menu after tab selection
     setIsMobileMenuOpen(false);
@@ -447,32 +453,30 @@ export default function Page() {
     {
       name: "Feedback",
       icon: <MessageCircle className="w-5 h-5 mr-3" />,
-      component: <FeedBackContent />
-    }
+      component: <FeedBackContent />,
+    },
   ];
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={toggleMobileMenu}
         ></div>
       )}
-      
+
       {/* Sidebar - Desktop & Mobile */}
-      <div 
+      <div
         className={`bg-white border-r border-gray-200 fixed h-full z-40 transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? 'md:w-64' : 'md:w-20'
-        } ${
-          isMobileMenuOpen ? 'w-64 left-0' : 'w-64 -left-64 md:left-0'
-        }`}
+          isSidebarOpen ? "md:w-64" : "md:w-20"
+        } ${isMobileMenuOpen ? "w-64 left-0" : "w-64 -left-64 md:left-0"}`}
       >
         <div className="flex flex-col h-full">
           <div className="p-4 md:p-6 flex items-center">
             {/* Mobile Hamburger Menu Button (Now inside the sidebar header) */}
-            <button 
+            <button
               onClick={toggleMobileMenu}
               className="md:hidden mr-3 text-indigo-600"
             >
@@ -482,11 +486,11 @@ export default function Page() {
                 <Menu className="w-6 h-6" />
               )}
             </button>
-            
+
             <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent transition-all duration-300">
-              {!isSidebarOpen && !isMobileMenuOpen ? 'AP' : 'Admin Portal'}
+              {!isSidebarOpen && !isMobileMenuOpen ? "AP" : "Admin Portal"}
             </h2>
-            
+
             {/* Desktop Toggle Button */}
             <button
               onClick={toggleSidebar}
@@ -506,16 +510,22 @@ export default function Page() {
                 key={tab.name}
                 onClick={() => handleTabChange(tab.name)}
                 className={`flex items-center w-full ${
-                  isSidebarOpen || isMobileMenuOpen ? 'justify-start px-4' : 'justify-center px-2'
+                  isSidebarOpen || isMobileMenuOpen
+                    ? "justify-start px-4"
+                    : "justify-center px-2"
                 } py-3 rounded-xl transition-all duration-200 ${
                   activeTab === tab.name
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200"
                     : "text-gray-600 hover:bg-gray-50"
                 }`}
-                title={!isSidebarOpen && !isMobileMenuOpen ? tab.name : ''}
+                title={!isSidebarOpen && !isMobileMenuOpen ? tab.name : ""}
               >
-                <div className={isSidebarOpen || isMobileMenuOpen ? '' : ''}>{tab.icon}</div>
-                {(isSidebarOpen || isMobileMenuOpen) && <span className="font-medium">{tab.name}</span>}
+                <div className={isSidebarOpen || isMobileMenuOpen ? "" : ""}>
+                  {tab.icon}
+                </div>
+                {(isSidebarOpen || isMobileMenuOpen) && (
+                  <span className="font-medium">{tab.name}</span>
+                )}
               </button>
             ))}
           </nav>
@@ -525,17 +535,31 @@ export default function Page() {
               onClick={handleLogout}
               disabled={isLoggingOut}
               className={`flex items-center ${
-                isSidebarOpen || isMobileMenuOpen ? 'justify-start px-4' : 'justify-center px-2'
+                isSidebarOpen || isMobileMenuOpen
+                  ? "justify-start px-4"
+                  : "justify-center px-2"
               } w-full py-3 text-white rounded-xl transition-all duration-300 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg shadow-indigo-200 relative overflow-hidden ${
-                isLoggingOut ? 'cursor-not-allowed opacity-75' : 'hover:shadow-xl'
+                isLoggingOut
+                  ? "cursor-not-allowed opacity-75"
+                  : "hover:shadow-xl"
               }`}
-              title={!isSidebarOpen && !isMobileMenuOpen ? 'Logout' : ''}
+              title={!isSidebarOpen && !isMobileMenuOpen ? "Logout" : ""}
             >
-              <div className={`flex items-center ${isLoggingOut ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>
-                <LogOut className={`w-5 h-5 ${isSidebarOpen || isMobileMenuOpen ? 'mr-3' : ''}`} />
-                {(isSidebarOpen || isMobileMenuOpen) && <span className="font-medium">Logout</span>}
+              <div
+                className={`flex items-center ${
+                  isLoggingOut ? "opacity-0" : "opacity-100"
+                } transition-opacity duration-200`}
+              >
+                <LogOut
+                  className={`w-5 h-5 ${
+                    isSidebarOpen || isMobileMenuOpen ? "mr-3" : ""
+                  }`}
+                />
+                {(isSidebarOpen || isMobileMenuOpen) && (
+                  <span className="font-medium">Logout</span>
+                )}
               </div>
-              
+
               {isLoggingOut && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -547,22 +571,21 @@ export default function Page() {
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${
-        isSidebarOpen ? 'md:ml-64' : 'md:ml-20'
-      } ml-0 p-4 md:p-8`}>
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarOpen ? "md:ml-64" : "md:ml-20"
+        } ml-0 p-4 md:p-8`}
+      >
         {/* Mobile Header */}
         <div className="md:hidden flex items-center mb-4 bg-white p-3 rounded-xl shadow-md">
-          <button 
-            onClick={toggleMobileMenu}
-            className="text-indigo-600 mr-3"
-          >
+          <button onClick={toggleMobileMenu} className="text-indigo-600 mr-3">
             <Menu className="w-6 h-6" />
           </button>
           <h2 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             Admin Portal
           </h2>
         </div>
-        
+
         {/* Dashboard Content */}
         {tabs.find((tab) => tab.name === activeTab)?.component}
       </div>
