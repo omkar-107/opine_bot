@@ -100,23 +100,20 @@ const CreateQuizContent = ({ userobj }) => {
 
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
     try {
-      // Using axios instead of fetch
-      const response = await axios.post(
-        `${baseUrl}/generate_questions`,
-        {
+      const response = await fetch(`${baseUrl}/generate_questions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
           syllabus: syllabus || "General topics",
           num_questions: questionCount,
           difficulty: questionDifficulty,
-        },
-        {
-          withCredentials: true, // This ensures cookies are sent with the request
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+        }),
+      });
 
-      const data = response.data;
+      const data = await response.json();
 
       if (data.success) {
         // Transform generated questions to match the required format
