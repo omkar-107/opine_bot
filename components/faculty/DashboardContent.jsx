@@ -60,7 +60,7 @@ const DashboardContent = ({ userobj, loadingParent }) => {
       }
     };
     fetchFeedbackTasks();
-  }, [loadingParent]);
+  }, []);
 
   if (loading) {
     return (
