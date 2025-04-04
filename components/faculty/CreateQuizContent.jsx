@@ -89,6 +89,17 @@ const CreateQuizContent = ({ userobj }) => {
     fetchFacultyDetails();
   }, [userobj.username]);
 
+  function getAuthToken() {
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split("=");
+      if (name === "auth") {
+        return value;
+      }
+    }
+    return null;
+  }
+
   const handleGenerateQuestions = async () => {
     if (!syllabus && !courseId) {
       setSubmitError("Please select a course and specify syllabus topics");
@@ -100,10 +111,15 @@ const CreateQuizContent = ({ userobj }) => {
 
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
     try {
+      const token = getAuthToken();
+      console.log("Auth token:", token);
+
       const response = await fetch(`${baseUrl}/generate_questions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({
