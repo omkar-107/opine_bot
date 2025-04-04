@@ -90,9 +90,11 @@ const CreateQuizContent = ({ userobj }) => {
   }, [userobj.username]);
 
   function getAuthToken() {
+    console.log("documentcookies ", document.cookie);
     const cookies = document.cookie.split(";");
     for (let cookie of cookies) {
       const [name, value] = cookie.trim().split("=");
+      console.log(`name of cookie: ${name} and value is ${value}`);
       if (name === "auth") {
         return value;
       }
