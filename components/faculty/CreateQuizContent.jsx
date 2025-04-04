@@ -106,6 +106,7 @@ const CreateQuizContent = ({ userobj }) => {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        mode: "cors",
         body: JSON.stringify({
           syllabus: syllabus || "General topics",
           num_questions: questionCount,
