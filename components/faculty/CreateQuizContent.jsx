@@ -89,18 +89,21 @@ const CreateQuizContent = ({ userobj }) => {
     fetchFacultyDetails();
   }, [userobj.username]);
 
-  function getAuthToken() {
-    console.log("documentcookies ", document.cookie);
-    const cookies = document.cookie.split(";");
-    for (let cookie of cookies) {
-      const [name, value] = cookie.trim().split("=");
-      console.log(`name of cookie: ${name} and value is ${value}`);
-      if (name === "auth") {
-        return value;
+  const getAuthToken = async () => {
+    try {
+      const response = await fetch(`/api/auth/token`);
+      if (response.ok) {
+        const tokenData = await response.json();
+        console.log(tokenData.token);
+        return tokenData.token;
+      } else {
+        console.error("Error fetching token:");
       }
+    } catch (error) {
+      console.error("Error:", error);
     }
     return null;
-  }
+  };
 
   const handleGenerateQuestions = async () => {
     if (!syllabus && !courseId) {
@@ -113,7 +116,7 @@ const CreateQuizContent = ({ userobj }) => {
 
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
     try {
-      const token = getAuthToken();
+      const token = await getAuthToken();
       console.log("Auth token:", token);
 
       const response = await fetch(`${baseUrl}/generate_questions`, {
