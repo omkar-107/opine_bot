@@ -179,14 +179,33 @@ export default function ChatbotUI() {
     }
   };
 
+  const getAuthToken = async () => {
+    try {
+      const response = await fetch(`/api/auth/token`);
+      if (response.ok) {
+        const tokenData = await response.json();
+        console.log(tokenData.token);
+        return tokenData.token;
+      } else {
+        console.error("Error fetching token:");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    return null;
+  };
+
   // First, let's modify the startFeedbackSession function to include session tracking
   const startFeedbackSession = async () => {
     try {
+      const token = await getAuthToken();
       setIsLoading(true);
       const response = await fetch(`${baseUrl}/start_feedback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({
@@ -226,13 +245,15 @@ export default function ChatbotUI() {
     setIsLoading(true);
 
     try {
-
+      const token = await getAuthToken();
 
 
       const response = await fetch(`${baseUrl}/feedback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({
@@ -289,10 +310,13 @@ export default function ChatbotUI() {
   const handleLastQuestion = async (currentMessages) => {
     setIsLoading(true);
     try {
+      const token = await getAuthToken();
       const res = await fetch(`${baseUrl}/summarize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({

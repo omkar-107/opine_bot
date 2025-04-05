@@ -89,6 +89,22 @@ const CreateQuizContent = ({ userobj }) => {
     fetchFacultyDetails();
   }, [userobj.username]);
 
+  const getAuthToken = async () => {
+    try {
+      const response = await fetch(`/api/auth/token`);
+      if (response.ok) {
+        const tokenData = await response.json();
+        console.log(tokenData.token);
+        return tokenData.token;
+      } else {
+        console.error("Error fetching token:");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    return null;
+  };
+
   const handleGenerateQuestions = async () => {
     if (!syllabus && !courseId) {
       setSubmitError("Please select a course and specify syllabus topics");
@@ -100,10 +116,15 @@ const CreateQuizContent = ({ userobj }) => {
 
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
     try {
+      const token = await getAuthToken();
+      console.log("Auth token:", token);
+
       const response = await fetch(`${baseUrl}/generate_questions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({

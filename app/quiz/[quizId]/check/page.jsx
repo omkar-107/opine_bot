@@ -12,9 +12,11 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 
-const QuizCodeEntry = ({ user }) => {
+export default function CheckQuizPage({ params, searchParams }) {
   const router = useRouter();
-  const { quizId } = useParams();
+  const routeParams = useParams(); // Use this instead of params directly
+  const quizId = params?.quizId || routeParams?.quizId;
+
   const [quizCode, setQuizCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -146,6 +148,4 @@ const QuizCodeEntry = ({ user }) => {
       </Card>
     </div>
   );
-};
-
-export default QuizCodeEntry;
+}

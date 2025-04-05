@@ -34,14 +34,14 @@ const LoadingSpinner = ({ message = "Loading..." }) => {
 const DashboardContent = ({ userobj, loadingParent }) => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const isFirstRender = useRef(true);
+  // const isFirstRender = useRef(true);
 
   useEffect(() => {
     const fetchFeedbackTasks = async () => {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-        return;
-      }
+      // if (isFirstRender.current) {
+      //   isFirstRender.current = false;
+      //   return;
+      // }
       try {
         const response = await fetch(
           `/api/faculty/gettasks/${userobj.username}`
@@ -60,7 +60,7 @@ const DashboardContent = ({ userobj, loadingParent }) => {
       }
     };
     fetchFeedbackTasks();
-  }, [loadingParent]);
+  }, [userobj]);
 
   if (loading) {
     return (
