@@ -2,6 +2,7 @@ import connectToDatabase from "@/utils/db";
 import FeedbackTask from "@/models/FeedbackTask";
 import { NextRequest, NextResponse } from "next/server";
 import { act } from "react";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   await connectToDatabase();

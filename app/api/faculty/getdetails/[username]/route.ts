@@ -2,6 +2,7 @@ import connectToDatabase from "@/utils/db";
 import Faculty from "@/models/Faculty";
 import { NextRequest, NextResponse } from "next/server";
 import {authorizeUsername} from "@/utils/auth";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const username = req.nextUrl.pathname.split("/").pop();

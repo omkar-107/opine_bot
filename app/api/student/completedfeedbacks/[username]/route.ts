@@ -4,6 +4,7 @@ import FeedbackTask from "@/models/FeedbackTask";
 import Course from "@/models/Course";
 import { NextRequest, NextResponse } from "next/server";
 import {authorizeUsername} from "@/utils/auth";
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const username = request.nextUrl.pathname.split("/").pop();

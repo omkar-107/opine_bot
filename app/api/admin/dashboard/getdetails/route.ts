@@ -4,6 +4,7 @@ import Student from "@/models/Student";
 import Course from "@/models/Course";
 import FeedbackTask from "@/models/FeedbackTask";
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   await connectToDatabase();

@@ -5,6 +5,7 @@ import Course from "@/models/Course";
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeStudent } from "@/utils/auth";
 import QuizResponse from "@/models/QuizResponse";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const stu_email = req.nextUrl.pathname.split("/").pop();

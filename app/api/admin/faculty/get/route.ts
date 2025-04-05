@@ -1,6 +1,7 @@
 import connectToDatabase from "@/utils/db";
 import Faculty from "@/models/Faculty";
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest, res: NextResponse) {
   await connectToDatabase();

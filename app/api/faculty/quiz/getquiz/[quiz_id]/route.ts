@@ -3,6 +3,7 @@ import Quiz from "@/models/Quiz";
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeFaculty } from "@/utils/auth";
 import mongoose from "mongoose";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const quiz_id = req.nextUrl.pathname.split("/").pop();

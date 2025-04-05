@@ -6,6 +6,7 @@ import Feedback from "@/models/Feedback";
 import Student from "@/models/Student";
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeUsername } from "@/utils/auth";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const uname = req.nextUrl.pathname.split("/").pop();

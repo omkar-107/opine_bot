@@ -3,6 +3,7 @@ import Quiz, { IQuiz } from "@/models/Quiz";
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import QuizResponse from "@/models/QuizResponse";
+export const dynamic = 'force-dynamic';
 
 // Define an interface for the question structure
 interface IQuestion {

@@ -2,6 +2,7 @@ import connectToDatabase from "@/utils/db";
 import Student from "@/models/Student";
 import { NextRequest, NextResponse } from "next/server";
 import {authorizeUsername} from "@/utils/auth";
+export const dynamic = 'force-dynamic';
 
 //e.g==> http://localhost:3000/api/student/getdetails/21510046
 

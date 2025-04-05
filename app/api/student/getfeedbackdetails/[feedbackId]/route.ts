@@ -5,6 +5,7 @@ import Feedback from "@/models/Feedback";
 import Course from "@/models/Course";
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeFeedbackId } from "@/utils/auth";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const feedbackId = req.nextUrl.pathname.split("/").pop();

@@ -2,6 +2,7 @@ import connectToDatabase from "@/utils/db";
 import Feedback from "@/models/Feedback";
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeTaskId } from "@/utils/auth";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const taskid = req.nextUrl.pathname.split("/").pop();
