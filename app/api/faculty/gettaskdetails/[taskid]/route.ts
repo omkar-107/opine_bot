@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import FeedbackTask from "@/models/FeedbackTask";
 import { authorizeTaskId } from "@/utils/auth";
 export const dynamic = 'force-dynamic';
+import mongoose from "mongoose";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const taskid = req.nextUrl.pathname.split("/").pop();
