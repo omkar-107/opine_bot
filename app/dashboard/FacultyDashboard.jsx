@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
   ChevronRight,
-  ClipboardList,
   FileText,
   LayoutDashboard,
   Lightbulb,
@@ -70,11 +69,6 @@ const tabs = [
     name: "Create Feedback",
     component: NewFeedbackContent,
     icon: FileText,
-  },
-  {
-    name: "Summary & Insights",
-    component: FeedbackDashboardContent,
-    icon: ClipboardList,
   },
   {
     name: "Create Quiz",
@@ -179,8 +173,6 @@ const FacultyDashboard = () => {
         );
       case "Create Feedback":
         return <NewFeedbackContent userobj={userobj} />;
-      case "View Feedbacks":
-        return <FeedbackDashboardContent userobj={userobj} />;
       case "Create Quiz":
         return <CreateQuizContent userobj={userobj} />;
       case "View Quizzes":
