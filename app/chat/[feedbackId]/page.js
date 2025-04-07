@@ -29,19 +29,19 @@ const LoadingIndicator = () => (
 // Enhanced message bubble with copy functionality and timestamp
 const MessageBubble = memo(({ message, isUser }) => {
   const [copied, setCopied] = useState(false);
-  
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(message.text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-  
+
   // Format timestamp nicely
-  const formattedTime = new Date().toLocaleTimeString([], { 
-    hour: '2-digit', 
+  const formattedTime = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
     minute: '2-digit'
   });
-  
+
   return (
     <div
       className={`flex w-full mb-5 ${isUser ? "justify-end" : "justify-start"}`}
@@ -55,7 +55,7 @@ const MessageBubble = memo(({ message, isUser }) => {
           <span className="text-white text-xs font-bold">AI</span>
         </div>
       )}
-      
+
       <div
         className={`
           relative group
@@ -70,14 +70,14 @@ const MessageBubble = memo(({ message, isUser }) => {
         <p className="relative text-sm md:text-base whitespace-pre-wrap leading-relaxed">
           {message.text}
         </p>
-        
+
         {/* Interactive footer with timestamp and copy button */}
         <div className="mt-2 pt-2 flex items-center justify-between text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <span className={`${isUser ? "text-indigo-200" : "text-gray-400"}`}>
             {formattedTime}
           </span>
-          
-          <button 
+
+          <button
             onClick={copyToClipboard}
             className={`p-1 rounded-md ${isUser ? "hover:bg-indigo-600" : "hover:bg-gray-100"} transition-colors`}
             title="Copy message"
@@ -90,7 +90,7 @@ const MessageBubble = memo(({ message, isUser }) => {
           </button>
         </div>
       </div>
-      
+
       {/* Avatar for user messages */}
       {isUser && (
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center ml-2 shadow-md">
@@ -220,13 +220,33 @@ export default function ChatbotUI() {
     }
   };
 
+  const getAuthToken = async () => {
+    try {
+      const response = await fetch(`/api/auth/token`);
+      if (response.ok) {
+        const tokenData = await response.json();
+        console.log(tokenData.token);
+        return tokenData.token;
+      } else {
+        console.error("Error fetching token:");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    return null;
+  };
+
   const startFeedbackSession = async () => {
     try {
+      const token = await getAuthToken();
+
       setIsLoading(true);
       const response = await fetch(`${baseUrl}/start_feedback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({
@@ -253,9 +273,9 @@ export default function ChatbotUI() {
       console.error("Error starting feedback session:", error);
       // Show elegant error toast instead of alert
       setMessages([
-        { 
-          text: "Sorry, I couldn't start our feedback session. Please try again or return to the dashboard.", 
-          sender: "assistant" 
+        {
+          text: "Sorry, I couldn't start our feedback session. Please try again or return to the dashboard.",
+          sender: "assistant"
         }
       ]);
     } finally {
@@ -279,20 +299,24 @@ export default function ChatbotUI() {
     const currentMessages = messages;
     setInput("");
     setCharCount(0);
-    
+
     // Optimistically update UI
     setMessages([
       ...currentMessages,
       { text: currentInput, sender: "user" }
     ]);
-    
+
     setIsLoading(true);
 
     try {
+      const token = await getAuthToken();
+
       const response = await fetch(`${baseUrl}/feedback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({
@@ -340,9 +364,9 @@ export default function ChatbotUI() {
       setMessages([
         ...currentMessages,
         { text: currentInput, sender: "user" },
-        { 
-          text: "Sorry, I couldn't process your message. Please try again or refresh the page.", 
-          sender: "assistant" 
+        {
+          text: "Sorry, I couldn't process your message. Please try again or refresh the page.",
+          sender: "assistant"
         }
       ]);
     } finally {
@@ -354,10 +378,14 @@ export default function ChatbotUI() {
   const handleLastQuestion = async (currentMessages) => {
     setIsLoading(true);
     try {
+      const token = await getAuthToken();
+
       const res = await fetch(`${baseUrl}/summarize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
         },
         credentials: "include",
         body: JSON.stringify({
@@ -391,9 +419,9 @@ export default function ChatbotUI() {
       // Add a completion message
       setMessages([
         ...currentMessages,
-        { 
-          text: "Thank you for completing your feedback! You're being redirected to the dashboard...", 
-          sender: "assistant" 
+        {
+          text: "Thank you for completing your feedback! You're being redirected to the dashboard...",
+          sender: "assistant"
         }
       ]);
 
@@ -407,12 +435,12 @@ export default function ChatbotUI() {
           feedbackData,
         }),
       });
-      
+
       // Add a slight delay before redirect for better UX
       setTimeout(() => {
         router.push("/dashboard");
       }, 2000);
-      
+
     } catch (error) {
       console.error("Error handling last question:", error);
       throw error;
@@ -458,57 +486,57 @@ export default function ChatbotUI() {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Enhanced Header with Course Info */}
-<Card className="mx-3 mt-3 mb-2 shadow-xl border-none bg-white/90 backdrop-blur-md">
-  <CardContent className="p-4 sm:p-6">
-    <div className="flex items-center mb-4">
-      <button 
-        onClick={handleBackToDashboard} 
-        className="p-2 sm:p-3 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 mr-3 group"
-        aria-label="Back to dashboard"
-      >
-        <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-1 transition-transform" />
-      </button>
-      <h1 className="text-2xl sm:text-3xl font-bold flex-1 text-center pr-6">
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient">
-          Course Feedback
-        </span>
-      </h1>
-    </div>
-    
-    {/* Improved mobile layout for course info */}
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-md p-4">
-      <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
-        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
-          <span className="text-2xl">📚</span>
-        </div>
-        <div className="overflow-hidden">
-          <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course</span>
-          <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.course}</p>
-        </div>
-      </div>
-      
-      <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
-        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
-          <span className="text-2xl">🔢</span>
-        </div>
-        <div className="overflow-hidden">
-          <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course ID</span>
-          <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.forCourse}</p>
-        </div>
-      </div>
-      
-      <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
-        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
-          <span className="text-2xl">👨‍🏫</span>
-        </div>
-        <div className="overflow-hidden">
-          <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Faculty</span>
-          <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.faculty}</p>
-        </div>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+      <Card className="mx-3 mt-3 mb-2 shadow-xl border-none bg-white/90 backdrop-blur-md">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center mb-4">
+            <button
+              onClick={handleBackToDashboard}
+              className="p-2 sm:p-3 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 mr-3 group"
+              aria-label="Back to dashboard"
+            >
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-1 transition-transform" />
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-bold flex-1 text-center pr-6">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient">
+                Course Feedback
+              </span>
+            </h1>
+          </div>
+
+          {/* Improved mobile layout for course info */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-md p-4">
+            <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
+                <span className="text-2xl">📚</span>
+              </div>
+              <div className="overflow-hidden">
+                <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course</span>
+                <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.course}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
+              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
+                <span className="text-2xl">🔢</span>
+              </div>
+              <div className="overflow-hidden">
+                <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course ID</span>
+                <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.forCourse}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
+                <span className="text-2xl">👨‍🏫</span>
+              </div>
+              <div className="overflow-hidden">
+                <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Faculty</span>
+                <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.faculty}</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Chat container */}
       <div
@@ -525,18 +553,18 @@ export default function ChatbotUI() {
               </div>
               <h3 className="text-lg font-semibold text-gray-800 mb-2">Welcome to Course Feedback</h3>
               <p className="text-gray-600 text-sm">
-                I'm here to collect your valuable feedback about this course. 
+                I'm here to collect your valuable feedback about this course.
                 Feel free to share your thoughts honestly - all feedback helps improve the learning experience.
               </p>
             </div>
           </div>
         )}
-        
+
         {messages.map((message, index) => (
-          <MessageBubble 
-            key={index} 
-            message={message} 
-            isUser={message.sender === "user"} 
+          <MessageBubble
+            key={index}
+            message={message}
+            isUser={message.sender === "user"}
           />
         ))}
         {isLoading && <LoadingIndicator />}
@@ -587,85 +615,81 @@ export default function ChatbotUI() {
       )}
 
       {/* Enhanced input area */}
-    {/* Enhanced input area */}
-<Card className="mx-3 mb-3 mt-2 shadow-xl border-none bg-white/90 backdrop-blur-md">
-  <CardContent className="p-3 sm:p-4">
-    <div className="flex flex-col gap-2">
-      {/* Character limit progress bar */}
-      <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-        <div 
-          className={`h-full transition-all duration-300 ${
-            charLimitExceeded ? 'bg-red-500' : 
-            charPercentage > 75 ? 'bg-yellow-500' : 'bg-indigo-500'
-          }`}
-          style={{ width: `${Math.min(charPercentage, 100)}%` }}
-        ></div>
-      </div>
-      
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Mic button - aligned center */}
-        <button
-          onClick={handleVoiceInput}
-          className={`flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg ${
-            isRecording
-              ? "bg-gradient-to-br from-red-500 to-red-600 text-white"
-              : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
-          }`}
-          aria-label={isRecording ? "Stop recording" : "Start recording"}
-        >
-          {!isRecording ? (
-            <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
-          ) : (
-            <Square className="h-5 w-5 sm:h-6 sm:w-6" />
-          )}
-        </button>
+      {/* Enhanced input area */}
+      <Card className="mx-3 mb-3 mt-2 shadow-xl border-none bg-white/90 backdrop-blur-md">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col gap-2">
+            {/* Character limit progress bar */}
+            <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all duration-300 ${charLimitExceeded ? 'bg-red-500' :
+                  charPercentage > 75 ? 'bg-yellow-500' : 'bg-indigo-500'
+                  }`}
+                style={{ width: `${Math.min(charPercentage, 100)}%` }}
+              ></div>
+            </div>
 
-        {/* Textarea container */}
-        <div className="flex-1 relative">
-          <textarea
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Type your feedback here..."
-            className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-gray-50 focus:bg-white border-2 transition-all duration-300 outline-none shadow-inner text-sm resize-none h-12 sm:h-14 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent ${
-              charLimitExceeded 
-                ? 'border-red-300 focus:border-red-400' 
-                : 'border-transparent focus:border-indigo-300'
-            }`}
-            onKeyPress={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-          />
-          
-          {/* Character counter */}
-          <div className="absolute bottom-2 right-2 flex items-center gap-2">
-            <span className={`text-xs font-medium px-2 py-1 rounded-md ${
-              charLimitExceeded 
-                ? "text-red-600 bg-red-50" 
-                : charCount > 0 
-                  ? "text-indigo-600 bg-indigo-50" 
-                  : "text-gray-400"
-            }`}>
-              {charCount} / {MAX_CHAR_LIMIT}
-            </span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Mic button - aligned center */}
+              <button
+                onClick={handleVoiceInput}
+                className={`flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg ${isRecording
+                  ? "bg-gradient-to-br from-red-500 to-red-600 text-white"
+                  : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
+                  }`}
+                aria-label={isRecording ? "Stop recording" : "Start recording"}
+              >
+                {!isRecording ? (
+                  <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
+                ) : (
+                  <Square className="h-5 w-5 sm:h-6 sm:w-6" />
+                )}
+              </button>
+
+              {/* Textarea container */}
+              <div className="flex-1 relative">
+                <textarea
+                  value={input}
+                  onChange={handleInputChange}
+                  placeholder="Type your feedback here..."
+                  className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-gray-50 focus:bg-white border-2 transition-all duration-300 outline-none shadow-inner text-sm resize-none h-12 sm:h-14 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent ${charLimitExceeded
+                    ? 'border-red-300 focus:border-red-400'
+                    : 'border-transparent focus:border-indigo-300'
+                    }`}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                />
+
+                {/* Character counter */}
+                <div className="absolute bottom-2 right-2 flex items-center gap-2">
+                  <span className={`text-xs font-medium px-2 py-1 rounded-md ${charLimitExceeded
+                    ? "text-red-600 bg-red-50"
+                    : charCount > 0
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-400"
+                    }`}>
+                    {charCount} / {MAX_CHAR_LIMIT}
+                  </span>
+                </div>
+              </div>
+
+              {/* Send button - aligned center */}
+              <Button
+                onClick={handleSendMessage}
+                disabled={charLimitExceeded || isLoading || input.trim() === ""}
+                className="flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                aria-label="Send message"
+              >
+                <Send className="h-5 w-5 sm:h-6 sm:w-6" />
+              </Button>
+            </div>
           </div>
-        </div>
-
-        {/* Send button - aligned center */}
-        <Button
-          onClick={handleSendMessage}
-          disabled={charLimitExceeded || isLoading || input.trim() === ""}
-          className="flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          aria-label="Send message"
-        >
-          <Send className="h-5 w-5 sm:h-6 sm:w-6" />
-        </Button>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+        </CardContent>
+      </Card>
 
       <style jsx global>{`
       @keyframes slideIn {
