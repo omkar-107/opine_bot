@@ -11,7 +11,7 @@ import {
   LogOut,
   Menu,
   UserCircle2,
-  X
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -88,7 +88,15 @@ const tabs = [
 ];
 
 const FacultyDashboard = () => {
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem("facultyActiveTab");
+      if (savedTab && tabs.some((tab) => tab.name === savedTab)) {
+        return savedTab;
+      }
+    }
+    return "Dashboard";
+  });
   const [userobj, setUserObj] = useState({});
   const [logoutActive, setLogoutActive] = useState(true);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
@@ -152,6 +160,10 @@ const FacultyDashboard = () => {
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
+    // Save to localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("facultyActiveTab", tabName);
+    }
     // Close mobile menu when a tab is selected
     if (windowSize.width < 768) {
       setIsMobileMenuOpen(false);

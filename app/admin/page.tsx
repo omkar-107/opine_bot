@@ -286,6 +286,17 @@ export default function Page() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
+    const savedTab = localStorage.getItem("activeAdminTab");
+    if (savedTab) {
+      if (tabs.some((tab) => tab.name === savedTab)) {
+        setActiveTab(savedTab);
+      }
+    } else {
+      setActiveTab("Dashboard");
+    }
+  }, []);
+
+  useEffect(() => {
     fetchDashboardData();
 
     // Check window size on initial load
@@ -416,6 +427,7 @@ export default function Page() {
 
   const handleTabChange = (tabName: String) => {
     setActiveTab(tabName);
+    localStorage.setItem("activeAdminTab", tabName as string);
     // Close mobile menu after tab selection
     setIsMobileMenuOpen(false);
   };

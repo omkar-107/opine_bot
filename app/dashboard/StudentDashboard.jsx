@@ -37,7 +37,21 @@ async function getUser() {
 }
 
 const StudentDashboard = () => {
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem("studentActiveTab");
+      const tabNames = [
+        "Dashboard",
+        "Feedback History",
+        "Quiz Dashboard",
+        "Profile",
+      ];
+      if (savedTab && tabNames.some((tab) => tab === savedTab)) {
+        return savedTab;
+      }
+    }
+    return "Dashboard";
+  });
   const [userobj, setUserObj] = useState({});
   const router = useRouter();
   const [logoutActive, setLogoutActive] = useState(true);
@@ -121,6 +135,9 @@ const StudentDashboard = () => {
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("studentActiveTab", tabName);
+    }
     setIsMobileMenuOpen(false); // Close mobile menu when tab is clicked
   };
 
@@ -247,7 +264,10 @@ const StudentDashboard = () => {
             return (
               <button
                 key={tab.name}
-                onClick={() => setActiveTab(tab.name)}
+                onClick={() => {
+                  setActiveTab(tab.name);
+                  localStorage.setItem("studentActiveTab", tab.name);
+                }}
                 className={`
                   flex items-center w-full p-3 rounded-lg 
                   transition-colors duration-200

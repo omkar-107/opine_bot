@@ -51,19 +51,19 @@ export default function Page() {
 
   return (
     <div>
-    {userobj ? (
-      userobj.role === 'student' ? (
-        <StudentDashboard />
-      ) : userobj.role === 'faculty' ? (
-        <FacultyDashboard />
-      ) : userobj.role === 'admin' ? (
-        <AdminDashboard />
+      {userobj ? (
+        userobj.role === 'student' ? (
+          <StudentDashboard />
+        ) : userobj.role === 'faculty' ? (
+          <FacultyDashboard />
+        ) : userobj.role === 'admin' ? (
+          <AdminDashboard />
+        ) : (
+          <div></div>
+        )
       ) : (
-        <div>Other</div>
-      )
-    ) : (
-      <div>Loading...</div>
-    )}
-  </div>
+        <div>Loading...</div>
+      )}
+    </div>
   );
 }
