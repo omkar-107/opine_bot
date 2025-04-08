@@ -6,15 +6,14 @@ import { Mic, Square, ChevronDown, Send, Clock, ArrowLeft, RefreshCw, Copy, Chec
 import { InfinitySpin } from "react-loader-spinner";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND;
 
-// Enhanced loading indicator with smooth animation
+// Enhanced loading indicator with smooth animation and centered positioning
 const LoadingIndicator = () => (
-  <div className="flex justify-center items-center py-6">
+  <div className="flex justify-center items-center w-full h-full">
     <div className="px-5 py-3 bg-white/95 backdrop-blur-xl rounded-2xl shadow-lg border border-indigo-100">
       <div className="flex items-center gap-3">
-        {[0, 1, 2].map((i) => (
+        {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
             className="w-3 h-3 bg-gradient-to-br from-indigo-400 to-purple-600 rounded-full animate-bounce"
@@ -29,19 +28,16 @@ const LoadingIndicator = () => (
 // Enhanced message bubble with copy functionality and timestamp
 const MessageBubble = memo(({ message, isUser }) => {
   const [copied, setCopied] = useState(false);
-
   const copyToClipboard = () => {
     navigator.clipboard.writeText(message.text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
   // Format timestamp nicely
   const formattedTime = new Date().toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit'
   });
-
   return (
     <div
       className={`flex w-full mb-5 ${isUser ? "justify-end" : "justify-start"}`}
@@ -55,7 +51,6 @@ const MessageBubble = memo(({ message, isUser }) => {
           <span className="text-white text-xs font-bold">AI</span>
         </div>
       )}
-
       <div
         className={`
           relative group
@@ -70,13 +65,11 @@ const MessageBubble = memo(({ message, isUser }) => {
         <p className="relative text-sm md:text-base whitespace-pre-wrap leading-relaxed">
           {message.text}
         </p>
-
         {/* Interactive footer with timestamp and copy button */}
         <div className="mt-2 pt-2 flex items-center justify-between text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <span className={`${isUser ? "text-indigo-200" : "text-gray-400"}`}>
             {formattedTime}
           </span>
-
           <button
             onClick={copyToClipboard}
             className={`p-1 rounded-md ${isUser ? "hover:bg-indigo-600" : "hover:bg-gray-100"} transition-colors`}
@@ -90,7 +83,6 @@ const MessageBubble = memo(({ message, isUser }) => {
           </button>
         </div>
       </div>
-
       {/* Avatar for user messages */}
       {isUser && (
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center ml-2 shadow-md">
@@ -110,6 +102,7 @@ export default function ChatbotUI() {
   const [ellipsis, setEllipsis] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [showCourseDetails, setShowCourseDetails] = useState(false);
   const MAX_CHAR_LIMIT = 3000;
   const [course, setCourse] = useState("");
   const [syllabus, setSyllabus] = useState("");
@@ -121,6 +114,7 @@ export default function ChatbotUI() {
   const [feedbackDetails, setFeedbackDetails] = useState({});
   const [pageLoading, setPageLoading] = useState(true);
   const [charCount, setCharCount] = useState(0);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
   const router = useRouter();
 
   const scrollToBottom = () => {
@@ -137,10 +131,17 @@ export default function ChatbotUI() {
       setSyllabus(data.syllabus);
       setFeedbackDetails(data);
       setPageLoading(false);
+      
+      // Add delay for welcome message appearance
+      setTimeout(() => {
+        setShowWelcomeMessage(true);
+      }, 800); // 800ms delay for smooth transition after page loads
+      
     } catch (error) {
       console.error("Error fetching feedback details:", error);
       // Show elegant error state
       setPageLoading(false);
+      setShowWelcomeMessage(true); // Show welcome message even on error
     }
   };
 
@@ -239,7 +240,6 @@ export default function ChatbotUI() {
   const startFeedbackSession = async () => {
     try {
       const token = await getAuthToken();
-
       setIsLoading(true);
       const response = await fetch(`${baseUrl}/start_feedback`, {
         method: "POST",
@@ -255,11 +255,9 @@ export default function ChatbotUI() {
           syllabus,
         }),
       });
-
       if (!response.ok) {
         throw new Error("Failed to start feedback session");
       }
-
       const data = await response.json();
       setMessages(
         data.chat_history
@@ -294,23 +292,18 @@ export default function ChatbotUI() {
 
   const handleSendMessage = async () => {
     if (input.trim() === "") return;
-
     const currentInput = input;
     const currentMessages = messages;
     setInput("");
     setCharCount(0);
-
     // Optimistically update UI
     setMessages([
       ...currentMessages,
       { text: currentInput, sender: "user" }
     ]);
-
     setIsLoading(true);
-
     try {
       const token = await getAuthToken();
-
       const response = await fetch(`${baseUrl}/feedback`, {
         method: "POST",
         headers: {
@@ -330,7 +323,6 @@ export default function ChatbotUI() {
           })),
         }),
       });
-
       if (!response.ok) {
         throw new Error("Failed to send message");
       }
@@ -339,10 +331,8 @@ export default function ChatbotUI() {
         { text: currentInput, sender: "user" }
       ];
       const data = await response.json();
-
       // Get the assistant's response from the last message in chat_history
       const assistantResponse = data.chat_history[data.chat_history.length - 1];
-
       // Add the assistant's response to the messages
       const finalMessages = [
         ...updatedMessages,
@@ -351,10 +341,8 @@ export default function ChatbotUI() {
           sender: assistantResponse.role
         }
       ];
-
       // Update messages state with the complete history
       setMessages(finalMessages.filter((msg) => msg.sender !== "system"));
-
       if (data.is_last_question) {
         await handleLastQuestion(finalMessages);
       }
@@ -379,7 +367,6 @@ export default function ChatbotUI() {
     setIsLoading(true);
     try {
       const token = await getAuthToken();
-
       const res = await fetch(`${baseUrl}/summarize`, {
         method: "POST",
         headers: {
@@ -397,11 +384,9 @@ export default function ChatbotUI() {
           })),
         }),
       });
-
       if (!res.ok) {
         throw new Error("Failed to summarize feedback");
       }
-
       const summary = await res.json();
       let feedbackData = {
         ...feedbackDetails,
@@ -415,7 +400,6 @@ export default function ChatbotUI() {
         completed: true,
         completedAt: new Date().toISOString()
       };
-
       // Add a completion message
       setMessages([
         ...currentMessages,
@@ -424,7 +408,6 @@ export default function ChatbotUI() {
           sender: "assistant"
         }
       ]);
-
       // Save the complete feedback session
       await fetch(`/api/student/updatefeedback/${feedbackId}`, {
         method: "POST",
@@ -435,12 +418,10 @@ export default function ChatbotUI() {
           feedbackData,
         }),
       });
-
       // Add a slight delay before redirect for better UX
       setTimeout(() => {
         router.push("/dashboard");
       }, 2000);
-
     } catch (error) {
       console.error("Error handling last question:", error);
       throw error;
@@ -463,28 +444,28 @@ export default function ChatbotUI() {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
         <div className="relative">
           <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full animate-pulse"></div>
           <InfinitySpin
             visible={true}
-            width="200"
+            width="180"
             color="#6366f1"
             ariaLabel="infinity-spin-loading"
           />
         </div>
-        <p className="mt-8 text-xl text-gray-700 font-medium animate-pulse">
+        <p className="mt-8 text-lg sm:text-xl text-gray-700 font-medium animate-pulse text-center">
           Preparing your feedback session...
         </p>
         <div className="mt-6 w-64 h-2 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-full">
-          <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
+          <div className="h-full w-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative">
       {/* Enhanced Header with Course Info */}
       <Card className="mx-3 mt-3 mb-2 shadow-xl border-none bg-white/90 backdrop-blur-md">
         <CardContent className="p-4 sm:p-6">
@@ -502,51 +483,63 @@ export default function ChatbotUI() {
               </span>
             </h1>
           </div>
-
-          {/* Improved mobile layout for course info */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-md p-4">
-            <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
-                <span className="text-2xl">📚</span>
+          {/* Collapsible course info */}
+          <div className="w-full">
+            <button 
+              onClick={() => setShowCourseDetails(!showCourseDetails)}
+              className="w-full flex items-center justify-between p-2 bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-md mb-2 md:hidden"
+            >
+              <span className="font-medium text-indigo-800">Course Details</span>
+              <ChevronDown className={`h-5 w-5 text-indigo-600 transition-transform ${showCourseDetails ? 'rotate-180' : ''}`} />
+            </button>
+            
+            <div className={`grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-md p-4 ${showCourseDetails ? 'block' : 'hidden md:grid'}`}>
+              <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
+                  <span className="text-2xl">📚</span>
+                </div>
+                <div className="overflow-hidden">
+                  <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course</span>
+                  <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.course}</p>
+                </div>
               </div>
-              <div className="overflow-hidden">
-                <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course</span>
-                <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.course}</p>
+              <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
+                  <span className="text-2xl">🔢</span>
+                </div>
+                <div className="overflow-hidden">
+                  <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course ID</span>
+                  <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.forCourse}</p>
+                </div>
               </div>
-            </div>
-
-            <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
-              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
-                <span className="text-2xl">🔢</span>
-              </div>
-              <div className="overflow-hidden">
-                <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Course ID</span>
-                <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.forCourse}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
-                <span className="text-2xl">👨‍🏫</span>
-              </div>
-              <div className="overflow-hidden">
-                <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Faculty</span>
-                <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.faculty}</p>
+              <div className="flex items-center group hover:bg-white/80 p-2 rounded-lg transition-colors">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md transition-all">
+                  <span className="text-2xl">👨‍🏫</span>
+                </div>
+                <div className="overflow-hidden">
+                  <span className="text-xs text-gray-500 font-medium uppercase tracking-wider block">Faculty</span>
+                  <p className="text-sm sm:text-base text-indigo-800 font-semibold truncate">{feedbackDetails.faculty}</p>
+                </div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-
       {/* Chat container */}
       <div
         ref={chatContainerRef}
-        className="flex-1 px-3 sm:px-6 py-4 overflow-y-auto scroll-smooth space-y-4"
+        className="flex-1 px-3 sm:px-6 py-4 overflow-y-auto scroll-smooth space-y-4 pb-24 sm:pb-4"
         onScroll={handleScroll}
       >
-        {/* Welcome message if no messages */}
-        {messages.length === 0 && !isLoading && (
-          <div className="flex justify-center items-center h-full">
+        {/* Welcome message with fade-in animation */}
+        {messages.length === 0 && !isLoading && showWelcomeMessage && (
+          <div 
+            className="flex justify-center items-center h-full"
+            style={{
+              animation: 'fadeIn 0.8s ease-out forwards',
+              opacity: 0
+            }}
+          >
             <div className="text-center max-w-md p-6 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
                 <span className="text-3xl">💬</span>
@@ -559,7 +552,6 @@ export default function ChatbotUI() {
             </div>
           </div>
         )}
-
         {messages.map((message, index) => (
           <MessageBubble
             key={index}
@@ -570,7 +562,6 @@ export default function ChatbotUI() {
         {isLoading && <LoadingIndicator />}
         <div ref={messagesEndRef} />
       </div>
-
       {/* Enhanced scroll button */}
       {showScrollButton && (
         <button
@@ -580,7 +571,6 @@ export default function ChatbotUI() {
           <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-y-1 transition-transform" />
         </button>
       )}
-
       {/* Enhanced recording modal */}
       {isRecording && (
         <div className="fixed inset-0 bg-indigo-900/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -613,10 +603,8 @@ export default function ChatbotUI() {
           </div>
         </div>
       )}
-
-      {/* Enhanced input area */}
-      {/* Enhanced input area */}
-      <Card className="mx-3 mb-3 mt-2 shadow-xl border-none bg-white/90 backdrop-blur-md">
+      {/* Enhanced input area - fixed at bottom */}
+      <Card className="mx-3 mb-3 mt-2 shadow-xl border-none bg-white/90 backdrop-blur-md sticky bottom-0 left-0 right-0 z-10">
         <CardContent className="p-3 sm:p-4">
           <div className="flex flex-col gap-2">
             {/* Character limit progress bar */}
@@ -628,12 +616,11 @@ export default function ChatbotUI() {
                 style={{ width: `${Math.min(charPercentage, 100)}%` }}
               ></div>
             </div>
-
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Mic button - aligned center */}
               <button
                 onClick={handleVoiceInput}
-                className={`flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg ${isRecording
+                className={`flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-full transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg ${isRecording
                   ? "bg-gradient-to-br from-red-500 to-red-600 text-white"
                   : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
                   }`}
@@ -645,14 +632,13 @@ export default function ChatbotUI() {
                   <Square className="h-5 w-5 sm:h-6 sm:w-6" />
                 )}
               </button>
-
               {/* Textarea container */}
               <div className="flex-1 relative">
                 <textarea
                   value={input}
                   onChange={handleInputChange}
                   placeholder="Type your feedback here..."
-                  className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-gray-50 focus:bg-white border-2 transition-all duration-300 outline-none shadow-inner text-sm resize-none h-12 sm:h-14 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent ${charLimitExceeded
+                  className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-gray-50 focus:bg-white border-2 transition-all duration-300 outline-none shadow-inner text-sm resize-none h-10 sm:h-14 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent ${charLimitExceeded
                     ? 'border-red-300 focus:border-red-400'
                     : 'border-transparent focus:border-indigo-300'
                     }`}
@@ -663,7 +649,6 @@ export default function ChatbotUI() {
                     }
                   }}
                 />
-
                 {/* Character counter */}
                 <div className="absolute bottom-2 right-2 flex items-center gap-2">
                   <span className={`text-xs font-medium px-2 py-1 rounded-md ${charLimitExceeded
@@ -723,8 +708,34 @@ export default function ChatbotUI() {
       ::-webkit-scrollbar {
         width: 5px;
         height: 5px;
+      
+      @keyframes gradient {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      
+      .animate-gradient {
+        background-size: 200% 200%;
+        animation: gradient 8s ease infinite;
       }
 
+      ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      @media (min-width: 640px) {
+        ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
       @media (min-width: 640px) {
         ::-webkit-scrollbar {
           width: 6px;
@@ -738,6 +749,7 @@ export default function ChatbotUI() {
 
       ::-webkit-scrollbar-thumb {
         background: #cbd5e1;
+        border-radius: 5px;
         border-radius: 5px;
       }
 

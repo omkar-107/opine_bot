@@ -9,6 +9,7 @@ import {
     Book,
     Calendar,
     ChevronRight,
+    RefreshCw,
     Users
 } from "lucide-react";
 
@@ -30,39 +31,84 @@ const LoadingSpinner = ({ message = "Loading..." }) => {
   );
 };
 
+const TaskSkeleton = () => {
+  return (
+    <Card className="animate-pulse">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          <div className="space-y-3 sm:space-y-4 w-full sm:w-3/4">
+            <div>
+              <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="mt-2 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-200 rounded-full flex-shrink-0"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-200 rounded-full flex-shrink-0"></div>
+                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              </div>
+            </div>
+            <div className="h-5 bg-gray-200 rounded w-16"></div>
+          </div>
+          <div className="w-full sm:w-1/4 h-9 bg-gray-200 rounded-lg mt-3 sm:mt-0"></div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const DashboardContent = ({ userobj, loadingParent }) => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const isFirstRender = useRef(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [prevTaskCount, setPrevTaskCount] = useState(0);
+
+  const fetchFeedbackTasks = async () => {
+    try {
+      if (!refreshing) {
+        setLoading(true);
+      }
+      
+      const response = await fetch(
+        `/api/faculty/gettasks/${userobj.username}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setPrevTaskCount(data.length);
+        setFeedbackTasks(data);
+        console.log("Fetched feedback tasks:", data);
+      } else {
+        console.error("Error fetching feedback tasks:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchFeedbackTasks = async () => {
-      // if (isFirstRender.current) {
-      //   isFirstRender.current = false;
-      //   return;
-      // }
-      try {
-        const response = await fetch(
-          `/api/faculty/gettasks/${userobj.username}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setFeedbackTasks(data);
-          console.log("Fetched feedback tasks:", data);
-        } else {
-          console.error("Error fetching feedback tasks:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchFeedbackTasks();
   }, [userobj]);
 
-  if (loading) {
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchFeedbackTasks();
+  };
+
+  const renderSkeletons = () => {
+    const count = prevTaskCount > 0 ? prevTaskCount : 3;
+    return Array(count).fill(0).map((_, index) => (
+      <div key={`skeleton-${index}`}>
+        <TaskSkeleton />
+      </div>
+    ));
+  };
+
+  if (loading && !refreshing) {
     return (
       <LoadingSpinner message="Hold on tight, loading your dashboard..." />
     );
@@ -80,14 +126,27 @@ const DashboardContent = ({ userobj, loadingParent }) => {
       </div>
 
       <div className="mb-6 md:mb-8">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 md:mb-6 flex items-center gap-2">
-          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
-          Feedback Tasks
-        </h2>
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 flex items-center gap-2">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+            Feedback Tasks
+          </h2>
+          <Button 
+            onClick={handleRefresh}
+            variant="outline"
+            className="flex items-center gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+            disabled={refreshing}
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+        </div>
 
-        {feedbackTasks.length > 0 ? (
-          <div className="space-y-3 sm:space-y-4 overflow-y-auto max-h-[500px] md:max-h-[600px] pr-1 sm:pr-2">
-            {feedbackTasks.map((task, index) => (
+        <div className="space-y-3 sm:space-y-4 overflow-y-auto max-h-[500px] md:max-h-[600px] pr-1 sm:pr-2">
+          {refreshing ? (
+            renderSkeletons()
+          ) : feedbackTasks.length > 0 ? (
+            feedbackTasks.map((task, index) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -145,19 +204,20 @@ const DashboardContent = ({ userobj, loadingParent }) => {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
-          </div>
-        ) : (
-          <Card className="bg-gray-50">
-            <CardContent className="p-6 sm:p-12 text-center text-gray-500">
-              <p className="text-sm sm:text-base">
-                No outstanding feedback tasks available at the moment.
-              </p>
-            </CardContent>
-          </Card>
-        )}
+            ))
+          ) : (
+            <Card className="bg-gray-50">
+              <CardContent className="p-6 sm:p-12 text-center text-gray-500">
+                <p className="text-sm sm:text-base">
+                  No outstanding feedback tasks available at the moment.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
 };
+
 export default DashboardContent;

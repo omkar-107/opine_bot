@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
+import login from "../../public/assets/login.png";
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -60,7 +63,35 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const inputClasses = "w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c89ff] bg-gray-50/50 disabled:opacity-50 disabled:cursor-not-allowed";
+  const handleRefresh = () => {
+    setEmail('');
+    setPassword('');
+    setError('');
+    setIsLoading(false);
+    setLoadingState('idle');
+  };
+
+  
+{/* Refresh Button */}
+const [isRotating, setIsRotating] = useState(false);
+
+
+// Add this function to your component
+const handleRefreshClick = () => {
+  setIsRotating(true);
+  handleRefresh();
+  
+  // Reset the animation after it completes
+  setTimeout(() => {
+    setIsRotating(false);
+  }, 500);
+};
+
+  const handleBack = () => {
+    router.back();
+  };
+
+  const inputClasses = "w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-50/50 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const getButtonContent = () => {
     switch (loadingState) {
@@ -81,7 +112,7 @@ export default function Login() {
           </div>
         );
       default:
-        return 'Log in';
+        return 'Sign In';
     }
   };
 
@@ -90,24 +121,42 @@ export default function Login() {
 
     switch (loadingState) {
       case 'loading':
-        return `${baseClasses} bg-[#9c89ff]/80 text-white cursor-not-allowed`;
+        return `${baseClasses} bg-blue-500 text-white cursor-not-allowed`;
       case 'success':
         return `${baseClasses} bg-green-500 text-white`;
       case 'error':
-        return `${baseClasses} bg-[#9c89ff] text-gray-800 hover:bg-[#7b61ff]`;
+        return `${baseClasses} bg-blue-600 text-white hover:bg-blue-700`;
       default:
-        return `${baseClasses} bg-[#9c89ff] text-gray-800 hover:bg-[#7b61ff]`;
-    }
+        return `${baseClasses} bg-blue-600 text-white hover:bg-blue-700`;    }
   };
 
   return (
-    <div className="h-screen bg-[#ddd8ff] p-6 flex items-center justify-center">
+    <div className="h-screen bg-blue-200 p-6 flex items-center justify-center">
       <div className="w-full h-[500px] max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden flex">
         {/* Left (Form) section */}
-        <div className="w-full md:w-1/2 p-8 max-w-md rounded-3xl overflow-hidden">
+        <div className="w-full md:w-1/2 p-8 max-w-md rounded-3xl overflow-hidden relative">
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-4 h-4 rounded-sm" />
+            <div className="flex items-center justify-between mb-2">
+              {/* Back Button */}
+              <button
+                onClick={handleBack}
+                className="flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-5 h-5 mr-1" />
+                <span className="text-sm">Back</span>
+              </button>
+              
+              {/* Refresh Button */}
+              <button
+  onClick={handleRefreshClick}
+  className="flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+  aria-label="Refresh form"
+  disabled={isLoading}
+>
+  <RefreshCw className={`w-5 h-5 transition-transform duration-500 ${isRotating ? 'rotate-180' : ''}`} />
+</button>
+
             </div>
             <h1 className="text-2xl font-semibold">Sign In</h1>
           </div>
@@ -162,19 +211,6 @@ export default function Login() {
               </div>
             )}
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="terms"
-                name="rememberMe"
-                disabled={isLoading}
-                className="rounded text-purple-600 focus:ring-purple-500 mr-2"
-              />
-              <label htmlFor="terms" className="text-sm text-gray-600">
-                Remember me
-              </label>
-            </div>
-
             <button
               type="submit"
               disabled={isLoading}
@@ -185,15 +221,29 @@ export default function Login() {
 
             <div className="text-center text-sm">
               <span className="text-gray-600">Don't have an account? </span>
-              <a href="/signup" className="text-[#7b61ff] hover:underline">
-                Create account
-              </a>
+              <span className=" text-blue-600  hover:text-blue-700 ">
+                Contact Admin
+              </span>
             </div>
           </form>
+          
+          {/* Border line - only visible on md screens and up */}
+          <div className="hidden md:block absolute top-0 right-0 w-px h-full bg-gradient-to-b from-gray-200 via-gray-300 to-gray-200" />
         </div>
 
-        {/* Right (Gradient) section */}
-        <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-[#9c89ff] to-[#ddd8ff] p-8 relative" />
+        {/* Right (Image) section with gradient overlay */}
+        <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-[#9c89ff]/90 to-[#ddd8ff]/90 relative overflow-hidden">
+          {/* Add the image here */}
+          <div className="absolute inset-0 z-0">
+            <Image 
+              src={login}
+              alt="Login illustration" 
+              fill
+              style={{ objectFit: 'cover' }}
+              priority
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

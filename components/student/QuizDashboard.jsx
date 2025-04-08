@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Clock,
   Filter,
+  RefreshCw,
   Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -20,7 +21,6 @@ const LoadingSpinner = ({ message = "Loading..." }) => {
   return (
     <div className="h-64 w-full flex flex-col items-center justify-center">
       <div className="flex flex-col items-center justify-center gap-4 p-8 rounded-lg">
-        {/* <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div> */}
         <MutatingDots
           visible={true}
           height="100"
@@ -38,10 +38,43 @@ const LoadingSpinner = ({ message = "Loading..." }) => {
   );
 };
 
+const QuizCardSkeleton = () => {
+  return (
+    <Card className="animate-pulse border-gray-200 overflow-hidden">
+      <CardContent className="p-0">
+        <div className="flex flex-col sm:flex-row">
+          <div className="w-full h-1 sm:w-2 sm:h-auto bg-gray-200"></div>
+          <div className="flex-1 p-3 sm:p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1 sm:gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="h-6 bg-gray-200 rounded-md w-3/5"></div>
+                  <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+                </div>
+
+                <div className="flex flex-wrap gap-x-3 sm:gap-x-6 gap-y-1 sm:gap-y-2 mt-2">
+                  <div className="h-4 bg-gray-200 rounded-md w-24"></div>
+                  <div className="h-4 bg-gray-200 rounded-md w-20"></div>
+                  <div className="h-4 bg-gray-200 rounded-md w-28"></div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end mt-3 md:mt-0">
+                <div className="h-9 bg-gray-200 rounded-lg w-full md:w-32"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const QuizDashboard = ({ userobj }) => {
   const [quizzes, setQuizzes] = useState([]);
   const [filteredQuizzes, setFilteredQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("course");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -67,46 +100,49 @@ const QuizDashboard = ({ userobj }) => {
   const isMobile = windowWidth < 640;
   const isTablet = windowWidth >= 640 && windowWidth < 1024;
 
-  useEffect(() => {
-    const fetchQuizzes = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `/api/student/quiz/myquizzes/${userobj.email}`
-        );
-        if (response.ok) {
-          const data = await response.json();
+  const fetchQuizzes = async () => {
+    setLoading(true);
+    setRefreshing(true);
+    try {
+      const response = await fetch(
+        `/api/student/quiz/myquizzes/${userobj.email}`
+      );
 
-          if (data.quizzes && data.quizzes.length > 0) {
-            setQuizzes(data.quizzes);
-            setFilteredQuizzes(data.quizzes);
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);  
+        if (data.quizzes && data.quizzes.length > 0) {
+          setQuizzes(data.quizzes);
+          setFilteredQuizzes(data.quizzes);
 
-            // Extract unique courses for filtering
-            const uniqueCourses = Array.from(
-              new Set(data.quizzes.map((quiz) => quiz.course_id))
-            ).map((courseId) => {
-              const quiz = data.quizzes.find((q) => q.course_id === courseId);
-              return {
-                id: courseId,
-                name: quiz.course_name,
-              };
-            });
+          // Extract unique courses for filtering
+          const uniqueCourses = Array.from(
+            new Set(data.quizzes.map((quiz) => quiz.course_id))
+          ).map((courseId) => {
+            const quiz = data.quizzes.find((q) => q.course_id === courseId);
+            return {
+              id: courseId,
+              name: quiz.course_name,
+            };
+          });
 
-            setCoursesFilter(uniqueCourses);
-          } else {
-            setQuizzes([]);
-            setFilteredQuizzes([]);
-          }
+          setCoursesFilter(uniqueCourses);
         } else {
-          console.error("Failed to fetch quizzes");
+          setQuizzes([]);
+          setFilteredQuizzes([]);
         }
-      } catch (error) {
-        console.error("Error fetching quizzes:", error);
-      } finally {
-        setLoading(false);
+      } else {
+        console.error("Failed to fetch quizzes");
       }
-    };
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     if (userobj) {
       fetchQuizzes();
     }
@@ -162,6 +198,10 @@ const QuizDashboard = ({ userobj }) => {
     setSortBy("course");
   };
 
+  const handleRefresh = () => {
+    fetchQuizzes();
+  };
+
   const handleQuizStart = (quizId) => {
     // Navigate to quiz page or handle quiz start logic
     console.log(`Starting quiz: ${quizId}`);
@@ -170,29 +210,29 @@ const QuizDashboard = ({ userobj }) => {
     // window.location.href = `/student/quiz/${quizId}`;
   };
 
-  if (loading) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center">
-        <LoadingSpinner message="Loading your quizzes..." />
-      </div>
-    );
+  if (loading && !refreshing) {
+    return <LoadingSpinner message="Loading your quizzes..." />;
   }
 
   return (
     <div className="p-2 sm:p-4 md:p-6 max-w-7xl mx-auto">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 shadow-sm">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          My Quizzes
-        </h1>
-        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
-          View and attempt your active quizzes
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              My Quizzes
+            </h1>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
+              View and attempt your active quizzes
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6">
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6 ">
+        <div className="flex-1 ">
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -211,17 +251,29 @@ const QuizDashboard = ({ userobj }) => {
           </div>
         </div>
 
-        <Button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <Filter size={18} />
-          {!isMobile && "Filters"}
-          <Badge className="ml-1 bg-blue-100 text-blue-700 hover:bg-blue-200">
-            {selectedCourse !== "all" || sortBy !== "course" ? "Active" : ""}
-          </Badge>
-        </Button>
+        <div className="flex gap-2 justify-end ">
+          <Button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Filter size={18} />
+            {!isMobile && "Filters"}
+            <Badge className="ml-1 bg-blue-100 text-blue-700 hover:bg-blue-200">
+              {selectedCourse !== "all" || sortBy !== "course" ? "Active" : ""}
+            </Badge>
+          </Button>
+          
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors rounded-lg"
+            title="Refresh quizzes"
+          >
+            <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+            <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Expandable Filter Panel */}
@@ -296,7 +348,13 @@ const QuizDashboard = ({ userobj }) => {
       </div>
 
       {/* Quiz List */}
-      {filteredQuizzes.length > 0 ? (
+      {refreshing ? (
+        <div className="space-y-3 sm:space-y-4">
+          {Array(quizzes.length ).fill().map((_, i) => (
+            <QuizCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : filteredQuizzes.length > 0 ? (
         <div className="space-y-3 sm:space-y-4">
           {filteredQuizzes.map((quiz) => (
             <motion.div

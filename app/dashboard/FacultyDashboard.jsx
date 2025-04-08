@@ -354,27 +354,22 @@ const FacultyDashboard = () => {
           </div>
 
           <div className="flex flex-col items-center px-3 mt-4">
-            <Avatar className="mb-4">
-              <AvatarFallback>
-                {userobj?.username?.[0]?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <AnimatePresence>
-              {isMenuExpanded && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-center"
-                >
-                  <h3 className="font-semibold">
-                    {userobj?.username || "Faculty Member"}
-                  </h3>
-                  <p className="text-sm text-gray-500">Faculty</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+      <AnimatePresence>
+        {isMenuExpanded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-center max-w-full"
+          >
+            <h3 className="font-semibold break-words overflow-hidden text-ellipsis">
+              {userobj?.username || "Faculty Member"}
+            </h3>
+            <p className="text-sm text-gray-500">Faculty</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
 
           <Separator className="my-4" />
 

@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BallTriangle, Bars } from "react-loader-spinner";
 
@@ -35,32 +35,67 @@ const LoadingSpinner = ({ type = "bars", message = "Loading..." }) => {
   );
 };
 
+const TaskCardSkeleton = () => {
+  return (
+    <Card className="animate-pulse">
+      <CardContent className="p-3 sm:p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <div className="h-6 sm:h-7 md:h-8 bg-gray-200 rounded-md w-3/4"></div>
+            </div>
+
+            <div className="mt-1 md:mt-2 space-y-1">
+              <div className="h-4 sm:h-5 bg-gray-200 rounded-md w-1/2 mt-2"></div>
+              <div className="h-4 sm:h-5 bg-gray-200 rounded-md w-1/3 mt-2"></div>
+            </div>
+
+            <div className="mt-2 md:mt-3">
+              <div className="h-5 sm:h-6 bg-gray-200 rounded-full w-20"></div>
+            </div>
+          </div>
+
+          <div className="h-10 sm:h-12 bg-gray-200 rounded-lg w-full sm:w-44 mt-2 sm:mt-0"></div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const DashboardContent = ({ userobj }) => {
   const [feedbackTasks, setFeedbackTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  useEffect(() => {
-    const fetchFeedbackTasks = async () => {
-      try {
-        const response = await fetch(
-          `/api/student/gettasks/${userobj.username}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setFeedbackTasks(data);
-        } else {
-          console.error("Error fetching feedback tasks:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setLoading(false);
+  const fetchFeedbackTasks = async () => {
+    try {
+      const response = await fetch(
+        `/api/student/gettasks/${userobj.username}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        // console.log(data);
+        setFeedbackTasks(data);
+      } else {
+        console.error("Error fetching feedback tasks:", response.statusText);
       }
-    };
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchFeedbackTasks();
   }, [userobj.username]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchFeedbackTasks();
+  };
 
   if (loading) {
     return (
@@ -108,11 +143,28 @@ const DashboardContent = ({ userobj }) => {
         </div>
 
         <div className="bg-white rounded-lg md:rounded-2xl shadow-md md:shadow-xl p-4 md:p-8">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-3 md:mb-6">
-            Outstanding Feedbacks
-          </h3>
+          <div className="flex justify-between items-center mb-3 md:mb-6">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">
+              Outstanding Feedbacks
+            </h3>
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+              title="Refresh dashboard"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+            </button>
+          </div>
 
-          {feedbackTasks.length > 0 ? (
+          {refreshing ? (
+           <div className="space-y-3 md:space-y-4 overflow-y-auto max-h-[50vh] sm:max-h-[40vh] md:max-h-[30rem] pr-1 md:pr-2">
+           {Array(feedbackTasks.length).fill().map((_, i) => (
+             <TaskCardSkeleton key={i} />
+           ))}
+         </div>
+          ) : feedbackTasks.length > 0 ? (
             <div className="space-y-3 md:space-y-4 overflow-y-auto max-h-[50vh] sm:max-h-[40vh] md:max-h-[30rem] pr-1 md:pr-2">
               {feedbackTasks.map((task, index) => (
                 <Card

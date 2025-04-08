@@ -15,6 +15,7 @@ import {
   Eye,
   FileText,
   Filter,
+  RefreshCw,
   Search,
   XCircle,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const ViewQuizzesContent = ({ userobj }) => {
   const [quizzes, setQuizzes] = useState([]);
   const [filteredQuizzes, setFilteredQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");
@@ -52,54 +54,62 @@ const ViewQuizzesContent = ({ userobj }) => {
   // Determine if we're on mobile/tablet
   const isMobile = windowWidth < 640;
   const isTablet = windowWidth >= 640 && windowWidth < 1024;
+  
+  const fetchQuizzes = async () => {
+    if (selectedQuiz === null) setLoading(true);
+    if (refreshing) setRefreshing(true);
+    
+    let faculty_id = "";
+    try {
+      const response = await fetch(
+        `/api/faculty/getdetails/${userobj.username}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        faculty_id = data._id;
+      } else {
+        console.error("Error fetching user details:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
+    try {
+      const response = await fetch(`/api/faculty/quiz/getall/${faculty_id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setQuizzes(data);
+        setFilteredQuizzes(data);
+
+        // Extract unique course IDs
+        const courses = Array.from(
+          new Map(
+            data.map((quiz) => [
+              quiz.course_id,
+              { cid: quiz.course_id, cname: quiz.course_name },
+            ])
+          ).values()
+        );
+        setUniqueCourses(courses);
+      } else {
+        console.error("Failed to fetch quizzes");
+      }
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchQuizzes = async () => {
-      if (selectedQuiz === null) setLoading(true);
-      let faculty_id = "";
-      try {
-        const response = await fetch(
-          `/api/faculty/getdetails/${userobj.username}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          faculty_id = data._id;
-        } else {
-          console.error("Error fetching user details:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-
-      try {
-        const response = await fetch(`/api/faculty/quiz/getall/${faculty_id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setQuizzes(data);
-          setFilteredQuizzes(data);
-
-          // Extract unique course IDs
-          const courses = Array.from(
-            new Map(
-              data.map((quiz) => [
-                quiz.course_id,
-                { cid: quiz.course_id, cname: quiz.course_name },
-              ])
-            ).values()
-          );
-          setUniqueCourses(courses);
-        } else {
-          console.error("Failed to fetch quizzes");
-        }
-      } catch (error) {
-        console.error("Error fetching quizzes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchQuizzes();
   }, [userobj.username, selectedQuiz]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchQuizzes();
+  };
 
   useEffect(() => {
     applyFilters();
@@ -226,21 +236,36 @@ const ViewQuizzesContent = ({ userobj }) => {
           </div>
         </div>
 
-        <Button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <Filter size={18} />
-          {!isMobile && "Filters"}
-          <Badge className="ml-1 bg-blue-100 text-blue-700 hover:bg-blue-200">
-            {activeFilter !== "all" ||
-            courseFilter !== "all" ||
-            sortBy !== "newest"
-              ? "Active"
-              : ""}
-          </Badge>
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            className={`flex items-center justify-center ${isMobile ? 'w-12 flex-shrink-0 p-2' : ''}`}
+            disabled={refreshing}
+          >
+            <RefreshCw 
+              size={isMobile ? 18 : 18} 
+              className={`${refreshing ? 'animate-spin' : ''} ${!isMobile && 'mr-2'}`} 
+            />
+            {!isMobile && "Refresh"}
+          </Button>
+          
+          <Button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            variant="outline"
+            className="flex items-center gap-2 flex-1 sm:flex-auto"
+          >
+            <Filter size={18} />
+            {!isMobile && "Filters"}
+            <Badge className="ml-1 bg-blue-100 text-blue-700 hover:bg-blue-200">
+              {activeFilter !== "all" ||
+              courseFilter !== "all" ||
+              sortBy !== "newest"
+                ? "Active"
+                : ""}
+            </Badge>
+          </Button>
+        </div>
       </div>
 
       {/* Expandable Filter Panel */}

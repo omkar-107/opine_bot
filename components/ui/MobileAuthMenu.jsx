@@ -40,14 +40,14 @@ const MobileAuthMenu = () => {
               <LogIn className="w-5 h-5 mr-3" />
               <span className="font-medium">Log In</span>
             </a>
-            <a 
+            {/* <a 
               href="/signup" 
               className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
               onClick={() => setIsOpen(false)}
             >
               <UserPlus className="w-5 h-5 mr-3" />
               <span className="font-medium">Sign Up</span>
-            </a>
+            </a> */}
           </div>
         </div>
       )}
