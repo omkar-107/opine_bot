@@ -12,88 +12,113 @@ import { Button } from "@/components/ui/button";
 import CircularGroup from '@/components/ui/circularGroup';
 import SentimentBarChart from '@/components/ui/sentimentBarChart';
 import TimeSeriesLineChart from '@/components/ui/timeSeriesLineChart';
+import { useRouter } from 'next/navigation';
+import { RefreshCcw } from "lucide-react";
+import { MutatingDots } from 'react-loader-spinner';
+
 
 const Toaster = dynamic(
     () => import('@/components/ui/toaster').then(mod => mod.Toaster),
     { ssr: false }
 );
 
+const LoadingSpinner = ({ message = "Loading..." }) => {
+    return (
+        <div className="h-64 w-full flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center gap-4 p-8 rounded-lg">
+                {/* <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div> */}
+                <MutatingDots
+                    visible={true}
+                    height="100"
+                    width="100"
+                    color="#1d4ed8"
+                    secondaryColor="#1d4ed8"
+                    radius="12.5"
+                    ariaLabel="mutating-dots-loading"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                />
+                <p className="text-gray-600 font-medium">{message}</p>
+            </div>
+        </div>
+    );
+};
+
 const FeedbackTaskPage = () => {
     const { taskid } = useParams();
+    const router = useRouter();
+
     const [taskDetails, setTaskDetails] = useState(null);
     const [formattedDate, setFormattedDate] = useState('');
     const [summaries, setSummaries] = useState([]);
     const [showAllSummaries, setShowAllSummaries] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [feedbackTask, setFeedbackTask] = useState(null);
     const [error, setError] = useState(null);
     const [isActive, setIsActive] = useState(false);
     const [isStatusChanging, setIsStatusChanging] = useState(false);
 
-    useEffect(() => {
-        const fetchTaskDetails = async () => {
-            if (!taskid) {
-                setError("No task ID provided");
-                setLoading(false);
-                return;
+
+    const fetchTaskData = async () => {
+        if (!taskid) {
+            setError("No task ID provided");
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch(`/api/faculty/gettaskdetails/${taskid}`);
+            const contentType = response.headers.get("content-type");
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
             }
 
-            setLoading(true);
-            setError(null);
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Invalid response format from server");
+            }
 
+            const responseData = await response.json();
+
+            if (!responseData) {
+                throw new Error("No task data received");
+            }
+
+            setTaskDetails(responseData);
+            setIsActive(responseData.active);
+
+            // Summaries
             try {
-                // Fetch task details with error handling
-                const response = await fetch(`/api/faculty/gettaskdetails/${taskid}`);
-                const contentType = response.headers.get("content-type");
-
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-
-                // Check if response is JSON
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Invalid response format from server");
-                }
-
-                const responseData = await response.json();
-
-                if (!responseData) {
-                    throw new Error("No task data received");
-                }
-
-                setTaskDetails(responseData);
-                setFeedbackTask(responseData); // Optional if you need it separately
-                setIsActive(responseData.active);
-
-                // Fetch summaries with error handling
-                try {
-                    const summariesResponse = await fetch(`/api/faculty/getsummary/${taskid}`);
-                    if (summariesResponse.ok) {
-                        const summariesData = await summariesResponse.json();
-                        setSummaries(Array.isArray(summariesData) ? summariesData : []);
-                    } else {
-                        console.warn('Failed to fetch summaries:', summariesResponse.status);
-                        setSummaries([]);
-                    }
-                } catch (summaryError) {
-                    console.error('Error fetching summaries:', summaryError);
+                const summariesResponse = await fetch(`/api/faculty/getsummary/${taskid}`);
+                if (summariesResponse.ok) {
+                    const summariesData = await summariesResponse.json();
+                    setSummaries(Array.isArray(summariesData) ? summariesData : []);
+                } else {
+                    console.warn('Failed to fetch summaries:', summariesResponse.status);
                     setSummaries([]);
                 }
-
-            } catch (error) {
-                console.error("Error in fetchTaskDetails:", error);
-                setError(error.message || "An unexpected error occurred");
-                toast({
-                    title: "Error",
-                    description: error.message || "Failed to load task details",
-                    variant: "destructive"
-                });
-            } finally {
-                setLoading(false);
+            } catch (summaryError) {
+                console.error('Error fetching summaries:', summaryError);
+                setSummaries([]);
             }
-        };
+        } catch (error) {
+            console.error("Error in fetchTaskData:", error);
+            setError(error.message || "An unexpected error occurred");
+            toast({
+                title: "Error",
+                description: error.message || "Failed to load task details",
+                variant: "destructive"
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchTaskDetails();
+
+    useEffect(() => {
+        fetchTaskData();
     }, [taskid]);
 
     useEffect(() => {
@@ -101,6 +126,74 @@ const FeedbackTaskPage = () => {
             setFormattedDate(new Date(taskDetails.createdAt).toLocaleString());
         }
     }, [taskDetails]);
+
+    const getAuthToken = async () => {
+        try {
+            const response = await fetch(`/api/auth/token`);
+            if (response.ok) {
+                const tokenData = await response.json();
+                console.log(tokenData.token);
+                return tokenData.token;
+            } else {
+                console.error("Error fetching token:");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+        return null;
+    };
+
+    const handleGenerateSummary = async () => {
+        console.log("Starting summary regeneration");
+        setLoading(true);
+        const token = await getAuthToken();
+
+        try {
+            // First try the API call
+            const baseurl = process.env.NEXT_PUBLIC_BACKEND;
+            const response = await fetch(`${baseurl}/api/summarize-feedbacks/${taskid}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                        "Access-Control-Allow-Origin": "*",
+                    },
+                    credentials: "include",
+                }
+            );
+
+            console.log("API response received");
+
+            // Try to parse the JSON only if the response is OK
+            if (response.ok) {
+                const data = await response.json();
+                console.log("API data:", data);
+            }
+
+            // Show success toast regardless
+            console.log("Showing success toast");
+            toast({
+                title: 'Success',
+                description: 'Regenerating summary and refreshing...',
+            });
+
+            await fetchTaskData();
+
+        } catch (error) {
+            // Log the error but continue with the page reload
+            console.error("Error in API call:", error);
+            // Still show a toast to inform the user
+
+            toast({
+                title: 'Note',
+                description: 'Refreshing page to get latest data...',
+            });
+        } finally {
+
+            console.log("About to reload the page");
+            setLoading(false);
+        }
+    };
 
     const handleActiveChange = async () => {
         if (isStatusChanging) return;
@@ -110,10 +203,8 @@ const FeedbackTaskPage = () => {
             const newActiveStatus = !isActive;
             const response = await fetch('/api/faculty/updatetaskstatus', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ taskid, status: newActiveStatus })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskid, status: newActiveStatus }),
             });
 
             if (!response.ok) {
@@ -134,16 +225,26 @@ const FeedbackTaskPage = () => {
                 description: error.message || "Failed to update task status",
                 variant: "destructive"
             });
-            // Revert the switch state
-            setIsActive(isActive);
+            setIsActive(isActive); // rollback
         } finally {
             setIsStatusChanging(false);
         }
     };
 
+    if (loading) {
+        return (
+            <div className="h-screen flex flex-col items-center justify-center">
+                <LoadingSpinner message="Hey hold on please..." />
+            </div>
+        );
+    }
+
     return (
         <>
             <Toaster />
+            <div className="flex justify-end mb-4">
+            </div>
+
             <div className="container mx-auto p-6 max-w-4xl">
                 {loading ? (
                     <div className="space-y-4">
@@ -188,6 +289,7 @@ const FeedbackTaskPage = () => {
                                         {isActive ? "Active" : "Inactive"}
                                     </Badge>
                                 </div>
+
                             </CardHeader>
 
                             <CardContent className="space-y-6 pt-4">
@@ -219,18 +321,19 @@ const FeedbackTaskPage = () => {
                                             disabled={isStatusChanging}
                                             aria-label="Toggle task status"
                                             className={`transition-all duration-300 ${isActive
-                                                    ? 'bg-green-500 data-[state=checked]:bg-green-500'
-                                                    : 'bg-red-500 data-[state=unchecked]:bg-red-500'
+                                                ? 'bg-green-500 data-[state=checked]:bg-green-500'
+                                                : 'bg-red-500 data-[state=unchecked]:bg-red-500'
                                                 }`}
                                         />
                                         {isStatusChanging && <Skeleton className="h-4 w-12 ml-2" />}
+
+
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-
-                        {taskDetails.final_summary?.sentiment_data &&
+                        {taskDetails?.final_summary?.sentiment_data &&
                             taskDetails.final_summary.sentiment_data.length > 0 && (
                                 <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl transition-all duration-300 hover:shadow-xl">
                                     <CardHeader className="pb-2 border-b border-gray-100">
@@ -250,14 +353,29 @@ const FeedbackTaskPage = () => {
 
 
 
-                        {taskDetails.final_summary ? (
+                        {taskDetails?.final_summary ? (
                             <>
                                 <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl p-4 transition-all duration-300 hover:shadow-xl">
                                     <CardHeader className="pb-2 border-b border-gray-100">
-                                        <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                                                Final Summary
+                                            </CardTitle>
+                                            <Button
+                                                onClick={handleGenerateSummary}
+                                                disabled={loading}
+                                                className={`group flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300
+    border-2 border-gray-900 bg-transparent
+    ${loading
+                                                        ? 'border-gray-400 text-gray-400 cursor-not-allowed'
+                                                        : 'border-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110'}
+  `}
+                                            >
+                                                <RefreshCcw className={`w-4 h-4 ${loading ? '' : 'text-purple-600 group-hover:brightness-110'} transition-transform duration-300 group-hover:rotate-90`} />
+                                                {loading ? "Regenerating..." : "Regenerate"}
+                                            </Button>
 
-                                            Final Summary
-                                        </CardTitle>
+                                        </div>
                                     </CardHeader>
 
                                     <CardContent className="pt-0 space-y-5">
@@ -276,7 +394,6 @@ const FeedbackTaskPage = () => {
                                         </div>
                                     </CardContent>
                                 </Card>
-
 
 
                                 <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl">
@@ -344,7 +461,21 @@ const FeedbackTaskPage = () => {
                                     <CardTitle className="text-xl">Feedback Summary</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-gray-500">No feedback summaries have been added yet.</p>
+                                    <div className='flex flex-wrap items-center justify-center gap-4'>
+                                        <p className="text-gray-500">No feedback summaries have been added yet.</p>
+                                        <Button
+                                            onClick={handleGenerateSummary}
+                                            disabled={loading}
+                                            className={`group flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300 border-2 border-gray-900 bg-transparent
+    ${loading
+                                                    ? 'border-gray-400 text-gray-400 cursor-not-allowed'
+                                                    : 'border-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110'}
+  `}
+                                        >
+                                            <RefreshCcw className={`w-4 h-4 ${loading ? '' : 'text-purple-600 group-hover:brightness-110'} transition-transform duration-300 group-hover:rotate-90`} />
+                                            {loading ? "Regenerating..." : "Regenerate"}
+                                        </Button>
+                                    </div>
                                 </CardContent>
                             </Card>
                         )}
@@ -399,5 +530,6 @@ const FeedbackTaskPage = () => {
 
     );
 };
+
 
 export default FeedbackTaskPage;
