@@ -10,16 +10,19 @@ import {
   CheckSquare,
   ChevronRight,
   Clock,
+  Download,
   User,
 } from "lucide-react";
 import { useState } from "react";
 
 import EditQuizView from "@/components/faculty/viewquizzescomponents/EditQuizView";
+import * as XLSX from "xlsx";
 
 const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
   const [activeTab, setActiveTab] = useState("questions");
   const [quizStatus, setQuizStatus] = useState(quiz.active);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [quizData, setQuizData] = useState(quiz);
 
@@ -55,6 +58,77 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
   const handleQuizUpdate = (updatedQuiz) => {
     setQuizData(updatedQuiz);
     setQuizStatus(updatedQuiz.active);
+  };
+
+  // Function to download responses as Excel
+  const downloadResponses = () => {
+    try {
+      setIsDownloading(true);
+
+      // If there are no responses, show a message and return
+      if (quiz.responses.length === 0) {
+        alert("No responses available to download");
+        setIsDownloading(false);
+        return;
+      }
+
+      // Prepare data for Excel
+      const formattedResponses = quiz.responses.map((response, index) => ({
+        "No.": index + 1,
+        "Response ID": response.responseid,
+        Email: response.email,
+        "Score (%)": response.score,
+        "Submitted At": new Date(response.submitted_at).toLocaleString(),
+      }));
+
+      // Create worksheet
+      const worksheet = XLSX.utils.json_to_sheet(formattedResponses);
+
+      // Column width settings
+      const columnWidths = [
+        { wch: 5 }, // No.
+        { wch: 20 }, // Response ID
+        { wch: 25 }, // Email
+        { wch: 10 }, // Score
+        { wch: 22 }, // Submitted At
+      ];
+
+      worksheet["!cols"] = columnWidths;
+
+      // Create workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Responses");
+
+      // Add quiz info to a new sheet
+      const quizInfoData = [
+        { Key: "Quiz Title", Value: quiz.title },
+        { Key: "Quiz Code", Value: quiz.quiz_code },
+        { Key: "Course", Value: quiz.course_name },
+        { Key: "Duration", Value: `${quiz.time} minutes` },
+        { Key: "Questions", Value: quiz.num_questions },
+        { Key: "Created On", Value: new Date(quiz.createdAt).toLocaleString() },
+        { Key: "Status", Value: quiz.active ? "Active" : "Inactive" },
+        { Key: "Total Responses", Value: quiz.responses.length },
+      ];
+
+      const quizInfoSheet = XLSX.utils.json_to_sheet(quizInfoData);
+      XLSX.utils.book_append_sheet(workbook, quizInfoSheet, "Quiz Info");
+
+      // Generate filename
+      const dateStr = new Date()
+        .toISOString()
+        .replace(/[:.]/g, "-")
+        .substring(0, 19);
+      const fileName = `${quiz.quiz_code}_responses_${dateStr}.xlsx`;
+
+      // Create and download file
+      XLSX.writeFile(workbook, fileName);
+    } catch (error) {
+      console.error("Error downloading responses:", error);
+      alert("An error occurred while downloading responses");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // If in edit mode, show the EditQuizView component
@@ -429,9 +503,23 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
           <CardContent className="p-4 sm:p-6">
             {quiz.responses.length > 0 ? (
               <div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-6">
-                  Student Responses ({quiz.responses.length})
-                </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-0">
+                    Student Responses ({quiz.responses.length})
+                  </h3>
+
+                  {/* Download Button */}
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 text-xs sm:text-sm bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800 hover:border-green-300"
+                    onClick={downloadResponses}
+                    disabled={isDownloading || quiz.responses.length === 0}
+                  >
+                    <Download size={isMobile ? 14 : 16} />
+                    {isDownloading ? "Generating..." : "Download Excel"}
+                  </Button>
+                </div>
+
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs sm:text-sm">
                     <thead className="bg-gray-50 text-gray-700">
@@ -496,6 +584,16 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
                   This quiz hasn't received any responses yet. Responses will
                   appear here once students complete the quiz.
                 </p>
+
+                {/* Download Button (disabled state) */}
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 text-xs sm:text-sm bg-gray-50 text-gray-400 border-gray-200 mt-4 sm:mt-6 cursor-not-allowed"
+                  disabled={true}
+                >
+                  <Download size={isMobile ? 14 : 16} />
+                  Download Excel
+                </Button>
               </div>
             )}
           </CardContent>
