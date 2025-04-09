@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {  Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CircularGroup from "@/components/ui/circularGroup";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -11,9 +12,9 @@ import {
   ChevronRight,
   Clock,
   Download,
+  RefreshCw,
   User,
 } from "lucide-react";
-import CircularGroup from '@/components/ui/circularGroup';
 import { useState } from "react";
 
 import EditQuizView from "@/components/faculty/viewquizzescomponents/EditQuizView";
@@ -41,7 +42,7 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
       );
 
       const data = await response.json();
-      
+
       if (response.ok) {
         setQuizStatus(data.active);
         alert(data.message);
@@ -149,8 +150,6 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
     );
   }
 
-
-
   return (
     <div className="p-2 sm:p-4 md:p-6 max-w-7xl mx-auto">
       {/* Back Button & Breadcrumb */}
@@ -187,7 +186,7 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
           </nav>
         )}
       </div>
-       
+
       {/* Quiz Header */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0">
@@ -331,7 +330,7 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
               Responses
             </TabsTrigger>
             <TabsTrigger value="analysis" className="text-xs sm:text-sm">
-            Quiz Analysis
+              Quiz Analysis
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -609,102 +608,116 @@ const QuizDetailView = ({ quiz, onBack, isMobile, isTablet, userobj }) => {
 
       {/* Analysis Tab Content */}
       {activeTab === "analysis" && (
-  <Card className="border-gray-200">
-    <CardContent className="p-4 sm:p-6">
-      {(quiz?.final_summary?.sentiment_data?.length > 0 ||
-        quiz?.final_summary?.message) ? (
-        <>
-          {/* Sentiment Overview Card */}
-          {quiz.final_summary.sentiment_data?.length > 0 && (
-            <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl transition-all duration-300 hover:shadow-xl">
-              <CardHeader className="pb-2 border-b border-gray-100">
-                <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-                  Sentiment Overview
-                </CardTitle>
-                <p className="text-sm text-gray-500">
-                  Visual breakdown of student sentiments
-                </p>
-              </CardHeader>
+        <Card className="border-gray-200">
+          <CardContent className="p-4 sm:p-6">
+            {quiz?.final_summary?.sentiment_data?.length > 0 ||
+            quiz?.final_summary?.message ? (
+              <>
+                {/* Sentiment Overview Card */}
+                {quiz.final_summary.sentiment_data?.length > 0 && (
+                  <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl transition-all duration-300 hover:shadow-xl">
+                    <CardHeader className="pb-2 border-b border-gray-100">
+                      <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                        Sentiment Overview
+                      </CardTitle>
+                      <p className="text-sm text-gray-500">
+                        Visual breakdown of student sentiments
+                      </p>
+                    </CardHeader>
 
-              <CardContent>
-                <div>
-                  <CircularGroup sentimentData={quiz.final_summary.sentiment_data} />
+                    <CardContent>
+                      <div>
+                        <CircularGroup
+                          sentimentData={quiz.final_summary.sentiment_data}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Final Summary Card */}
+                <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl p-4 transition-all duration-300 hover:shadow-xl">
+                  <CardHeader className="pb-2 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                        Final Summary
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0 space-y-5">
+                    <div className="bg-gray-50 border border-gray-100 rounded-lg p-5">
+                      <p className="text-[1.1rem] font-medium text-gray-800 leading-relaxed mt-1">
+                        {quiz.final_summary?.message ??
+                          "No summary available yet."}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl">
+                  <CardHeader className="pb-3 border-b border-gray-100">
+                    <CardTitle className="text-2xl font-bold text-gray-900">
+                      Actionable Insights
+                    </CardTitle>
+                  </CardHeader>
+
+                  <CardContent className="pt-4">
+                    {(quiz.final_summary?.insights ?? []).length > 0 ? (
+                      <ul className="space-y-4 pl-2">
+                        {quiz.final_summary?.insights.map((insight, index) => (
+                          <li
+                            key={index}
+                            className="relative flex items-start gap-3 bg-gradient-to-r from-blue-50 via-white to-white border border-blue-100 rounded-xl p-4 shadow-sm"
+                          >
+                            <div className="flex-shrink-0 mt-1.5">
+                              <span className="text-blue-600 text-lg mt-1">
+                                ➤
+                              </span>
+                            </div>
+                            <p className="text-gray-800 text-[1.1rem] leading-relaxed font-medium">
+                              {insight}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 italic text-base">
+                        No actionable insights yet.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <div className="bg-blue-50 border border-blue-100 text-blue-900 px-6 py-5 rounded-xl shadow-sm mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex items-start space-x-3 mb-4 sm:mb-0">
+                    <div className="flex-shrink-0 mt-1">
+                      <AlertTriangle className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-1">
+                        Quiz Analysis Not Available
+                      </h3>
+                      <p className="text-sm leading-relaxed">
+                        Currently, there's no feedback data to generate
+                        meaningful insights.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={onBack}
+                    className="flex items-center justify-center text-blue-600 hover:text-blue-800 text-sm font-medium mt-2 sm:mt-0"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    Refresh
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Final Summary Card */}
-          <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl p-4 transition-all duration-300 hover:shadow-xl">
-            <CardHeader className="pb-2 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-                  Final Summary
-                </CardTitle>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-5">
-              <div className="bg-gray-50 border border-gray-100 rounded-lg p-5">
-                <p className="text-[1.1rem] font-medium text-gray-800 leading-relaxed mt-1">
-                  {quiz.final_summary?.message ?? 'No summary available yet.'}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="mb-6 bg-white shadow-lg border border-gray-200 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl">
-                                    <CardHeader className="pb-3 border-b border-gray-100">
-                                        <CardTitle className="text-2xl font-bold text-gray-900">
-                                            Actionable Insights
-                                        </CardTitle>
-                                    </CardHeader>
-
-                                    <CardContent className="pt-4">
-                                        {(quiz.final_summary?.insights ?? []).length > 0 ? (
-                                            <ul className="space-y-4 pl-2">
-                                                {quiz.final_summary?.insights.map((insight, index) => (
-                                                    <li
-                                                        key={index}
-                                                        className="relative flex items-start gap-3 bg-gradient-to-r from-blue-50 via-white to-white border border-blue-100 rounded-xl p-4 shadow-sm"
-                                                    >
-                                                        <div className="flex-shrink-0 mt-1.5">
-                                                            <span className="text-blue-600 text-lg mt-1">➤</span>
-                                                        </div>
-                                                        <p className="text-gray-800 text-[1.1rem] leading-relaxed font-medium">
-                                                            {insight}
-                                                        </p>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p className="text-gray-500 italic text-base">No actionable insights yet.</p>
-                                        )}
-                                    </CardContent>
-
-                                </Card>
-        </>
-      ) : (
-        <div className="bg-blue-50 border border-blue-100 text-blue-900 px-6 py-5 rounded-xl shadow-sm mb-6">
-        <div className="flex items-start space-x-3">
-          <div className="flex-shrink-0 mt-1">
-            <AlertTriangle className="w-5 h-5 text-blue-500" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-1">Quiz Analysis Not Available</h3>
-            <p className="text-sm leading-relaxed">
-              Currently, there’s no feedback data to generate meaningful insights.
-            </p>
-          </div>
-        </div>
-      </div>
-      
+            )}
+          </CardContent>
+        </Card>
       )}
-    </CardContent>
-  </Card>
-)}
-
-
-
     </div>
   );
 };

@@ -79,6 +79,12 @@ const StudentDashboard = () => {
   }, []);
 
   async function handleLogout() {
+    //clear localStorage
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("facultyActiveTab");
+      localStorage.removeItem("activeAdminTab");
+      localStorage.removeItem("studentActiveTab");
+    }
     setLogoutActive(false);
     setIsLoggingOut(true);
     const response = await fetch("/api/auth/logout", {

@@ -411,6 +411,12 @@ export default function Page() {
   };
 
   const handleLogout = async () => {
+    //clear localStorage
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("facultyActiveTab");
+      localStorage.removeItem("activeAdminTab");
+      localStorage.removeItem("studentActiveTab");
+    }
     setLogoutActive(false);
     setIsLoggingOut(true);
     const response = await fetch("/api/auth/logout", {

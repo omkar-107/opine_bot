@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-
 export interface ISentimentData {
   id: string;
   sentiment: string; // e.g., "Positive", "Neutral", "Negative"
@@ -11,6 +10,7 @@ export interface IFinalSummary {
   insights: string[];
   sentiment_data: ISentimentData[];
   generated_at: string;
+  feedback_count: number; 
 }
 
 // Interface for individual questions
@@ -91,10 +91,11 @@ const QuizSchema: Schema = new Schema(
           sentiment_data: [
             {
               id: { type: String },
-              sentiment: { type: String }
+              sentiment: { type: String },
             },
           ],
           generated_at: { type: Date },
+          feedback_count: { type: Number }, // Count of feedbacks summary is based at
         },
         { _id: false } // prevent nested _id inside final_summary
       ),

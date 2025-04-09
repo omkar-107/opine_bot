@@ -56,11 +56,11 @@ const ViewQuizzesContent = ({ userobj }) => {
   // Determine if we're on mobile/tablet
   const isMobile = windowWidth < 640;
   const isTablet = windowWidth >= 640 && windowWidth < 1024;
-  
+
   const fetchQuizzes = async () => {
     if (selectedQuiz === null) setLoading(true);
     if (refreshing) setRefreshing(true);
-    
+
     let faculty_id = "";
     try {
       const response = await fetch(
@@ -195,35 +195,37 @@ const ViewQuizzesContent = ({ userobj }) => {
 
   const getAuthToken = async () => {
     try {
-        const response = await fetch(`/api/auth/token`);
-        if (response.ok) {
-            const tokenData = await response.json();
-            console.log(tokenData.token);
-            return tokenData.token;
-        } else {
-            console.error("Error fetching token:");
-        }
+      const response = await fetch(`/api/auth/token`);
+      if (response.ok) {
+        const tokenData = await response.json();
+        console.log(tokenData.token);
+        return tokenData.token;
+      } else {
+        console.error("Error fetching token:");
+      }
     } catch (error) {
-        console.error("Error:", error);
+      console.error("Error:", error);
     }
     return null;
-};
+  };
+
   const handleQuizSelect = async (quiz) => {
+    setSelectedQuiz(quiz); // Move forward to detail view regardless
     console.log("Starting summary regeneration");
     setSummarizing(true);
     const token = await getAuthToken();
     try {
       const baseurl = process.env.NEXT_PUBLIC_BACKEND;
-      const response = await fetch(`${baseurl}/quiz-summarize-feedbacks/${quiz._id}`,
-          {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json",
-                   Authorization: `Bearer ${token}`,
-                  "Access-Control-Allow-Origin": "*",
-              },
-              credentials: "include",
-          }
+      const response = await fetch(
+        `${baseurl}/api/quiz-summarize-feedbacks/${quiz._id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "Access-Control-Allow-Origin": "*",
+          },
+          credentials: "include",
+        }
       );
       if (!response.ok) {
         console.error("Failed to generate quiz summary");
@@ -235,11 +237,8 @@ const ViewQuizzesContent = ({ userobj }) => {
       console.error("Error summarizing quiz feedback:", error);
     } finally {
       setSummarizing(false);
-      setSelectedQuiz(quiz); // Move forward to detail view regardless
     }
   };
-  
-  
 
   if (selectedQuiz) {
     return (
@@ -290,16 +289,20 @@ const ViewQuizzesContent = ({ userobj }) => {
           <Button
             onClick={handleRefresh}
             variant="outline"
-            className={`flex items-center justify-center ${isMobile ? 'w-12 flex-shrink-0 p-2' : ''}`}
+            className={`flex items-center justify-center ${
+              isMobile ? "w-12 flex-shrink-0 p-2" : ""
+            }`}
             disabled={refreshing}
           >
-            <RefreshCw 
-              size={isMobile ? 18 : 18} 
-              className={`${refreshing ? 'animate-spin' : ''} ${!isMobile && 'mr-2'}`} 
+            <RefreshCw
+              size={isMobile ? 18 : 18}
+              className={`${refreshing ? "animate-spin" : ""} ${
+                !isMobile && "mr-2"
+              }`}
             />
             {!isMobile && "Refresh"}
           </Button>
-          
+
           <Button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
             variant="outline"
