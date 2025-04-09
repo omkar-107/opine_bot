@@ -35,6 +35,8 @@ const ViewQuizzesContent = ({ userobj }) => {
   const [sortBy, setSortBy] = useState("newest");
   const [uniqueCourses, setUniqueCourses] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
+
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1200
   );
@@ -190,6 +192,54 @@ const ViewQuizzesContent = ({ userobj }) => {
   if (loading) {
     return <LoadingSpinner message="Hey, hold on please ..." />;
   }
+
+  const getAuthToken = async () => {
+    try {
+        const response = await fetch(`/api/auth/token`);
+        if (response.ok) {
+            const tokenData = await response.json();
+            console.log(tokenData.token);
+            return tokenData.token;
+        } else {
+            console.error("Error fetching token:");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+    return null;
+};
+  const handleQuizSelect = async (quiz) => {
+    console.log("Starting summary regeneration");
+    setSummarizing(true);
+    const token = await getAuthToken();
+    try {
+      const baseurl = process.env.NEXT_PUBLIC_BACKEND;
+      const response = await fetch(`${baseurl}/quiz-summarize-feedbacks/${quiz._id}`,
+          {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                   Authorization: `Bearer ${token}`,
+                  "Access-Control-Allow-Origin": "*",
+              },
+              credentials: "include",
+          }
+      );
+      if (!response.ok) {
+        console.error("Failed to generate quiz summary");
+      } else {
+        const data = await response.json();
+        console.log("Summary generated:", data); // optional
+      }
+    } catch (error) {
+      console.error("Error summarizing quiz feedback:", error);
+    } finally {
+      setSummarizing(false);
+      setSelectedQuiz(quiz); // Move forward to detail view regardless
+    }
+  };
+  
+  
 
   if (selectedQuiz) {
     return (
@@ -383,7 +433,7 @@ const ViewQuizzesContent = ({ userobj }) => {
             >
               <Card
                 className="hover:shadow-md transition-all duration-300 cursor-pointer border-gray-200 overflow-hidden"
-                onClick={() => setSelectedQuiz(quiz)}
+                onClick={() => handleQuizSelect(quiz)}
               >
                 <CardContent className="p-0">
                   <div className="flex flex-col sm:flex-row">

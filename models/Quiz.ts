@@ -1,5 +1,18 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+
+export interface ISentimentData {
+  id: string;
+  sentiment: string; // e.g., "Positive", "Neutral", "Negative"
+}
+
+export interface IFinalSummary {
+  message: string;
+  insights: string[];
+  sentiment_data: ISentimentData[];
+  generated_at: string;
+}
+
 // Interface for individual questions
 interface IQuestion {
   question_text: string;
@@ -33,6 +46,7 @@ export interface IQuiz extends Document {
   questions: IQuestion[];
   createdAt: Date;
   updatedAt: Date;
+  final_summary?: IFinalSummary;
 }
 
 // Quiz Schema
@@ -69,6 +83,23 @@ const QuizSchema: Schema = new Schema(
         correct_answer: { type: String, required: true },
       },
     ],
+    final_summary: {
+      type: new Schema(
+        {
+          message: { type: String, required: true },
+          insights: [{ type: String }],
+          sentiment_data: [
+            {
+              id: { type: String },
+              sentiment: { type: String }
+            },
+          ],
+          generated_at: { type: Date },
+        },
+        { _id: false } // prevent nested _id inside final_summary
+      ),
+      required: false,
+    },
   },
   { timestamps: true }
 );
