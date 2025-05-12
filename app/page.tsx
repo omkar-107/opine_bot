@@ -141,7 +141,7 @@ export default function LandingPage() {
             href="#"
             className="mx-2 sm:mx-5 pl-2 sm:pl-5 text-xl sm:text-3xl cursor-pointer py-1.5 text-black font-semibold"
           >
-            OpineBot
+            EduConvo
           </a>
 
           {/* Desktop Auth Buttons */}
@@ -434,7 +434,7 @@ export default function LandingPage() {
           </h2>
           <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90">
             Join now and start improving your course feedback system with
-            OpineBot.
+            EduConvo.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-lg mx-auto">
             <a
@@ -461,7 +461,7 @@ export default function LandingPage() {
                 href="#"
                 className="mx-2 sm:mx-5 pl-2 sm:pl-5 text-xl sm:text-3xl cursor-pointer py-1.5 text-white font-semibold"
               >
-                OpineBot
+                EduConvo
               </a>
               <p className="text-xs sm:text-sm text-gray-400 mt-1">
                 Smart Feedback for Modern Education
@@ -538,7 +538,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-700 text-center text-xs sm:text-sm text-gray-400">
-            &copy; 2024 OpineBot. All rights reserved.
+            &copy; 2024 EduConvo. All rights reserved.
           </div>
         </div>
       </footer>

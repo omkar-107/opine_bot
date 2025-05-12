@@ -163,7 +163,7 @@ const SignUpPage = () => {
             <div className="flex items-center">
               <input type="checkbox" id="terms" required className="mr-2" />
               <label htmlFor="terms" className="text-sm text-gray-600">
-                By creating an account you agree to OpineBot's{' '}
+                By creating an account you agree to EduConvo's{' '}
                 <a href="#" className="text-[#7b61ff] hover:underline">Terms of Service</a>{' '}
                 and{' '}
                 <a href="#" className="text-[#7b61ff] hover:underline">Privacy Policy</a>
